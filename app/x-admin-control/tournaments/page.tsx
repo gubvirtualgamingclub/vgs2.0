@@ -901,7 +901,7 @@ export default function TournamentManagementPage() {
         actions={[
           { title: 'Edit Tournament', description: 'modify tournament details' },
           { title: 'Add Game', description: 'create new tournament game' },
-          { title: 'Update Scores', description: 'track game results' }\n        ]}
+          { title: 'Update Scores', description: 'track game results' }
         ]}
       />
     </div>

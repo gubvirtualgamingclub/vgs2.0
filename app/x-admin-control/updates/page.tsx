@@ -584,7 +584,7 @@ export default function AdminUpdatesPage() {
           {
             title: "Delete Update",
             description: "Click the trash icon to permanently remove an update"
-          }\n        ]}
+          }
         ]}
       />
     </div>
