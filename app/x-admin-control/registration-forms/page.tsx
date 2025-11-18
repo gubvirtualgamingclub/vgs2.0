@@ -74,6 +74,9 @@ export default function RegistrationFormsAdmin() {
         is_active: form.is_active,
         max_registrations: form.max_registrations?.toString() || '',
         registration_deadline: form.registration_deadline ? new Date(form.registration_deadline).toISOString().slice(0, 16) : '',
+        club_logo_url: form.club_logo_url || '',
+        tournament_logo_url: form.tournament_logo_url || '',
+        game_logo_url: form.game_logo_url || '',
       });
       setFormFields(form.form_fields || []);
     } else {
