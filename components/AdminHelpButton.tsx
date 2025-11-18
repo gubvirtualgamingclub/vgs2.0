@@ -1,0 +1,341 @@
+'use client';
+
+import { useState } from 'react';
+import { QuestionMarkCircleIcon, XMarkIcon, ClipboardDocumentIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
+
+interface AdminHelpButtonProps {
+  title: string;
+  instructions: string[];
+  tips?: string[];
+  actions?: { title: string; description: string }[];
+}
+
+export default function AdminHelpButton({ title, instructions, tips, actions }: AdminHelpButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState<'instructions' | 'actions' | 'tips'>('instructions');
+
+  const copyToClipboard = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const extractCodeBlock = (text: string) => {
+    // Extract code blocks wrapped in triple backticks or single backticks
+    const tripleBacktickMatch = text.match(/```[\s\S]*?```/);
+    if (tripleBacktickMatch) {
+      return tripleBacktickMatch[0].replace(/```\w*\n?/g, '').replace(/```/g, '').trim();
+    }
+    
+    const singleBacktickMatch = text.match(/`[^`]+`/);
+    if (singleBacktickMatch) {
+      return singleBacktickMatch[0].replace(/`/g, '').trim();
+    }
+    
+    // Extract multi-line code patterns
+    const lines = text.split('\n');
+    const codeLines = lines.filter(line => {
+      const trimmed = line.trim();
+      return trimmed.startsWith('function') ||
+             trimmed.startsWith('var ') ||
+             trimmed.startsWith('const ') ||
+             trimmed.startsWith('let ') ||
+             trimmed.startsWith('npm ') ||
+             trimmed.startsWith('EMAIL_') ||
+             trimmed.startsWith('NEXT_') ||
+             trimmed.includes('=>') ||
+             trimmed.includes('import ') ||
+             trimmed.includes('export ');
+    });
+    
+    if (codeLines.length > 2) {
+      return codeLines.join('\n');
+    }
+    
+    return null;
+  };
+
+  const formatDescription = (description: string) => {
+    // Split by double newlines to create paragraphs
+    const paragraphs = description.split('\n\n');
+    return paragraphs.map((para, idx) => {
+      // Check if paragraph is a code block
+      if (para.trim().startsWith('```') || para.includes('EMAIL_') || para.includes('npm ')) {
+        return (
+          <pre key={idx} className="bg-gray-900/80 p-3 rounded-lg overflow-x-auto text-xs font-mono text-green-400 my-2 border border-gray-700">
+            <code>{para.replace(/```\w*\n?/g, '').replace(/```/g, '').trim()}</code>
+          </pre>
+        );
+      }
+      
+      // Check if paragraph is a list
+      if (para.includes('\n-') || para.includes('\n•') || /^\d+\./.test(para.trim())) {
+        const items = para.split('\n').filter(line => line.trim());
+        return (
+          <ul key={idx} className="space-y-1 my-2">
+            {items.map((item, itemIdx) => {
+              const cleanItem = item.replace(/^[-•]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+              if (!cleanItem) return null;
+              return (
+                <li key={itemIdx} className="flex items-start gap-2 text-sm">
+                  <span className="text-purple-400 mt-1">•</span>
+                  <span className="text-gray-300 leading-relaxed">{cleanItem}</span>
+                </li>
+              );
+            })}
+          </ul>
+        );
+      }
+      
+      // Regular paragraph with bold text support
+      const parts = para.split(/(\*\*.*?\*\*)/g);
+      return (
+        <p key={idx} className="text-gray-300 text-sm leading-relaxed my-2">
+          {parts.map((part, partIdx) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return <strong key={partIdx} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+            }
+            return <span key={partIdx}>{part}</span>;
+          })}
+        </p>
+      );
+    });
+  };
+
+  const hasCode = (text: string) => {
+    return extractCodeBlock(text) !== null || 
+           text.includes('function doPost') || 
+           text.includes('JSON.parse') ||
+           text.includes('SpreadsheetApp');
+  };
+
+  return (
+    <>
+      {/* Help Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 group"
+        title="Page Instructions"
+      >
+        <QuestionMarkCircleIcon className="w-6 h-6" />
+        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
+        </span>
+      </button>
+
+      {/* Modal Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-purple-500/30 animate-slideDown">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <QuestionMarkCircleIcon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">{title}</h2>
+                  <p className="text-purple-100 text-sm">Page Instructions & Guide</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-180px)] custom-scrollbar">
+              {/* Tab Navigation */}
+              <div className="sticky top-0 bg-gray-800/95 backdrop-blur-sm border-b border-gray-700 px-6 py-3 flex gap-2 z-10">
+                <button
+                  onClick={() => setActiveSection('instructions')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                    activeSection === 'instructions'
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                      : 'bg-gray-700/50 text-gray-400 hover:bg-gray-700 hover:text-white'
+                  }`}
+                >
+                  📋 Instructions
+                </button>
+                {actions && actions.length > 0 && (
+                  <button
+                    onClick={() => setActiveSection('actions')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      activeSection === 'actions'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'bg-gray-700/50 text-gray-400 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    ⚡ Step-by-Step ({actions.length})
+                  </button>
+                )}
+                {tips && tips.length > 0 && (
+                  <button
+                    onClick={() => setActiveSection('tips')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      activeSection === 'tips'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
+                        : 'bg-gray-700/50 text-gray-400 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    💡 Tips ({tips.length})
+                  </button>
+                )}
+              </div>
+
+              <div className="p-6">
+                {/* Instructions Tab */}
+                {activeSection === 'instructions' && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl p-4">
+                      <h3 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <span className="text-2xl">🎯</span>
+                        Quick Overview
+                      </h3>
+                      <ol className="space-y-3">
+                        {instructions.map((instruction, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                              {index + 1}
+                            </span>
+                            <span className="text-gray-200 leading-relaxed pt-0.5">{instruction}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                    {!actions && !tips && (
+                      <div className="text-center text-gray-400 py-8">
+                        <p className="text-sm">This is all you need to know to get started!</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions/Steps Tab */}
+                {activeSection === 'actions' && actions && actions.length > 0 && (
+                  <div className="space-y-4 animate-fadeIn">
+                    {actions.map((action, index) => {
+                      const codeBlock = extractCodeBlock(action.description);
+                      
+                      return (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl border border-gray-700 overflow-hidden hover:border-purple-500/50 transition-all"
+                        >
+                          <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 px-5 py-3 flex items-center justify-between border-b border-gray-700">
+                            <div className="flex items-center gap-3">
+                              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
+                                {index + 1}
+                              </span>
+                              <h4 className="font-bold text-white text-lg">{action.title}</h4>
+                            </div>
+                            {codeBlock && (
+                              <button
+                                onClick={() => copyToClipboard(codeBlock, index)}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 rounded-lg text-xs text-gray-300 transition-all hover:scale-105"
+                                title="Copy code"
+                              >
+                                {copiedIndex === index ? (
+                                  <>
+                                    <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-400" />
+                                    <span className="text-green-400">Copied!</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ClipboardDocumentIcon className="w-4 h-4" />
+                                    Copy Code
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                          <div className="px-5 py-4">
+                            {formatDescription(action.description)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Tips Tab */}
+                {activeSection === 'tips' && tips && tips.length > 0 && (
+                  <div className="space-y-3 animate-fadeIn">
+                    {tips.map((tip, index) => (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/30 rounded-xl p-4 hover:border-yellow-500/50 transition-all"
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 text-2xl">💡</span>
+                          <p className="text-gray-200 text-sm leading-relaxed pt-1">{tip}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-800/50 px-6 py-4 border-t border-gray-700 flex justify-between items-center">
+              <p className="text-gray-400 text-sm">Need more help? Contact your administrator</p>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(31, 41, 55, 0.5);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #9333ea, #ec4899);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #7c3aed, #db2777);
+        }
+      `}</style>
+    </>
+  );
+}
