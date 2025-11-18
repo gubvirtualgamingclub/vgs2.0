@@ -90,6 +90,9 @@ export default function RegistrationFormsAdmin() {
         is_active: false,
         max_registrations: '',
         registration_deadline: '',
+        club_logo_url: '',
+        tournament_logo_url: '',
+        game_logo_url: '',
       });
       setFormFields([]);
     }
