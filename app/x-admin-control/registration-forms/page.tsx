@@ -375,15 +375,15 @@ export default function RegistrationFormsAdmin() {
         ]}
         actions={[
           {
-            label: "🆕 COMPLETE SETUP PROCESS",
+            title: "🆕 COMPLETE SETUP PROCESS",
             description: "1. Create Google Sheet → 2. Copy Apps Script code → 3. Deploy as Web App → 4. Get deployment URL → 5. Create form in admin panel → 6. Paste Web App URL → 7. Add form fields → 8. Test → 9. Activate"
           },
           {
-            label: "📊 STEP-BY-STEP: Google Sheet Setup",
+            title: "📊 STEP-BY-STEP: Google Sheet Setup",
             description: "Go to sheets.google.com → Create new spreadsheet → Name it (e.g., 'Valorant Registrations') → Add headers: Timestamp | Name | Email | Phone | [Your Fields] → Save sheet"
           },
           {
-            label: "💻 CRITICAL: Apps Script Code (COPY EXACT CODE)",
+            title: "💻 CRITICAL: Apps Script Code (COPY EXACT CODE)",
             description: `function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -411,23 +411,23 @@ export default function RegistrationFormsAdmin() {
 }`
           },
           {
-            label: "🚀 DEPLOY APPS SCRIPT AS WEB APP",
+            title: "🚀 DEPLOY APPS SCRIPT AS WEB APP",
             description: `After pasting code: Click 'Deploy' → 'New deployment' → Click ⚙️ gear icon → Select 'Web app' → Settings: Execute as: 'Me' | Who has access: 'Anyone' → Click 'Deploy' → Authorize (click your email → Advanced → Go to Form Handler → Allow) → Copy Web App URL → Click 'Done' → Paste URL in admin form's Google Sheet URL field`
           },
           {
-            label: "✅ TEST YOUR WEB APP (IMPORTANT)",
+            title: "✅ TEST YOUR WEB APP (IMPORTANT)",
             description: `Test URL format: https://script.google.com/macros/s/LONG_ID_HERE/exec → Open Postman or use browser console → Send POST request with test data → Check if data appears in Google Sheet → If working, proceed with form creation`
           },
           {
-            label: "➕ CREATE FORM IN ADMIN PANEL",
+            title: "➕ CREATE FORM IN ADMIN PANEL",
             description: `Admin Panel → Registration Forms → Create New Form → Fill: Game Name, Slug, Title, Description → Paste Web App URL in 'Google Sheet URL' → Set max registrations & deadline → Save form`
           },
           {
-            label: "📝 ADD CUSTOM FORM FIELDS",
+            title: "📝 ADD CUSTOM FORM FIELDS",
             description: `Click 'Add Form Field' → Choose type (text/email/tel/select/etc.) → Enter label → For select/radio/checkbox: add options (one per line) → Mark 'Required' if mandatory → Save → Repeat for all fields → Field order = form appearance order`
           },
           {
-            label: "🎮 COMPLETE EXAMPLE: Valorant Tournament",
+            title: "🎮 COMPLETE EXAMPLE: Valorant Tournament",
             description: `Sheet Headers: Timestamp | Full Name | Email | Phone | In-Game Name | Rank | Team Name
 
 Form Fields:
@@ -442,15 +442,15 @@ Game Slug: valorant-championship-2025
 URL: yoursite.com/registration/valorant-championship-2025`
           },
           {
-            label: "🔧 TROUBLESHOOTING GUIDE",
+            title: "🔧 TROUBLESHOOTING GUIDE",
             description: `Problem: Submissions not saving → Check Apps Script deployed as 'Anyone' access | Problem: 'Authorization required' → Re-authorize in Apps Script | Problem: Wrong data order → Match sheet headers with form field order | Problem: Form URL 404 → Verify game slug format | Problem: Script error → Check code copied exactly, no extra spaces`
           },
           {
-            label: "🔄 UPDATE EXISTING DEPLOYMENT",
+            title: "🔄 UPDATE EXISTING DEPLOYMENT",
             description: `If you need to update Apps Script: Open script → Make changes → Save → Click 'Deploy' → 'Manage deployments' → Click ✏️ edit icon → New version → Update → Paste new URL in admin panel`
           },
           {
-            label: "📋 FULL DEPLOYMENT CHECKLIST",
+            title: "📋 FULL DEPLOYMENT CHECKLIST",
             description: `□ Google Sheet created with proper headers
 □ Apps Script code pasted exactly
 □ Script saved with project name
@@ -471,7 +471,7 @@ URL: yoursite.com/registration/valorant-championship-2025`
 □ URL shared with users`
           },
           {
-            label: "💡 ADVANCED: Email Notification Code (Optional)",
+            title: "💡 ADVANCED: Email Notification Code (Optional)",
             description: `function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();

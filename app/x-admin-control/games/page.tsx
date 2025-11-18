@@ -739,9 +739,9 @@ export default function GamesAdminPage() {
           'Tag games accurately for filtering'
         ]}
         actions={[
-          { label: 'Add Game', description: 'create new game entry' },
-          { label: 'Edit Game', description: 'modify game details' },
-          { label: 'Delete Game', description: 'remove from library' }
+          { title: 'Add Game', description: 'create new game entry' },
+          { title: 'Edit Game', description: 'modify game details' },
+          { title: 'Delete Game', description: 'remove game' }
         ]}
       />
     </div>

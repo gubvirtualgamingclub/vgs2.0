@@ -899,9 +899,9 @@ export default function TournamentManagementPage() {
           'Keep game rules concise and easy to understand'
         ]}
         actions={[
-          { label: 'Edit Tournament', description: 'modify tournament details' },
-          { label: 'Add Game', description: 'create new tournament game' },
-          { label: 'Update Scores', description: 'track game results' }
+          { title: 'Edit Tournament', description: 'modify tournament details' },
+          { title: 'Add Game', description: 'create new tournament game' },
+          { title: 'Update Scores', description: 'track game results' }\n        ]}
         ]}
       />
     </div>

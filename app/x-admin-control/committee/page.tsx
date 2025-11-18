@@ -1059,9 +1059,9 @@ export default function AdminCommitteePage() {
           'Order members by hierarchy or importance'
         ]}
         actions={[
-          { label: 'Add Member', description: 'create new committee entry' },
-          { label: 'Edit Member', description: 'modify details' },
-          { label: 'Delete Member', description: 'remove from committee' }
+          { title: 'Add Member', description: 'create new committee entry' },
+          { title: 'Edit Member', description: 'modify details' },
+          { title: 'Delete Member', description: 'remove from committee' }
         ]}
       />
     </div>

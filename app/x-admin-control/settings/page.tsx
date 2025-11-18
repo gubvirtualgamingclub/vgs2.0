@@ -414,9 +414,9 @@ export default function SettingsPage() {
             'Update contact information'
           ]}
           actions={[
-            { label: 'Update Profile', description: 'change admin info' },
-            { label: 'Change Password', description: 'update credentials' },
-            { label: 'Backup Data', description: 'export settings' }
+            { title: 'Update Profile', description: 'change admin info' },
+            { title: 'Change Password', description: 'update credentials' },
+            { title: 'Backup Data', description: 'export settings' }
           ]}
         />
       </div>

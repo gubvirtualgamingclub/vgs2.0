@@ -1013,9 +1013,9 @@ export default function AdminSponsorsPage() {
           'Keep sponsor information up to date'
         ]}
         actions={[
-          { label: 'Add Sponsor', description: 'create new entry' },
-          { label: 'Edit Sponsor', description: 'modify details' },
-          { label: 'Delete Sponsor', description: 'remove sponsor' }
+          { title: 'Add Sponsor', description: 'create new sponsor' },
+          { title: 'Edit Sponsor', description: 'update sponsor details' },
+          { title: 'Delete Sponsor', description: 'remove sponsor' }
         ]}
       />
     </div>

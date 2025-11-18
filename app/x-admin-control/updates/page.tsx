@@ -570,21 +570,21 @@ export default function AdminUpdatesPage() {
         ]}
         actions={[
           {
-            label: "Create Update",
+            title: "Create Update",
             description: "Opens a form to create a new announcement or news update"
           },
           {
-            label: "Edit Update",
+            title: "Edit Update",
             description: "Click the pencil icon to modify existing updates"
           },
           {
-            label: "Toggle Publish",
+            title: "Toggle Publish",
             description: "Use the eye icon to quickly publish or unpublish updates"
           },
           {
-            label: "Delete Update",
+            title: "Delete Update",
             description: "Click the trash icon to permanently remove an update"
-          }
+          }\n        ]}
         ]}
       />
     </div>

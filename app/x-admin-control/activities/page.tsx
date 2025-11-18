@@ -481,9 +481,9 @@ export default function AdminActivitiesPage() {
           'Keep descriptions clear and informative'
         ]}
         actions={[
-          { label: 'Create Activity', description: 'add new event' },
-          { label: 'Edit Activity', description: 'modify event details' },
-          { label: 'Toggle Publish', description: 'show/hide on website' }
+          { title: 'Create Activity', description: 'add new event' },
+          { title: 'Edit Activity', description: 'modify event details' },
+          { title: 'Toggle Publish', description: 'show/hide on website' }
         ]}
       />
     </div>
