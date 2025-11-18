@@ -294,15 +294,15 @@ export default function AdminDashboard() {
         ]}
         actions={[
           {
-            label: "Create Update",
+            title: "Create Update",
             description: "Navigate to the Updates page to create announcements and news"
           },
           {
-            label: "Add Event",
+            title: "Add Event",
             description: "Go to Activities page to schedule gaming events"
           },
           {
-            label: "Manage Tournament",
+            title: "Manage Tournament",
             description: "Access tournament management to create or edit competitions"
           }
         ]}
