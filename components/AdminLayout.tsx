@@ -16,7 +16,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Get the secret admin path from environment variable
-  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'x-admin-control';
+  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH;
 
   const handleLogout = () => {
     logout();

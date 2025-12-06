@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
 import { 
   createGame, 
   updateGame, 
@@ -722,6 +723,27 @@ export default function GamesAdminPage() {
           </div>
         </div>
       )}
+
+      <AdminHelpButton
+        title="Games Library Management"
+        instructions={[
+          'Add games to the VGS library',
+          'Upload game cover images',
+          'Write game descriptions',
+          'Categorize games by type',
+          'Set game popularity/featured status'
+        ]}
+        tips={[
+          'Use official game artwork when possible',
+          'Write engaging descriptions',
+          'Tag games accurately for filtering'
+        ]}
+        actions={[
+          { title: 'Add Game', description: 'create new game entry' },
+          { title: 'Edit Game', description: 'modify game details' },
+          { title: 'Delete Game', description: 'remove game' }
+        ]}
+      />
     </div>
   );
 }

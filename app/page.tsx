@@ -374,7 +374,7 @@ export default function Home() {
                     Founded by passionate gamers, the <span className="font-semibold text-cyan-400 dark:text-cyan-400">Virtual Gaming Society (VGS)</span> brings together students from all disciplines who share a love for gaming.
                   </p>
                   <p>
-                    We are more than just a club – we're a vibrant community dedicated to fostering skill development, teamwork, and competitive spirit. Our society provides a platform for gamers to connect, compete, and grow together.
+                    We are more than just a club – we&rsquo;re a vibrant community dedicated to fostering skill development, teamwork, and competitive spirit. Our society provides a platform for gamers to connect, compete, and grow together.
                   </p>
                   <p>
                     From hosting exciting tournaments and workshops to organizing community events throughout the year, VGS is committed to promoting responsible gaming, sportsmanship, and building lasting friendships in the gaming world.
@@ -792,7 +792,7 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">No Featured Partners Yet</h3>
-              <p className="text-gray-600 dark:text-gray-400">We're building partnerships with amazing organizations!</p>
+              <p className="text-gray-600 dark:text-gray-400">We&rsquo;re building partnerships with amazing organizations!</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { getPublishedActivities } from '@/lib/supabase-queries';
@@ -255,10 +256,11 @@ export default function ActivitiesPage() {
                 {/* Image Section */}
                 <div className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 overflow-hidden group-hover:opacity-90 transition-opacity aspect-video">
                   {activity.banner_image_url ? (
-                    <img
+                    <Image
                       src={activity.banner_image_url}
                       alt={activity.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">

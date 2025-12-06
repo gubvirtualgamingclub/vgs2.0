@@ -12,16 +12,6 @@ Allow: /sponsors
 Allow: /updates
 Allow: /register
 
-# Block old admin routes
-Disallow: /admin
-Disallow: /admin/
-Disallow: /admin/*
-
-# Block secret admin routes (add your custom path here)
-Disallow: /x-admin-control
-Disallow: /x-admin-control/
-Disallow: /x-admin-control/*
-
 # Block API routes
 Disallow: /api/
 

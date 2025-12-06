@@ -344,7 +344,7 @@ export default function ContributorsPage() {
           <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
             This website exists because of the vision, dedication, and technical excellence of these two founding developers. 
             <span className="text-cyan-300 font-semibold"> Faysal Hossain Tomal</span> initiated the journey, and <span className="text-cyan-300 font-semibold">MD. SAZIB</span> transformed it into the comprehensive platform 
-            you see today. Together, they built the foundation that powers the GUCC Virtual Gaming Society's digital presence. 
+            you see today. Together, they built the foundation that powers the GUCC Virtual Gaming Society&rsquo;s digital presence. 
             While the platform may evolve with future enhancements, they remain the original architects and creators.
           </p>
         </div>

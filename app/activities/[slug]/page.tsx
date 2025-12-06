@@ -112,11 +112,12 @@ export default async function ActivityDetailPage({ params }: { params: { slug: s
       {activity.banner_image_url && (
         <section className="py-8 bg-white dark:bg-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="rounded-2xl overflow-hidden shadow-lg">
-              <img
+            <div className="rounded-2xl overflow-hidden shadow-lg relative aspect-video">
+              <Image
                 src={activity.banner_image_url}
                 alt={activity.title}
-                className="w-full h-auto object-cover aspect-video"
+                fill
+                className="object-cover"
               />
             </div>
           </div>

@@ -10,20 +10,23 @@ function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Get secret admin path from environment
+  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH;
+
   // Check if we're on the login page
-  const isLoginPage = pathname === '/admin/login';
+  const isLoginPage = pathname === `/${adminPath}/auth`;
 
   useEffect(() => {
     // Only redirect to login if not authenticated AND not already on login page
     if (!isAuthenticated && !isLoginPage) {
-      router.push('/admin/login');
+      router.push(`/${adminPath}/auth`);
     }
     
     // Redirect to admin dashboard if authenticated and on login page
     if (isAuthenticated && isLoginPage) {
-      router.push('/admin');
+      router.push(`/${adminPath}`);
     }
-  }, [isAuthenticated, isLoginPage, router]);
+  }, [isAuthenticated, isLoginPage, router, adminPath]);
 
   // If on login page, render it directly without layout
   if (isLoginPage) {

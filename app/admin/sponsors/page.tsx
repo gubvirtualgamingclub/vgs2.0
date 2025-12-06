@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
 import {
   getAllSponsors,
   createSponsor,
@@ -837,7 +838,7 @@ export default function AdminSponsorsPage() {
                       required
                     />
                     <p className="text-xs text-yellow-200 mt-1">
-                      Since you selected "Other", please specify a custom category name
+                      Since you selected &quot;Other&quot;, please specify a custom category name
                     </p>
                   </div>
                 )}
@@ -996,6 +997,27 @@ export default function AdminSponsorsPage() {
           </div>
         </div>
       )}
+
+      <AdminHelpButton
+        title="Sponsors Management"
+        instructions={[
+          'Add sponsor organizations',
+          'Upload sponsor logos',
+          'Set sponsor tier levels',
+          'Add sponsor website links',
+          'Remove outdated sponsors'
+        ]}
+        tips={[
+          'Use high-resolution logos on transparent backgrounds',
+          'Organize sponsors by tier importance',
+          'Keep sponsor information up to date'
+        ]}
+        actions={[
+          { title: 'Add Sponsor', description: 'create new sponsor' },
+          { title: 'Edit Sponsor', description: 'update sponsor details' },
+          { title: 'Delete Sponsor', description: 'remove sponsor' }
+        ]}
+      />
     </div>
   );
 }

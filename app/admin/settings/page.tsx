@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
 import { getSiteSetting, upsertSiteSetting } from '@/lib/supabase-queries';
 import type { SiteSetting } from '@/lib/types/database';
 
@@ -397,6 +398,27 @@ export default function SettingsPage() {
             )}
           </button>
         </div>
+
+        <AdminHelpButton
+          title="Admin Settings"
+          instructions={[
+            'Configure admin panel settings',
+            'Update admin profile',
+            'Change admin password',
+            'Manage system preferences',
+            'Backup and restore data'
+          ]}
+          tips={[
+            'Keep your password secure and unique',
+            'Regularly backup important data',
+            'Update contact information'
+          ]}
+          actions={[
+            { title: 'Update Profile', description: 'change admin info' },
+            { title: 'Change Password', description: 'update credentials' },
+            { title: 'Backup Data', description: 'export settings' }
+          ]}
+        />
       </div>
     </div>
   );

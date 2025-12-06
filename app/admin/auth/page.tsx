@@ -32,7 +32,7 @@ export default function SecureAdminLoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const secretPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'x-admin-control';
+      const secretPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH;
       router.push(`/${secretPath}`);
     }
   }, [isAuthenticated, router]);
@@ -94,7 +94,7 @@ export default function SecureAdminLoginPage() {
         setLockoutTime(null);
         
         // Redirect to admin dashboard immediately
-        const secretPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'x-admin-control';
+        const secretPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH;
         
         // Force redirect with replace to prevent back button issues
         window.location.href = `/${secretPath}`;

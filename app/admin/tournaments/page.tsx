@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
+import AnimatedToggle from '@/components/AnimatedToggle';
+import ImageInputWithPreview from '@/components/ImageInputWithPreview';
 import { 
   getActiveTournament, 
   updateTournament, 
@@ -24,6 +27,9 @@ export default function TournamentManagementPage() {
     name: '',
     slogan: '',
     logo: '',
+    banner: '',
+    banner_source: 'url' as 'url' | 'path',
+    description: '',
     date: '',
     time: '',
     venue: '',
@@ -36,10 +42,11 @@ export default function TournamentManagementPage() {
   const [organizers, setOrganizers] = useState<Organization[]>([]);
   const [coOrganizers, setCoOrganizers] = useState<Organization[]>([]);
   const [associatedWith, setAssociatedWith] = useState<Organization[]>([]);
+  const [sponsors, setSponsors] = useState<Organization[]>([]);
 
   // Organization form states
-  const [orgFormOpen, setOrgFormOpen] = useState<'organizers' | 'coOrganizers' | 'associatedWith' | null>(null);
-  const [orgFormData, setOrgFormData] = useState({ name: '', logo: '' });
+  const [orgFormOpen, setOrgFormOpen] = useState<'organizers' | 'coOrganizers' | 'associatedWith' | 'sponsors' | null>(null);
+  const [orgFormData, setOrgFormData] = useState({ name: '', logo: '', logo_source: 'url' as 'url' | 'path' });
 
   // Game form state
   const [gameFormOpen, setGameFormOpen] = useState(false);
@@ -75,6 +82,9 @@ export default function TournamentManagementPage() {
           name: tournamentData.name,
           slogan: tournamentData.slogan || '',
           logo: tournamentData.logo || '',
+          banner: tournamentData.banner || '',
+          banner_source: (tournamentData.banner_source as 'url' | 'path') || 'url',
+          description: tournamentData.description || '',
           date: tournamentData.date,
           time: tournamentData.time,
           venue: tournamentData.venue,
@@ -85,6 +95,7 @@ export default function TournamentManagementPage() {
         setOrganizers(tournamentData.organizers || []);
         setCoOrganizers(tournamentData.co_organizers || []);
         setAssociatedWith(tournamentData.associated_with || []);
+        setSponsors(tournamentData.sponsors || []);
 
         // Load games
         const gamesData = await getTournamentGames(tournamentData.id);
@@ -107,7 +118,8 @@ export default function TournamentManagementPage() {
         ...formData,
         organizers,
         co_organizers: coOrganizers,
-        associated_with: associatedWith
+        associated_with: associatedWith,
+        sponsors
       });
       alert('Tournament updated successfully!');
       loadTournament();
@@ -133,10 +145,21 @@ export default function TournamentManagementPage() {
     }
   };
 
+  const handleToggleGameRegistration = async (gameId: string, currentStatus?: string) => {
+    const newStatus = currentStatus === 'open' ? 'closed' : 'open';
+    try {
+      await updateTournamentGame(gameId, { registration_status: newStatus as any });
+      loadTournament();
+    } catch (error) {
+      console.error('Error toggling game registration:', error);
+      alert('Failed to change game registration status');
+    }
+  };
+
   // Organization management functions
-  const openOrgForm = (type: 'organizers' | 'coOrganizers' | 'associatedWith') => {
+  const openOrgForm = (type: 'organizers' | 'coOrganizers' | 'associatedWith' | 'sponsors') => {
     setOrgFormOpen(type);
-    setOrgFormData({ name: '', logo: '' });
+    setOrgFormData({ name: '', logo: '', logo_source: 'url' });
   };
 
   const handleSaveOrganization = () => {
@@ -149,15 +172,17 @@ export default function TournamentManagementPage() {
     if (orgFormOpen === 'organizers') setOrganizers([...organizers, newOrg]);
     else if (orgFormOpen === 'coOrganizers') setCoOrganizers([...coOrganizers, newOrg]);
     else if (orgFormOpen === 'associatedWith') setAssociatedWith([...associatedWith, newOrg]);
+    else if (orgFormOpen === 'sponsors') setSponsors([...sponsors, newOrg]);
     
     setOrgFormOpen(null);
-    setOrgFormData({ name: '', logo: '' });
+    setOrgFormData({ name: '', logo: '', logo_source: 'url' });
   };
 
-  const removeOrganization = (type: 'organizers' | 'coOrganizers' | 'associatedWith', index: number) => {
+  const removeOrganization = (type: 'organizers' | 'coOrganizers' | 'associatedWith' | 'sponsors', index: number) => {
     if (type === 'organizers') setOrganizers(organizers.filter((_, i) => i !== index));
     else if (type === 'coOrganizers') setCoOrganizers(coOrganizers.filter((_, i) => i !== index));
-    else setAssociatedWith(associatedWith.filter((_, i) => i !== index));
+    else if (type === 'associatedWith') setAssociatedWith(associatedWith.filter((_, i) => i !== index));
+    else if (type === 'sponsors') setSponsors(sponsors.filter((_, i) => i !== index));
   };
 
   // Game management functions
@@ -266,19 +291,14 @@ export default function TournamentManagementPage() {
             </div>
             {/* Status Badge */}
             <div className="flex items-center gap-4">
-              <div className={`px-4 py-2 rounded-lg ${
-                tournament.status === 'open' 
-                  ? 'bg-green-600' 
-                  : 'bg-gray-700'
-              }`}>
-                Status: <strong>{tournament.status.toUpperCase()}</strong>
-              </div>
-              <button
-                onClick={handleToggleStatus}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-              >
-                Toggle Status
-              </button>
+              <AnimatedToggle
+                isOn={tournament.status === 'open'}
+                onToggle={(isOpen) => handleToggleStatus()}
+                label="Tournament Status"
+                onLabel="Open"
+                offLabel="Closed"
+                size="md"
+              />
             </div>
           </div>
         </div>
@@ -399,6 +419,49 @@ export default function TournamentManagementPage() {
                     onChange={(e) => setFormData({ ...formData, registration_deadline: e.target.value })}
                     className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"
                   />
+                </div>
+              </div>
+
+              {/* Banner Image */}
+              <div className="mt-6">
+                <ImageInputWithPreview
+                  label="Tournament Banner Image"
+                  value={formData.banner}
+                  sourceType={formData.banner_source}
+                  onValueChange={(value) => setFormData({ ...formData, banner: value })}
+                  onSourceChange={(source) => setFormData({ ...formData, banner_source: source })}
+                  minHeight="h-48"
+                  helpText="Upload a stunning banner for the tournament header. Recommended: 1920x600px"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium mb-2">Tournament Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Write a creative and engaging description of your tournament. Include what makes it special, the gaming vibe, and what participants can expect..."
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                  rows={6}
+                />
+                
+                {/* HTML Template Instructions */}
+                <div className="mt-3 p-4 bg-blue-900/30 border border-blue-700/50 rounded-lg">
+                  <p className="text-xs text-blue-200 font-semibold mb-2">💡 HTML Template Support:</p>
+                  <p className="text-xs text-blue-100 mb-3">You can write plain text OR use HTML templates for formatted content:</p>
+                  <div className="space-y-2 text-xs text-blue-100 bg-gray-900/50 p-3 rounded font-mono mb-3">
+                    <div><span className="text-green-400">&lt;h2&gt;</span>Tournament Highlights<span className="text-green-400">&lt;/h2&gt;</span></div>
+                    <div><span className="text-green-400">&lt;p&gt;</span>This is a paragraph...<span className="text-green-400">&lt;/p&gt;</span></div>
+                    <div><span className="text-green-400">&lt;ul&gt;</span></div>
+                    <div className="ml-4"><span className="text-green-400">&lt;li&gt;</span>Feature 1<span className="text-green-400">&lt;/li&gt;</span></div>
+                    <div className="ml-4"><span className="text-green-400">&lt;li&gt;</span>Feature 2<span className="text-green-400">&lt;/li&gt;</span></div>
+                    <div><span className="text-green-400">&lt;/ul&gt;</span></div>
+                  </div>
+                  <div className="bg-gray-900/50 p-3 rounded">
+                    <p className="text-xs text-yellow-300 font-semibold mb-1">✓ Supported HTML Tags:</p>
+                    <p className="text-xs text-blue-100">&lt;h1-h6&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;, &lt;img&gt;, &lt;br&gt;, &lt;table&gt;, &lt;thead&gt;, &lt;tbody&gt;, &lt;tr&gt;, &lt;td&gt;, &lt;th&gt;</p>
+                  </div>
                 </div>
               </div>
 
@@ -606,6 +669,82 @@ export default function TournamentManagementPage() {
                 </div>
               </div>
 
+              {/* Sponsors */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-lg font-semibold">💰 Sponsors (Optional)</label>
+                  <button
+                    onClick={() => openOrgForm('sponsors')}
+                    className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-sm"
+                  >
+                    + Add Sponsor
+                  </button>
+                </div>
+                
+                {/* Inline Add Form */}
+                {orgFormOpen === 'sponsors' && (
+                  <div className="mb-3 bg-gray-700/50 p-4 rounded-lg border-2 border-yellow-500/50">
+                    <h4 className="font-semibold mb-3 text-yellow-400">Add New Sponsor</h4>
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        placeholder="Sponsor Name"
+                        value={orgFormData.name}
+                        onChange={(e) => setOrgFormData({ ...orgFormData, name: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg mb-3"
+                      />
+                      <ImageInputWithPreview
+                        label="Sponsor Logo"
+                        value={orgFormData.logo}
+                        sourceType={orgFormData.logo_source}
+                        onValueChange={(value) => setOrgFormData({ ...orgFormData, logo: value })}
+                        onSourceChange={(source) => setOrgFormData({ ...orgFormData, logo_source: source })}
+                        minHeight="h-24"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSaveOrganization}
+                        className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-sm"
+                      >
+                        Save Sponsor
+                      </button>
+                      <button
+                        onClick={() => setOrgFormOpen(null)}
+                        className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {sponsors.map((org, index) => (
+                    <div key={index} className="flex flex-col items-center gap-2 bg-gray-700 p-3 rounded-lg hover:bg-gray-600 transition">
+                      <div className="w-full h-16 flex items-center justify-center bg-gray-800 rounded">
+                        <img src={org.logo} alt={org.name} className="max-w-full max-h-full object-contain" />
+                      </div>
+                      <div className="flex-1 w-full text-center">
+                        <p className="font-medium text-sm line-clamp-2">{org.name}</p>
+                      </div>
+                      <button
+                        onClick={() => removeOrganization('sponsors', index)}
+                        className="text-red-500 hover:text-red-400 text-lg"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                
+                {sponsors.length === 0 && (
+                  <div className="text-center py-6 text-gray-500">
+                    No sponsors added yet. Click "+ Add Sponsor" to add sponsors.
+                  </div>
+                )}
+              </div>
+
               {/* Save Button */}
               <div className="mt-8">
                 <button
@@ -652,6 +791,18 @@ export default function TournamentManagementPage() {
                     <p><strong>Team Size:</strong> {game.team_size}</p>
                     {game.format && <p><strong>Format:</strong> {game.format}</p>}
                     {game.schedule && <p><strong>Schedule:</strong> {game.schedule}</p>}
+                  </div>
+
+                  {/* Registration Status Toggle */}
+                  <div className="mb-4 p-3 bg-gray-700 rounded-lg">
+                    <AnimatedToggle
+                      isOn={game.registration_status !== 'closed'}
+                      onToggle={(isOpen) => handleToggleGameRegistration(game.id, game.registration_status)}
+                      label="Registration Status"
+                      onLabel="Open"
+                      offLabel="Closed"
+                      size="sm"
+                    />
                   </div>
 
                   <div className="flex gap-2">
@@ -882,6 +1033,40 @@ export default function TournamentManagementPage() {
           </div>
         )}
       </div>
+
+      <AdminHelpButton
+        title="Tournament Management"
+        instructions={[
+          '**Tournament Banner**: Upload or link a 1920x600px banner image. Choose between URL (external link) or /public path (hosted locally)',
+          '**Tournament Description**: Write tournament details as plain text OR use HTML templates for rich formatting. Supports tags like <h2>, <p>, <ul>, <li>, <strong>, <em>, <a>, <img>, <table>, etc.',
+          '**Tournament Info**: Set tournament name, slogan, date, time, venue, prize pool, and registration deadline. These display in the info section with color-coded cards',
+          '**Organizers, Co-Organizers, Associated With, Sponsors**: Add organization logos and names. Each section displays seamlessly on the public page with hover effects',
+          '**Per-Game Registration Control**: Toggle registration status (open/closed) for individual games using the animated toggle. Closed games show "CLOSED" badge and disabled buttons on public page',
+          '**Image Management**: All image uploads (banner, logos) support dual input - paste URL or select from /public folder. Live preview shows instantly',
+          'Add and edit tournament games with categories, prize pools, team sizes, and registration links',
+          'Track game registration status and manage participant limits'
+        ]}
+        tips={[
+          'Only one tournament can be active at a time',
+          'Use 1920x600px images for banners - they display full-width on public page',
+          'HTML descriptions support paragraphs, lists, tables, links, and images for professional formatting',
+          'Tournament name supports up to 100+ characters - give it plenty of space on the left side (50% width)',
+          'Logo and organization images should be square or aspect ratio 1:1 for best display',
+          'Info cards (Date, Time, Venue, Prize Pool) are color-coded: blue, green, orange, yellow',
+          'Registration deadline is highlighted in red as a warning',
+          'Game registration toggles allow you to control availability per-game without affecting others',
+          'Sponsors display with a ⭐ star badge for professional branding'
+        ]}
+        actions={[
+          { title: 'Edit Tournament Info', description: 'Update banner, name, slogan, date, time, venue, prize pool, and deadline' },
+          { title: 'Add Tournament Description', description: 'Write plain text or HTML-formatted description for "About Tournament" section' },
+          { title: 'Manage Organizations', description: 'Add organizers, co-organizers, associated with, and sponsors with logos' },
+          { title: 'Upload Images', description: 'Use ImageInputWithPreview to upload banner and organization logos from URL or /public' },
+          { title: 'Toggle Game Registration', description: 'Use animated toggle to open/close registration for individual games' },
+          { title: 'Add Game', description: 'Create new tournament game with category, icon, prize pool, team size, and links' },
+          { title: 'Update Game Details', description: 'Modify game information and registration settings' }
+        ]}
+      />
     </div>
   );
 }

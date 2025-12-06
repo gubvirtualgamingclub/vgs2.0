@@ -314,11 +314,39 @@ CREATE TABLE IF NOT EXISTS registration_forms (
     club_logo_url TEXT,
     tournament_logo_url TEXT,
     game_logo_url TEXT,
+    -- Design customization fields (v3.2.0)
+    hero_image_url TEXT,
+    hero_image_source VARCHAR(50) DEFAULT 'url',
+    primary_color VARCHAR(7) DEFAULT '#6B46C1',
+    secondary_color VARCHAR(7) DEFAULT '#EC4899',
+    accent_color VARCHAR(7) DEFAULT '#3B82F6',
+    heading_font VARCHAR(50) DEFAULT 'default',
+    body_font VARCHAR(50) DEFAULT 'default',
+    -- Content sections
+    tournament_details JSONB DEFAULT '{"about": "", "key_features": [], "prize_pool_highlights": ""}'::jsonb,
+    game_details JSONB DEFAULT '{"description": "", "game_image_url": "", "game_image_source": "url"}'::jsonb,
+    schedule JSONB DEFAULT '{"registration_deadline_label": "Registration Deadline", "tournament_start": "", "tournament_end": "", "other_dates": []}'::jsonb,
+    rules_and_regulations JSONB DEFAULT '{"summary": "", "rulebook_url": "", "full_rulebook_file": ""}'::jsonb,
+    -- Section visibility
+    show_tournament_section BOOLEAN DEFAULT FALSE,
+    show_game_details_section BOOLEAN DEFAULT FALSE,
+    show_schedule_section BOOLEAN DEFAULT FALSE,
+    show_rules_section BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE registration_forms IS 'Available registration forms with logo support for club, tournament, and game';
+COMMENT ON TABLE registration_forms IS 'Registration forms with design customization and content sections (v3.2.0)';
+COMMENT ON COLUMN registration_forms.hero_image_url IS 'Hero section background image (URL or /public path)';
+COMMENT ON COLUMN registration_forms.primary_color IS 'Primary brand color in hex';
+COMMENT ON COLUMN registration_forms.secondary_color IS 'Secondary brand color in hex';
+COMMENT ON COLUMN registration_forms.accent_color IS 'Accent color in hex';
+COMMENT ON COLUMN registration_forms.heading_font IS 'Heading typography (default, modern, gaming, elegant)';
+COMMENT ON COLUMN registration_forms.body_font IS 'Body typography (default, modern, gaming, elegant)';
+COMMENT ON COLUMN registration_forms.tournament_details IS 'Tournament info: {about, key_features[], prize_pool_highlights}';
+COMMENT ON COLUMN registration_forms.game_details IS 'Game info: {description, game_image_url, game_image_source}';
+COMMENT ON COLUMN registration_forms.schedule IS 'Schedule: {registration_deadline_label, tournament_start, tournament_end, other_dates[]}';
+COMMENT ON COLUMN registration_forms.rules_and_regulations IS 'Rules: {summary, rulebook_url, full_rulebook_file}';
 
 -- ============================================
 -- TABLE: REGISTRATION_SUBMISSIONS

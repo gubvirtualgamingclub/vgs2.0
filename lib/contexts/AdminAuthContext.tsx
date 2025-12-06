@@ -38,6 +38,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
             setUser(session.user);
           } else {
             console.log('No active session');
+            setIsAuthenticated(false);
+            setUser(null);
           }
           setIsLoading(false);
         }
@@ -63,9 +65,21 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    // Add beforeunload listener to clear session when browser closes
+    const handleBeforeUnload = () => {
+      // Optional: Explicitly clear session storage on page unload
+      if (typeof window !== 'undefined') {
+        // Session will auto-clear when browser tab closes due to sessionStorage behavior
+        console.log('Browser closing - session will be cleared by sessionStorage');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
 

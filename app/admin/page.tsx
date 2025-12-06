@@ -1,5 +1,7 @@
 'use client';
 
+import AdminHelpButton from '@/components/AdminHelpButton';
+
 export default function AdminDashboard() {
   const stats = [
     {
@@ -273,6 +275,38 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Help Button */}
+      <AdminHelpButton
+        title="Dashboard Overview"
+        instructions={[
+          "View key statistics about updates, events, tournaments, and committee members at the top of the page",
+          "Check recent activity to see what's been happening on the website",
+          "Use quick actions to navigate to frequently used pages",
+          "Monitor system information including database status and storage usage",
+          "Click on any stat card or quick action button to navigate to that section"
+        ]}
+        tips={[
+          "The dashboard refreshes automatically - no need to reload the page",
+          "Recent activity shows the 5 most recent changes across all sections",
+          "Quick actions provide shortcuts to the most commonly used features",
+          "System info helps you monitor the health and status of your website"
+        ]}
+        actions={[
+          {
+            title: "Create Update",
+            description: "Navigate to the Updates page to create announcements and news"
+          },
+          {
+            title: "Add Event",
+            description: "Go to Activities page to schedule gaming events"
+          },
+          {
+            title: "Manage Tournament",
+            description: "Access tournament management to create or edit competitions"
+          }
+        ]}
+      />
     </div>
   );
 }

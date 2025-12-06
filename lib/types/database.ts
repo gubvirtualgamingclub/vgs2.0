@@ -62,6 +62,9 @@ export interface Tournament {
   name: string;
   slogan?: string;
   logo?: string;
+  banner?: string;
+  banner_source?: 'url' | 'path';
+  description?: string;
   date: string;
   time: string;
   venue: string;
@@ -70,6 +73,7 @@ export interface Tournament {
   organizers?: Organization[];
   co_organizers?: Organization[];
   associated_with?: Organization[];
+  sponsors?: Organization[];
   status: 'open' | 'closed';
   created_at: string;
   updated_at: string;
@@ -91,6 +95,7 @@ export interface TournamentGame {
   max_participants?: string;
   registration_link: string;
   rulebook_link: string;
+  registration_status?: 'open' | 'closed';
   order_index?: number;
   created_at: string;
   updated_at: string;
@@ -200,6 +205,39 @@ export interface RegistrationForm {
   club_logo_url?: string;
   tournament_logo_url?: string;
   game_logo_url?: string;
+  // Enhanced Design Fields
+  hero_image_url?: string;
+  hero_image_source?: 'url' | 'path';
+  primary_color?: string; // Hex color (e.g., '#6B46C1')
+  secondary_color?: string; // Hex color (e.g., '#EC4899')
+  accent_color?: string; // Hex color (e.g., '#3B82F6')
+  heading_font?: 'default' | 'modern' | 'gaming' | 'elegant'; // Font family presets
+  body_font?: 'default' | 'modern' | 'gaming' | 'elegant';
+  tournament_details?: {
+    about?: string;
+    key_features?: string[];
+    prize_pool_highlights?: string;
+  };
+  game_details?: {
+    description?: string;
+    game_image_url?: string;
+    game_image_source?: 'url' | 'path';
+  };
+  schedule?: {
+    registration_deadline_label?: string;
+    tournament_start?: string;
+    tournament_end?: string;
+    other_dates?: Array<{ label: string; date: string }>;
+  };
+  rules_and_regulations?: {
+    summary?: string;
+    rulebook_url?: string;
+    full_rulebook_file?: string;
+  };
+  show_tournament_section?: boolean;
+  show_game_details_section?: boolean;
+  show_schedule_section?: boolean;
+  show_rules_section?: boolean;
   created_at: string;
   updated_at: string;
 }

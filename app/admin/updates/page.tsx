@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
 import { 
   getAllUpdates, 
   createUpdate, 
@@ -547,6 +548,45 @@ export default function AdminUpdatesPage() {
           </div>
         </div>
       )}
+
+      {/* Help Button */}
+      <AdminHelpButton
+        title="Updates Management"
+        instructions={[
+          "Click 'Create New Update' to publish announcements and news",
+          "Fill in the title, summary, and full content for your update",
+          "Add an image URL to make your update more visually appealing",
+          "Use the 'Add Button' feature to include action buttons (e.g., Register Now, Learn More)",
+          "Toggle 'Published' to control visibility on the main website",
+          "Use search and filters to find specific updates quickly",
+          "Edit or delete existing updates using the action buttons"
+        ]}
+        tips={[
+          "Keep summaries brief (2-3 sentences) - they appear on the homepage",
+          "Use high-quality images with a 16:9 aspect ratio for best results",
+          "Unpublished updates remain as drafts and won't appear on the website",
+          "You can add multiple action buttons to each update",
+          "The date field helps users know when information was published"
+        ]}
+        actions={[
+          {
+            title: "Create Update",
+            description: "Opens a form to create a new announcement or news update"
+          },
+          {
+            title: "Edit Update",
+            description: "Click the pencil icon to modify existing updates"
+          },
+          {
+            title: "Toggle Publish",
+            description: "Use the eye icon to quickly publish or unpublish updates"
+          },
+          {
+            title: "Delete Update",
+            description: "Click the trash icon to permanently remove an update"
+          }
+        ]}
+      />
     </div>
   );
 }

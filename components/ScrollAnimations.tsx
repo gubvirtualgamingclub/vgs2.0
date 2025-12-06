@@ -39,8 +39,9 @@ export function ScrollAnimation({
     }
 
     return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
+      const element = elementRef.current;
+      if (element) {
+        observer.unobserve(element);
       }
     };
   }, []);

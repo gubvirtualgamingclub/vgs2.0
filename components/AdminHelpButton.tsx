@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QuestionMarkCircleIcon, XMarkIcon, ClipboardDocumentIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 
 interface AdminHelpButtonProps {
@@ -14,6 +14,25 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
   const [isOpen, setIsOpen] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<'instructions' | 'actions' | 'tips'>('instructions');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Add keyboard listener for Escape key
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEscape);
+      return () => window.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen]);
 
   const copyToClipboard = async (text: string, index: number) => {
     try {
@@ -92,15 +111,15 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
         );
       }
       
-      // Regular paragraph with bold text support
-      const parts = para.split(/(\*\*.*?\*\*)/g);
+      // Regular paragraph with bold text support (improved regex with atomic grouping protection)
+      const parts = para.split(/(\*\*[^*]*\*\*)/g);
       return (
         <p key={idx} className="text-gray-300 text-sm leading-relaxed my-2">
           {parts.map((part, partIdx) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
+            if (part && part.startsWith('**') && part.endsWith('**') && part.length > 4) {
               return <strong key={partIdx} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
             }
-            return <span key={partIdx}>{part}</span>;
+            return part ? <span key={partIdx}>{part}</span> : null;
           })}
         </p>
       );
@@ -129,10 +148,20 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
         </span>
       </button>
 
-      {/* Modal Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-purple-500/30 animate-slideDown">
+      {/* Modal Overlay - Only render on client after mount */}
+      {isMounted && isOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn" 
+          onClick={() => setIsOpen(false)}
+          role="presentation"
+        >
+          <div 
+            className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-purple-500/30 animate-slideDown" 
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -140,7 +169,7 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
                   <QuestionMarkCircleIcon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">{title}</h2>
+                  <h2 id="modal-title" className="text-2xl font-bold text-white">{title}</h2>
                   <p className="text-purple-100 text-sm">Page Instructions & Guide</p>
                 </div>
               </div>
@@ -202,8 +231,8 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
                         Quick Overview
                       </h3>
                       <ol className="space-y-3">
-                        {instructions.map((instruction, index) => (
-                          <li key={index} className="flex items-start gap-3">
+                        {instructions && instructions.length > 0 && instructions.map((instruction, index) => (
+                          <li key={`inst-${index}`} className="flex items-start gap-3">
                             <span className="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg">
                               {index + 1}
                             </span>
@@ -228,7 +257,7 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
                       
                       return (
                         <div
-                          key={index}
+                          key={`action-${index}`}
                           className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 rounded-xl border border-gray-700 overflow-hidden hover:border-purple-500/50 transition-all"
                         >
                           <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 px-5 py-3 flex items-center justify-between border-b border-gray-700">
@@ -272,7 +301,7 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
                   <div className="space-y-3 animate-fadeIn">
                     {tips.map((tip, index) => (
                       <div
-                        key={index}
+                        key={`tip-${index}`}
                         className="bg-gradient-to-r from-yellow-900/20 to-orange-900/20 border border-yellow-600/30 rounded-xl p-4 hover:border-yellow-500/50 transition-all"
                       >
                         <div className="flex items-start gap-3">

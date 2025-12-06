@@ -17,35 +17,29 @@ export async function middleware(request: NextRequest) {
   // ADMIN ROUTE PROTECTION
   // ===================================================================
 
-  // Block all /admin routes (old path)
-  if (pathname.startsWith('/admin')) {
-    console.log('🚫 Blocked attempt to access /admin:', pathname);
-    
-    // Return generic 404 to hide admin route existence
-    return NextResponse.rewrite(new URL('/not-found', request.url));
-  }
-
-  // Protect secret admin route
+  // If the request is for the secret admin route, rewrite it to the actual /admin path
   if (pathname.startsWith(`/${ADMIN_SECRET_ROUTE}`)) {
-    console.log('🔐 Admin route access attempt:', pathname);
-
-    // Allow access to login page
-    if (pathname === `/${ADMIN_SECRET_ROUTE}/auth`) {
-      return NextResponse.next();
-    }
-
-    // For other admin pages, allow access but add security headers
-    // Authentication is handled client-side by AdminAuthContext
-    // (Supabase stores auth in localStorage, not accessible to middleware)
-    console.log('✅ Allowing admin route (auth checked client-side)');
+    const newPath = pathname.replace(`/${ADMIN_SECRET_ROUTE}`, '/admin');
+    const url = request.nextUrl.clone();
+    url.pathname = newPath;
     
-    const response = NextResponse.next();
+    const response = NextResponse.rewrite(url);
+    
+    // Add security headers to the response
     response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'no-referrer');
     
     return response;
+  }
+
+  // Block direct access to /admin routes
+  if (pathname.startsWith('/admin')) {
+    console.log('🚫 Blocked direct attempt to access /admin:', pathname);
+    
+    // Return generic 404 to hide admin route existence
+    return NextResponse.rewrite(new URL('/not-found', request.url));
   }
 
   // ===================================================================

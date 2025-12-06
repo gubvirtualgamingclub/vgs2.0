@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
+import AdminImage from '@/components/AdminImage';
 import {
   getAllCommittees,
   getCommitteesWithMembers,
@@ -59,38 +61,16 @@ export default function AdminCommitteePage() {
   const [searchResults, setSearchResults] = useState<CommitteeMember[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  
+  // Drag-and-drop state
+  const [draggedMemberId, setDraggedMemberId] = useState<string | null>(null);
+  const [draggedOverMemberId, setDraggedOverMemberId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCommittees();
   }, []);
   
-  // Debounced search effect
-  useEffect(() => {
-    if (searchQuery.trim().length >= 2) {
-      const delaySearch = setTimeout(() => {
-        handleSearch();
-      }, 300);
-      return () => clearTimeout(delaySearch);
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
-  }, [searchQuery]);
-
-  async function fetchCommittees() {
-    try {
-      setLoading(true);
-      const data = await getCommitteesWithMembers();
-      setCommittees(data);
-    } catch (error) {
-      console.error('Error fetching committees:', error);
-      alert('Failed to fetch committees. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
-  
-  async function handleSearch() {
+  const handleSearch = useCallback(async () => {
     if (searchQuery.trim().length < 2) return;
     
     try {
@@ -102,6 +82,32 @@ export default function AdminCommitteePage() {
       console.error('Error searching members:', error);
     } finally {
       setIsSearching(false);
+    }
+  }, [searchQuery]);
+
+  // Debounced search effect
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      const delaySearch = setTimeout(() => {
+        handleSearch();
+      }, 300);
+      return () => clearTimeout(delaySearch);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  }, [searchQuery, handleSearch]);
+
+  async function fetchCommittees() {
+    try {
+      setLoading(true);
+      const data = await getCommitteesWithMembers();
+      setCommittees(data);
+    } catch (error) {
+      console.error('Error fetching committees:', error);
+      alert('Failed to fetch committees. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
   
@@ -144,6 +150,85 @@ export default function AdminCommitteePage() {
       }
       return newSet;
     });
+  };
+
+  // Filter search results to show only the latest profile of each member
+  const getFilteredSearchResults = (results: CommitteeMember[]) => {
+    const memberMap = new Map<string, CommitteeMember>();
+    
+    // Group by name (primary key for member identity)
+    results.forEach(member => {
+      const existingMember = memberMap.get(member.name);
+      
+      if (!existingMember) {
+        memberMap.set(member.name, member);
+      } else {
+        // Keep the member with the highest order_index (most recent profile)
+        const existingOrder = existingMember.order_index || 0;
+        const newOrder = member.order_index || 0;
+        
+        if (newOrder > existingOrder) {
+          memberMap.set(member.name, member);
+        }
+      }
+    });
+    
+    return Array.from(memberMap.values());
+  };
+
+  // Drag and drop handlers for member reordering
+  const handleMemberDragStart = (memberId: string) => {
+    setDraggedMemberId(memberId);
+  };
+
+  const handleMemberDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleMemberDragEnter = (memberId: string) => {
+    setDraggedOverMemberId(memberId);
+  };
+
+  const handleMemberDragLeave = () => {
+    setDraggedOverMemberId(null);
+  };
+
+  const handleMemberDrop = async (e: React.DragEvent, targetMemberId: string, committeeId: string) => {
+    e.preventDefault();
+    setDraggedOverMemberId(null);
+
+    if (!draggedMemberId || draggedMemberId === targetMemberId) {
+      return;
+    }
+
+    try {
+      // Find the committee and members
+      const committee = committees.find(c => c.id === committeeId);
+      if (!committee) return;
+
+      const draggedMember = committee.members.find(m => m.id === draggedMemberId);
+      const targetMember = committee.members.find(m => m.id === targetMemberId);
+
+      if (!draggedMember || !targetMember) return;
+
+      // Swap order_index values
+      const tempOrder = draggedMember.order_index;
+      draggedMember.order_index = targetMember.order_index;
+      targetMember.order_index = tempOrder;
+
+      // Update both members in database
+      await updateCommitteeMember(draggedMember.id, draggedMember);
+      await updateCommitteeMember(targetMember.id, targetMember);
+
+      // Refresh committees data
+      await fetchCommittees();
+    } catch (error) {
+      console.error('Error reordering members:', error);
+      alert('Failed to reorder members. Please try again.');
+    } finally {
+      setDraggedMemberId(null);
+    }
   };
 
   // Committee CRUD handlers
@@ -532,21 +617,36 @@ export default function AdminCommitteePage() {
                       </button>
                     </div>
                   ) : (
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {committee.members.map((member) => (
-                        <div
-                          key={member.id}
-                          className="bg-gray-800 rounded-lg border border-gray-700 p-4 hover:border-gray-600 transition-colors"
-                        >
-                          <div className="flex items-start space-x-3 mb-3">
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-700 flex-shrink-0">
-                              <img
+                    <div>
+                      <p className="text-gray-400 text-sm mb-4">💡 Drag members to reorder them</p>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        {[...committee.members]
+                          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+                          .map((member) => (
+                            <div
+                              key={member.id}
+                              draggable
+                              onDragStart={() => handleMemberDragStart(member.id)}
+                              onDragOver={handleMemberDragOver}
+                              onDragEnter={() => handleMemberDragEnter(member.id)}
+                              onDragLeave={handleMemberDragLeave}
+                              onDrop={(e) => handleMemberDrop(e, member.id, committee.id)}
+                              className={`bg-gray-800 rounded-lg border-2 p-4 hover:border-gray-600 transition-all cursor-move ${
+                                draggedMemberId === member.id
+                                  ? 'opacity-50 border-purple-500'
+                                  : draggedOverMemberId === member.id
+                                  ? 'border-purple-400 bg-gray-700'
+                                  : 'border-gray-700'
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3 mb-3">
+                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-700 flex-shrink-0">
+                                  <AdminImage
                                 src={member.photo}
                                 alt={member.name}
+                                width={64}
+                                height={64}
                                 className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=374151&color=9CA3AF&size=200`;
-                                }}
                               />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -608,6 +708,7 @@ export default function AdminCommitteePage() {
                           </div>
                         </div>
                       ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -752,9 +853,9 @@ export default function AdminCommitteePage() {
                     </p>
                     
                     {/* Search Results Dropdown */}
-                    {showSearchResults && searchResults.length > 0 && (
+                    {showSearchResults && getFilteredSearchResults(searchResults).length > 0 && (
                       <div className="mt-3 bg-gray-800 border border-gray-600 rounded-lg max-h-64 overflow-y-auto">
-                        {searchResults.map((member) => (
+                        {getFilteredSearchResults(searchResults).map((member) => (
                           <button
                             key={member.id}
                             type="button"
@@ -762,13 +863,12 @@ export default function AdminCommitteePage() {
                             className="w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-0"
                           >
                             <div className="flex items-center gap-3">
-                              <img
+                              <AdminImage
                                 src={member.photo}
                                 alt={member.name}
+                                width={40}
+                                height={40}
                                 className="w-10 h-10 rounded-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"%3E%3Crect fill="%23888" width="40" height="40"/%3E%3C/svg%3E';
-                                }}
                               />
                               <div className="flex-1">
                                 <p className="text-white font-semibold">{member.name}</p>
@@ -791,7 +891,7 @@ export default function AdminCommitteePage() {
                     
                     {showSearchResults && searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
                       <div className="mt-3 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-center">
-                        <p className="text-gray-400 text-sm">No members found matching "{searchQuery}"</p>
+                        <p className="text-gray-400 text-sm">No members found matching &quot;{searchQuery}&quot;</p>
                         <p className="text-gray-500 text-xs mt-1">You can create a new member below</p>
                       </div>
                     )}
@@ -858,13 +958,12 @@ export default function AdminCommitteePage() {
                   {memberFormData.photo && (
                     <div className="mt-3 flex justify-center">
                       <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-700">
-                        <img
+                        <AdminImage
                           src={memberFormData.photo}
                           alt="Preview"
+                          width={96}
+                          height={96}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=User&background=374151&color=9CA3AF&size=200';
-                          }}
                         />
                       </div>
                     </div>
@@ -1042,6 +1141,27 @@ export default function AdminCommitteePage() {
           </div>
         </div>
       )}
+
+      <AdminHelpButton
+        title="Committee Management"
+        instructions={[
+          'Add and manage committee members',
+          'Upload member photos',
+          'Assign roles and positions',
+          'Reorder members by dragging cards',
+          'Remove members when needed'
+        ]}
+        tips={[
+          'Use professional photos for committee members',
+          'Keep titles short and descriptive',
+          'Order members by hierarchy or importance'
+        ]}
+        actions={[
+          { title: 'Add Member', description: 'create new committee entry' },
+          { title: 'Edit Member', description: 'modify details' },
+          { title: 'Delete Member', description: 'remove from committee' }
+        ]}
+      />
     </div>
   );
 }

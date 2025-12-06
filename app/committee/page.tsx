@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { getPublishedCommitteesWithMembers } from '@/lib/supabase-queries';
 import type { Committee, CommitteeMember } from '@/lib/types/database';
@@ -29,11 +29,7 @@ export default function CommitteePage() {
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>('');
 
-  useEffect(() => {
-    fetchCommittees();
-  }, []);
-
-  async function fetchCommittees() {
+  const fetchCommittees = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPublishedCommitteesWithMembers();
@@ -55,19 +51,29 @@ export default function CommitteePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [searchParams, selectedYear]);
+
+  useEffect(() => {
+    fetchCommittees();
+  }, [fetchCommittees]);
 
   const currentCommittee = committees.find((c) => c.year_range === selectedYear);
   const years = committees.map((c) => c.year_range);
 
   // Group members by category - Only Faculty Advisor and Student Executives
   // Also handle old category names for backward compatibility
-  const facultyMembers = currentCommittee?.members.filter(m => m.category === 'Faculty Advisors') || [];
-  const executiveMembers = currentCommittee?.members.filter(m => 
-    m.category === 'Student Executives' || 
-    m.category === 'Executive Committee' as any || 
-    m.category === 'Student Members' as any
-  ) || [];
+  // Sort by order_index to display in the order set by admin
+  const facultyMembers = (currentCommittee?.members
+    .filter(m => m.category === 'Faculty Advisors')
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) || []);
+  
+  const executiveMembers = (currentCommittee?.members
+    .filter(m => 
+      m.category === 'Student Executives' || 
+      m.category === 'Executive Committee' as any || 
+      m.category === 'Student Members' as any
+    )
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) || []);
 
   const handleMemberClick = (memberId: string) => {
     // Add current year to URL so it's preserved when coming back

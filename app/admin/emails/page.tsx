@@ -276,6 +276,30 @@ export default function EmailManagementPage() {
     }
   }
 
+  async function deleteEmailLog(id: string) {
+    if (!confirm('Are you sure you want to delete this email log?')) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/emails/logs?id=${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete email log');
+      }
+
+      setMessage({ type: 'success', text: '✅ Email log deleted successfully' });
+      fetchEmailLogs();
+    } catch (error: any) {
+      setMessage({ type: 'error', text: `❌ Failed to delete email log: ${error.message}` });
+      console.error('Delete email log error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/50 to-pink-900/30 p-6">
       <div className="max-w-7xl mx-auto">
@@ -406,7 +430,7 @@ export default function EmailManagementPage() {
                 </button>
               </div>
               <p className="text-gray-400 text-sm mt-2">
-                Make sure your sheet is publicly accessible and has "Name" and "Email" columns
+                Make sure your sheet is publicly accessible and has &quot;Name&quot; and &quot;Email&quot; columns
               </p>
             </div>
 
@@ -512,10 +536,10 @@ export default function EmailManagementPage() {
               ) : (
                 <div>
                   <label className="block text-white font-medium mb-2">Preview</label>
-                  <div className="bg-white p-6 rounded-lg">
-                    <div className="border-b border-gray-300 pb-2 mb-4">
-                      <p className="text-gray-600 text-sm">Subject:</p>
-                      <p className="text-gray-900 font-semibold">{subject}</p>
+                  <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <div className="border-b border-gray-600 pb-2 mb-4">
+                      <p className="text-gray-400 text-sm">Subject:</p>
+                      <p className="text-white font-semibold">{subject}</p>
                     </div>
                     <div dangerouslySetInnerHTML={{ __html: getPreviewHtml() }} />
                   </div>
@@ -613,6 +637,14 @@ export default function EmailManagementPage() {
                     {log.error_message && (
                       <p className="text-red-400 text-sm mt-2">{log.error_message}</p>
                     )}
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => deleteEmailLog(log.id)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

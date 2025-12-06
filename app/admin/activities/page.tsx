@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import AdminHelpButton from '@/components/AdminHelpButton';
 import {
   getAllActivities,
   createActivity,
@@ -464,6 +465,27 @@ export default function AdminActivitiesPage() {
           </div>
         </div>
       )}
+
+      <AdminHelpButton
+        title="Activities & Events Management"
+        instructions={[
+          'Create gaming events and activities',
+          'Set event date, time, and venue',
+          'Add event images and descriptions',
+          'Publish/unpublish events',
+          'Delete past events'
+        ]}
+        tips={[
+          'Add event images to increase engagement',
+          'Set realistic dates and venues',
+          'Keep descriptions clear and informative'
+        ]}
+        actions={[
+          { title: 'Create Activity', description: 'add new event' },
+          { title: 'Edit Activity', description: 'modify event details' },
+          { title: 'Toggle Publish', description: 'show/hide on website' }
+        ]}
+      />
     </div>
   );
 }
