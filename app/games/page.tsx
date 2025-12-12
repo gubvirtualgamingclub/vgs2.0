@@ -53,12 +53,10 @@ export default function GamesPage() {
   useEffect(() => {
     let filtered = games;
 
-    // Filter by type
     if (selectedType !== 'all') {
       filtered = filtered.filter(game => game.game_type === selectedType);
     }
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(game =>
         game.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,351 +73,275 @@ export default function GamesPage() {
   };
 
   const gameTypeColors = {
-    casual: 'from-blue-500 to-cyan-500',
-    mobile: 'from-purple-500 to-pink-500',
-    pc: 'from-orange-500 to-red-500',
+    casual: 'from-blue-600 to-cyan-400',
+    mobile: 'from-fuchsia-600 to-pink-400',
+    pc: 'from-orange-600 to-red-400',
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 to-slate-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              🎮 Game Profiles
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
+      
+      {/* 🌌 Hero Section (Premium Dark) */}
+      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0">
+             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-900/20 rounded-full blur-[100px] animate-pulse"></div>
+             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-900/20 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20"></div>
+        </div>
+
+        <div className="relative z-10 text-center max-w-4xl px-4">
+            <span className="inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 mb-6 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-fadeIn">
+              VGS Arsenal
+            </span>
+            <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+                Game Library
+              </span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Explore all the amazing games hosted by VGS throughout our events
+            <p className="text-lg text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+              Explore our curated collection of competitive titles. From high-octane FPS to strategy classics, find your battleground.
             </p>
+        </div>
+      </section>
+
+      {/* 🔍 Filters & Search (Glassmorphism) */}
+      <section className="sticky top-20 z-40 py-6 border-b border-white/5 backdrop-blur-xl bg-[#050505]/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-6 justify-between items-center">
+             
+             {/* Filter Tabs */}
+             <div className="flex p-1 bg-white/5 rounded-full border border-white/10 overflow-x-auto max-w-full no-scrollbar">
+                {(['all', 'casual', 'mobile', 'pc'] as const).map((type) => (
+                    <button
+                        key={type}
+                        onClick={() => setSelectedType(type)}
+                        className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap ${
+                            selectedType === type
+                            ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-900/40 scale-105'
+                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        }`}
+                    >
+                        {type === 'all' ? 'All Games' : type}
+                    </button>
+                ))}
+             </div>
+
+             {/* Search Input */}
+             <div className="relative w-full md:w-96 group">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+                <div className="relative bg-[#0a0a0a] rounded-xl flex items-center border border-white/10 focus-within:border-cyan-500/50 transition-colors">
+                    <span className="pl-4 text-gray-500">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </span>
+                    <input 
+                        type="text" 
+                        placeholder="Search for a game..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 font-sans px-4 py-3"
+                    />
+                </div>
+             </div>
           </div>
         </div>
       </section>
 
-      {/* Filters & Search */}
-      <section className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-6">
-            {/* Search Bar */}
-            <div>
-              <input
-                type="text"
-                placeholder="🔍 Search games by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-6 py-3 border-2 border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-cyan-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
+      {/* 🎮 Games Grid */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {loading ? (
+             <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+             </div>
+        ) : filteredGames.length === 0 ? (
+             <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
+                <div className="text-6xl mb-4 opacity-50">🕹️</div>
+                <h3 className="text-2xl font-bold text-white mb-2">No Games Found</h3>
+                <p className="text-gray-500">Try adjusting your filters or search term.</p>
+             </div>
+        ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredGames.map((game, index) => (
+                    <div 
+                        key={game.id}
+                        onClick={() => setSelectedGame(game)}
+                        className="group relative h-96 cursor-pointer perspective-1000"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                        {/* Card Container */}
+                        <div className="absolute inset-0 bg-[#0a0a0a] rounded-3xl overflow-hidden border border-white/10 group-hover:border-cyan-500/50 transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(8,145,178,0.2)] group-hover:-translate-y-2">
+                             
+                             {/* Top Gradient/Image Area */}
+                             <div className={`h-1/2 w-full relative overflow-hidden bg-gradient-to-br ${gameTypeColors[game.game_type]} opacity-10 group-hover:opacity-20 transition-opacity`}>
+                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent)]"></div>
+                             </div>
 
-            {/* Filter Buttons */}
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setSelectedType('all')}
-                className={`px-6 py-2 rounded-full font-semibold transition-all ${
-                  selectedType === 'all'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/50'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600'
-                }`}
-              >
-                All Games ({games.length})
-              </button>
+                             {/* Game Logo (Floating) */}
+                             <div className="absolute top-10 left-1/2 -translate-x-1/2 w-48 h-48 drop-shadow-2xl z-10 transition-transform duration-500 group-hover:scale-110">
+                                <Image
+                                  src={game.logo_url}
+                                  alt={game.name}
+                                  width={192}
+                                  height={192}
+                                  className="object-contain w-full h-full"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"%3E%3Crect fill="%23222" width="160" height="160"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23555"%3ENo Logo%3C/text%3E%3C/svg%3E';
+                                  }}
+                                />
+                             </div>
 
-              {(['casual', 'mobile', 'pc'] as const).map((type) => {
-                const count = games.filter(g => g.game_type === type).length;
-                return (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedType(type)}
-                    className={`px-6 py-2 rounded-full font-semibold transition-all flex items-center gap-2 ${
-                      selectedType === type
-                        ? `bg-gradient-to-r ${gameTypeColors[type]} text-white shadow-lg`
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    <span>{gameTypeEmoji[type]}</span>
-                    <span>{type.charAt(0).toUpperCase() + type.slice(1)} ({count})</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
+                             {/* Content Overlay */}
+                             <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a] to-transparent z-20 flex flex-col items-center text-center">
+                                 {/* Type Badge */}
+                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white bg-gradient-to-r ${gameTypeColors[game.game_type]} mb-3 shadow-lg`}>
+                                    {game.game_type}
+                                 </span>
+                                 
+                                 <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{game.name}</h3>
+                                 
+                                 <div className="h-0 overflow-hidden group-hover:h-8 transition-all duration-300 delay-100 opacity-0 group-hover:opacity-100">
+                                    <p className="text-cyan-400 font-bold text-sm tracking-widest uppercase">Click for Details</p>
+                                 </div>
+                             </div>
 
-      {/* Games Grid */}
-      <section className="py-16 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {loading ? (
-            <div className="flex items-center justify-center h-96">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-cyan-500"></div>
-            </div>
-          ) : filteredGames.length === 0 ? (
-            <div className="text-center py-20">
-              <svg className="w-24 h-24 mx-auto text-gray-400 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">No games found</h3>
-              <p className="text-gray-600 dark:text-gray-400">Try adjusting your filters or search term</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredGames.map((game, index) => (
-                <div
-                  key={game.id}
-                  onClick={() => setSelectedGame(game)}
-                  className="group cursor-pointer h-full"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden border border-gray-200 dark:border-gray-700 h-full flex flex-col">
-                    {/* Type Badge */}
-                    <div className="absolute top-4 right-4 z-10">
-                      <span className={`px-4 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r ${gameTypeColors[game.game_type]} shadow-lg`}>
-                        {gameTypeEmoji[game.game_type]} {game.game_type.toUpperCase()}
-                      </span>
-                    </div>
-
-                    {/* Logo Container */}
-                    <div className={`h-48 bg-gradient-to-br ${gameTypeColors[game.game_type]} p-6 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300`}>
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <Image
-                          src={game.logo_url}
-                          alt={game.name}
-                          width={160}
-                          height={160}
-                          className="object-contain max-w-full max-h-full filter drop-shadow-lg group-hover:drop-shadow-2xl transition-all"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"%3E%3Crect fill="%23ddd" width="160" height="160"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 p-6 flex flex-col">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-cyan-500 transition-colors">
-                        {game.name}
-                      </h3>
-
-                      {/* Game Mode Badge */}
-                      {game.game_mode && (
-                        <div className="mb-4">
-                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-lg text-indigo-300 text-sm font-semibold">
-                            {game.game_mode === 'team' ? '👥 Team' : '🎮 Individual'}
-                            {game.team_size && <span>• {game.team_size}</span>}
-                          </span>
                         </div>
-                      )}
-
-                      <div className="flex-grow"></div>
-
-                      {/* View Details Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedGame(game);
-                        }}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
-                      >
-                        <span>View Details</span>
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </button>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+             </div>
+        )}
       </section>
 
-      {/* Modal for Game Details */}
+      {/* ✨ Premium Modal */}
       {selectedGame && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
-          onClick={() => setSelectedGame(null)}
+        <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedGame(null)}
         >
-          <div
-            className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full my-4 max-h-[95vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header with Close Button */}
-            <div className={`relative h-32 sm:h-48 bg-gradient-to-br ${gameTypeColors[selectedGame.game_type]} p-4 sm:p-6 flex items-center justify-center flex-shrink-0`}>
-              <button
-                onClick={() => setSelectedGame(null)}
-                className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/40 rounded-full flex items-center justify-center transition-all backdrop-blur-sm"
-              >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            {/* Backdrop with extensive blur */}
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fadeIn"></div>
+            
+            {/* Modal Card */}
+            <div 
+                className="relative w-full max-w-4xl bg-[#0f0f10] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-slideUp"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Modal Header (Gradient Background) */}
+                <div className={`relative h-48 bg-gradient-to-br ${gameTypeColors[selectedGame.game_type]} overflow-hidden`}>
+                     <div className="absolute inset-0 bg-black/40"></div>
+                     <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0f0f10] to-transparent"></div>
+                     
+                     {/* Close Button */}
+                     <button 
+                        onClick={() => setSelectedGame(null)}
+                        className="absolute top-6 right-6 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-colors z-20 border border-white/10"
+                     >
+                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                     </button>
 
-              <div className="relative w-24 h-24 sm:w-40 sm:h-40">
-                <Image
-                  src={selectedGame.logo_url}
-                  alt={selectedGame.name}
-                  width={160}
-                  height={160}
-                  className="object-contain w-full h-full filter drop-shadow-2xl"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"%3E%3Crect fill="%23ddd" width="160" height="160"/%3E%3C/svg%3E';
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Content - Scrollable */}
-            <div className="p-4 sm:p-8 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
-              {/* Title and Type */}
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                  {selectedGame.name}
-                </h2>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r ${gameTypeColors[selectedGame.game_type]}`}>
-                    {gameTypeEmoji[selectedGame.game_type]} {selectedGame.game_type.toUpperCase()}
-                  </span>
-                  {selectedGame.game_mode && (
-                    <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-                      {selectedGame.game_mode === 'team' ? '👥 Team' : '🎮 Individual'}
-                      {selectedGame.team_size && ` • ${selectedGame.team_size}`}
-                    </span>
-                  )}
-                  {selectedGame.max_participants && (
-                    <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white">
-                      Max: {selectedGame.max_participants} players
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4">
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1 sm:gap-2">
-                    <span>🎯</span>
-                    <span>Events Hosted</span>
-                  </p>
-                  <p className="text-2xl sm:text-3xl font-bold text-cyan-600 dark:text-cyan-400">{gameHistory.length}</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg sm:rounded-xl p-3 sm:p-4">
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1 sm:gap-2">
-                    <span>👥</span>
-                    <span>Total Participants</span>
-                  </p>
-                  <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
-                    {gameHistory.reduce((sum, h) => sum + h.participants_count, 0)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Event History */}
-              <div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-                  <span>📜</span>
-                  <span>Event History</span>
-                </h3>
-                
-                {loadingHistory ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-cyan-500"></div>
-                  </div>
-                ) : gameHistory.length > 0 ? (
-                  <div className="space-y-3 max-h-64 sm:max-h-96 overflow-y-auto pr-2 custom-scrollbar">
-                    {gameHistory
-                      .sort((a, b) => {
-                        if (b.year !== a.year) return b.year - a.year;
-                        return b.month - a.month;
-                      })
-                      .map((history, index) => {
-                        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                        return (
-                          <div
-                            key={history.id}
-                            className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-lg sm:rounded-xl p-3 sm:p-5 border border-slate-700 hover:border-cyan-500 transition-all hover:shadow-lg"
-                            style={{ animationDelay: `${index * 50}ms` }}
-                          >
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2 sm:mb-3">
-                              <h4 className="font-bold text-white text-base sm:text-lg flex items-center gap-2">
-                                <span className="text-cyan-400">🎮</span>
-                                <span className="line-clamp-2">{history.event_name}</span>
-                              </h4>
-                              <span className="px-2 sm:px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap self-start">
-                                {monthNames[history.month - 1]} {history.year}
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
-                              {history.participants_count > 0 && (
-                                <div className="flex items-center gap-1.5 sm:gap-2 text-blue-400 bg-blue-500/10 px-2 sm:px-3 py-1 rounded-lg">
-                                  <span className="text-base sm:text-lg">👥</span>
-                                  <span className="font-semibold">{history.participants_count} Participants</span>
-                                </div>
-                              )}
-                              {history.prize_pool && (
-                                <div className="flex items-center gap-1.5 sm:gap-2 text-green-400 bg-green-500/10 px-2 sm:px-3 py-1 rounded-lg">
-                                  <span className="text-base sm:text-lg">💰</span>
-                                  <span className="font-semibold">{history.prize_pool}</span>
-                                </div>
-                              )}
-                              {history.event_link && (
-                                <a
-                                  href={history.event_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-1.5 sm:gap-2 text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-2 sm:px-3 py-1 rounded-lg transition-all"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <span className="text-base sm:text-lg">🔗</span>
-                                  <span className="font-semibold underline">View Event</span>
-                                </a>
-                              )}
-                            </div>
+                     <div className="absolute bottom-6 left-8 flex items-end gap-6 z-10 max-w-2xl">
+                          <div className="w-24 h-24 bg-[#0f0f10] rounded-2xl p-2 border border-white/10 shadow-xl hidden sm:block">
+                              <Image 
+                                src={selectedGame.logo_url} 
+                                alt={selectedGame.name} 
+                                width={96} 
+                                height={96} 
+                                className="w-full h-full object-contain" 
+                              />
                           </div>
-                        );
-                      })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 sm:py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 rounded-lg sm:rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
-                    <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📭</div>
-                    <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium px-4">
-                      No event history available yet
-                    </p>
-                  </div>
-                )}
-              </div>
+                          <div>
+                              <div className="flex gap-2 mb-2">
+                                  <span className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider text-white">
+                                      {gameTypeEmoji[selectedGame.game_type]} {selectedGame.game_type}
+                                  </span>
+                                  {selectedGame.game_mode && (
+                                      <span className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider text-white">
+                                          {selectedGame.game_mode}
+                                      </span>
+                                  )}
+                              </div>
+                              <h2 className="text-4xl font-black text-white leading-none">{selectedGame.name}</h2>
+                          </div>
+                     </div>
+                </div>
 
-              {/* Close Button */}
-              <button
-                onClick={() => {
-                  setSelectedGame(null);
-                  setGameHistory([]);
-                }}
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg sm:rounded-xl font-bold text-base sm:text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all hover:scale-[1.02] active:scale-95"
-              >
-                Close
-              </button>
+                {/* Modal Body */}
+                <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    
+                    {/* Left Stats Column */}
+                    <div className="lg:col-span-1 space-y-4">
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Events</p>
+                            <p className="text-3xl font-bold text-white">{gameHistory.length}</p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Participants</p>
+                            <p className="text-3xl font-bold text-cyan-400">
+                                {gameHistory.reduce((acc, curr) => acc + curr.participants_count, 0)}
+                            </p>
+                        </div>
+                        {selectedGame.max_participants && (
+                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Max Per Match</p>
+                                <p className="text-3xl font-bold text-white">{selectedGame.max_participants}</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right History Column */}
+                    <div className="lg:col-span-2">
+                        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-cyan-500 rounded-full"></span>
+                            Tournament History
+                        </h3>
+                        
+                        {loadingHistory ? (
+                            <div className="space-y-4 animate-pulse">
+                                {[1,2,3].map(i => <div key={i} className="h-20 bg-white/5 rounded-xl"></div>)}
+                            </div>
+                        ) : gameHistory.length > 0 ? (
+                            <div className="space-y-4">
+                                {gameHistory.map((history) => (
+                                    <div key={history.id} className="group flex items-center justify-between p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:border-cyan-500/30 transition-all">
+                                        <div>
+                                            <h4 className="font-bold text-white group-hover:text-cyan-400 transition-colors">{history.event_name}</h4>
+                                            <div className="flex gap-4 text-sm text-gray-400 mt-1">
+                                                <span>📅 {history.month}/{history.year}</span>
+                                                {history.participants_count > 0 && <span>👤 {history.participants_count} Players</span>}
+                                            </div>
+                                        </div>
+                                        {history.prize_pool && (
+                                            <div className="text-right">
+                                                <div className="text-xs font-bold text-gray-500 uppercase">Prize Pool</div>
+                                                <div className="text-lg font-bold text-green-400">{history.prize_pool}</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 text-gray-500 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                                No tournaments recorded yet.
+                            </div>
+                        )}
+                    </div>
+
+                </div>
             </div>
-          </div>
         </div>
       )}
 
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: linear-gradient(to bottom, #06b6d4, #3b82f6);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(to bottom, #0891b2, #2563eb);
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
       `}</style>
+
     </div>
   );
 }

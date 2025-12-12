@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import AdminHelpButton from '@/components/AdminHelpButton';
+
+import { useState, useEffect } from 'react';
+
 import { 
   createGame, 
   updateGame, 
@@ -13,6 +15,19 @@ import {
   deleteGameHistory
 } from '@/lib/supabase-queries';
 import { Game, GameHistory } from '@/lib/types/database';
+import { 
+  PuzzlePieceIcon, 
+  TrophyIcon, 
+  PencilIcon, 
+  TrashIcon, 
+  PlusIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+  CalendarDaysIcon,
+  UserGroupIcon,
+  BanknotesIcon,
+  ArrowTopRightOnSquareIcon
+} from '@heroicons/react/24/outline';
 
 interface FormData {
   name: string;
@@ -56,9 +71,9 @@ const initialHistoryFormData: HistoryFormData = {
 };
 
 const gameTypeColors = {
-  casual: 'bg-blue-500',
-  mobile: 'bg-purple-500',
-  pc: 'bg-orange-500',
+  casual: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  mobile: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+  pc: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
 };
 
 export default function GamesAdminPage() {
@@ -192,6 +207,7 @@ export default function GamesAdminPage() {
       display_order: game.display_order,
     });
     setLogoPreview(game.logo_url);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id: string) => {
@@ -286,464 +302,529 @@ export default function GamesAdminPage() {
     setEditingHistoryId(null);
   };
 
+  // Helper for input styles
+  const inputClassName = "w-full px-4 py-3 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-white placeholder-gray-500 hover:bg-black/30";
+  const labelClassName = "block text-sm font-medium text-gray-300 mb-2 ml-1";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fadeIn pb-10">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Games Management</h1>
-          <p className="text-gray-400 mt-2">Create, update, and manage your game profiles</p>
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2">Games Library</h1>
+          <p className="text-gray-400 text-lg">Curate and manage your gaming ecosystem</p>
         </div>
         {editingId && (
           <button
             onClick={resetForm}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            className="flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 text-white rounded-full hover:bg-white/10 transition-all text-sm font-medium backdrop-blur-sm"
           >
+            <XMarkIcon className="w-4 h-4" />
             Cancel Editing
           </button>
         )}
       </div>
 
-      {/* Form Section */}
-      <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
-        <h2 className="text-xl font-semibold text-white mb-6">
-          {editingId ? 'Edit Game' : 'Add New Game'}
-        </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Form Section */}
+          <div className="lg:col-span-1">
+             <div className="bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl sticky top-24">
+                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <PuzzlePieceIcon className="w-6 h-6 text-purple-500" />
+                  {editingId ? 'Edit Game' : 'Add New Game'}
+                </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Game Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                placeholder="Enter game name"
-              />
-            </div>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Name */}
+                    <div>
+                      <label className={labelClassName}>Game Name *</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                        className={inputClassName}
+                        placeholder="e.g. Valorant"
+                      />
+                    </div>
 
-            {/* Game Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Game Category *</label>
-              <select
-                name="game_type"
-                value={formData.game_type}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-              >
-                <option value="casual">Casual</option>
-                <option value="mobile">Mobile</option>
-                <option value="pc">PC</option>
-              </select>
-            </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Game Type */}
+                        <div>
+                          <label className={labelClassName}>Category *</label>
+                          <select
+                            name="game_type"
+                            value={formData.game_type}
+                            onChange={handleInputChange}
+                            className={inputClassName}
+                          >
+                            <option value="casual" className="bg-gray-800">Casual</option>
+                            <option value="mobile" className="bg-gray-800">Mobile</option>
+                            <option value="pc" className="bg-gray-800">PC</option>
+                          </select>
+                        </div>
 
-            {/* Game Mode */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Game Mode</label>
-              <select
-                name="game_mode"
-                value={formData.game_mode || ''}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-              >
-                <option value="">Select mode</option>
-                <option value="team">Team</option>
-                <option value="individual">Individual</option>
-              </select>
-            </div>
-
-            {/* Team Size - Only show when game_mode is 'team' */}
-            {formData.game_mode === 'team' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Team Size</label>
-                <select
-                  name="team_size"
-                  value={formData.team_size || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                >
-                  <option value="">Select size</option>
-                  <option value="2v2">2v2</option>
-                  <option value="3v3">3v3</option>
-                  <option value="4v4">4v4</option>
-                  <option value="5v5">5v5</option>
-                  <option value="6v6">6v6</option>
-                </select>
-              </div>
-            )}
-
-            {/* Display Order */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Display Order</label>
-              <input
-                type="number"
-                name="display_order"
-                value={formData.display_order}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          {/* Logo Upload */}
-          <div className="border border-gray-700 rounded-lg p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3">Logo URL or Path *</label>
-              <p className="text-sm text-gray-500 mb-3">Enter a URL (https://...) or file path (/games/logo.png)</p>
-              <input
-                type="text"
-                value={formData.logo_url}
-                onChange={handleLogoChange}
-                required
-                className="w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-cyan-500"
-                placeholder="https://example.com/logo.png or /games/logo.png"
-              />
-            </div>
-
-            {logoPreview && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-400 mb-2">Preview:</p>
-                <img 
-                  src={logoPreview} 
-                  alt="Logo preview" 
-                  className="h-32 w-32 object-contain rounded-lg bg-gray-700 p-2"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.png';
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Publish Checkbox */}
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="is_published"
-              name="is_published"
-              checked={formData.is_published}
-              onChange={handleInputChange}
-              className="w-4 h-4"
-            />
-            <label htmlFor="is_published" className="text-gray-300">
-              Publish this game
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50"
-            >
-              {loading ? 'Saving...' : editingId ? 'Update Game' : 'Create Game'}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* Games Table */}
-      <div className="bg-gray-900 rounded-lg p-8 border border-gray-800">
-        <h2 className="text-xl font-semibold text-white mb-6">Games List</h2>
-
-        {loading ? (
-          <p className="text-gray-400">Loading games...</p>
-        ) : games.length === 0 ? (
-          <p className="text-gray-400">No games yet. Create your first game above.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-4 px-4 text-gray-300 font-semibold">Name</th>
-                  <th className="text-left py-4 px-4 text-gray-300 font-semibold">Type</th>
-                  <th className="text-left py-4 px-4 text-gray-300 font-semibold">Status</th>
-                  <th className="text-left py-4 px-4 text-gray-300 font-semibold">Order</th>
-                  <th className="text-right py-4 px-4 text-gray-300 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {games.map((game) => (
-                  <tr key={game.id} className="border-b border-gray-800 hover:bg-gray-800">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        {game.logo_url && (
-                          <img
-                            src={game.logo_url}
-                            alt={game.name}
-                            className="h-8 w-8 object-contain rounded"
+                        {/* Display Order */}
+                        <div>
+                          <label className={labelClassName}>Order</label>
+                          <input
+                            type="number"
+                            name="display_order"
+                            value={formData.display_order}
+                            onChange={handleInputChange}
+                            className={inputClassName}
+                            placeholder="0"
                           />
-                        )}
-                        <span className="text-white font-medium">{game.name}</span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                         {/* Game Mode */}
+                        <div>
+                          <label className={labelClassName}>Mode</label>
+                          <select
+                            name="game_mode"
+                            value={formData.game_mode || ''}
+                            onChange={handleInputChange}
+                            className={inputClassName}
+                          >
+                            <option value="" className="bg-gray-800">Select</option>
+                            <option value="team" className="bg-gray-800">Team</option>
+                            <option value="individual" className="bg-gray-800">Individual</option>
+                          </select>
+                        </div>
+
+                        {/* Team Size */}
+                        <div>
+                          <label className={labelClassName}>Size</label>
+                          <select
+                              name="team_size"
+                              value={formData.team_size || ''}
+                              onChange={handleInputChange}
+                              disabled={formData.game_mode !== 'team'}
+                              className={`${inputClassName} ${formData.game_mode !== 'team' && 'opacity-50 cursor-not-allowed'}`}
+                            >
+                              <option value="" className="bg-gray-800">Select</option>
+                              <option value="2v2" className="bg-gray-800">2v2</option>
+                              <option value="3v3" className="bg-gray-800">3v3</option>
+                              <option value="4v4" className="bg-gray-800">4v4</option>
+                              <option value="5v5" className="bg-gray-800">5v5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Logo Upload */}
+                    <div className="bg-black/20 rounded-xl p-4 border border-white/5 space-y-3">
+                      <div>
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Logo</label>
+                        <input
+                          type="text"
+                          value={formData.logo_url}
+                          onChange={handleLogoChange}
+                          required
+                          className={inputClassName}
+                          placeholder="Image URL"
+                        />
                       </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
-                          gameTypeColors[game.game_type]
-                        }`}
-                      >
-                        {game.game_type}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className={`text-sm ${game.is_published ? 'text-green-400' : 'text-gray-400'}`}>
-                        {game.is_published ? 'Published' : 'Draft'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-gray-300">{game.display_order}</td>
-                    <td className="py-4 px-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => openHistoryModal(game.id)}
-                          className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
-                        >
-                          History
-                        </button>
-                        <button
-                          onClick={() => handleEdit(game)}
-                          className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(game.id)}
-                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
+                      {logoPreview && (
+                        <div className="mt-2 flex justify-center bg-black/40 rounded-lg p-4 border border-white/5 border-dashed">
+                          <img 
+                            src={logoPreview} 
+                            alt="Preview" 
+                            className="h-20 max-w-full object-contain"
+                            onError={(e) => { e.currentTarget.src = '/placeholder.png'; }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Publish Toggle */}
+                    <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                      <div className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            name="is_published"
+                            checked={formData.is_published} 
+                            onChange={handleInputChange}
+                            className="sr-only peer" 
+                          />
+                          <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-600 peer-checked:to-pink-600"></div>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <span className="text-gray-300 font-medium">Publish Game</span>
+                    </label>
+
+                    {/* Submit Buttons */}
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                          <>
+                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                           Saving...
+                          </>
+                      ) : (
+                          <>
+                            {editingId ? <PencilIcon className="w-5 h-5" /> : <PlusIcon className="w-5 h-5" />}
+                            {editingId ? 'Update Game' : 'Add to Library'}
+                          </>
+                      )}
+                    </button>
+                </form>
+             </div>
           </div>
-        )}
+
+          {/* Games List */}
+          <div className="lg:col-span-2">
+            <div className="bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+               <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                      <TrophyIcon className="w-5 h-5 text-yellow-500" />
+                      <h2 className="text-lg font-bold text-white">All Games</h2>
+                  </div>
+                  <div className="text-xs font-medium px-3 py-1 bg-white/5 rounded-full text-gray-400 border border-white/5">
+                      {games.length} Entries
+                  </div>
+               </div>
+
+                {games.length === 0 ? (
+                  <div className="p-12 text-center">
+                      <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <PuzzlePieceIcon className="w-10 h-10 text-gray-600" />
+                      </div>
+                      <p className="text-gray-400 text-lg">No games found</p>
+                      <p className="text-gray-600 text-sm">Add your first game to get started</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-black/20 border-b border-white/5">
+                          <th className="text-left py-4 px-6 text-gray-400 font-medium text-sm">Game</th>
+                          <th className="text-left py-4 px-6 text-gray-400 font-medium text-sm">Details</th>
+                          <th className="text-left py-4 px-6 text-gray-400 font-medium text-sm">Status</th>
+                          <th className="text-right py-4 px-6 text-gray-400 font-medium text-sm">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {games.map((game) => (
+                          <tr key={game.id} className="hover:bg-white/5 transition-colors group">
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg bg-black/40 border border-white/10 p-2 flex items-center justify-center">
+                                    {game.logo_url ? (
+                                      <img
+                                        src={game.logo_url}
+                                        alt={game.name}
+                                        className="max-w-full max-h-full object-contain"
+                                      />
+                                    ) : (
+                                        <PuzzlePieceIcon className="w-6 h-6 text-gray-600" />
+                                    )}
+                                </div>
+                                <div>
+                                    <span className="text-white font-bold block">{game.name}</span>
+                                    <span className="text-xs text-gray-500">Order: {game.display_order}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-col gap-1">
+                                  <span
+                                    className={`self-start inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium border ${
+                                      gameTypeColors[game.game_type]
+                                    }`}
+                                  >
+                                    {game.game_type}
+                                  </span>
+                                  {game.game_mode && (
+                                     <span className="text-xs text-gray-400">
+                                        {game.game_mode} {game.team_size && `• ${game.team_size}`}
+                                     </span>
+                                  )}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${game.is_published ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-700/50 text-gray-400 border border-gray-600/30'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${game.is_published ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></span>
+                                {game.is_published ? 'Published' : 'Draft'}
+                              </span>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => openHistoryModal(game.id)}
+                                  className="p-2 bg-white/5 text-gray-300 hover:text-green-400 hover:bg-green-400/10 rounded-lg transition-colors"
+                                  title="View History"
+                                >
+                                  <CalendarDaysIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => handleEdit(game)}
+                                  className="p-2 bg-white/5 text-gray-300 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors"
+                                  title="Edit Game"
+                                >
+                                  <PencilIcon className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(game.id)}
+                                  className="p-2 bg-white/5 text-gray-300 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                                  title="Delete Game"
+                                >
+                                  <TrashIcon className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+            </div>
+          </div>
       </div>
 
       {/* History Modal */}
       {showHistoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-800">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Event History</h2>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-fadeIn">
+          <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-scaleIn">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+              <div className="flex items-center gap-3">
+                  <CalendarDaysIcon className="w-6 h-6 text-cyan-400" />
+                  <h2 className="text-2xl font-bold text-white">Event History</h2>
+              </div>
               <button
                 onClick={closeHistoryModal}
-                className="text-gray-400 hover:text-white text-2xl"
+                className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
               >
-                ×
+                <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
 
-            {/* History Form */}
-            <form onSubmit={handleHistorySubmit} className="mb-8 p-6 bg-gray-800 rounded-lg">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                {editingHistoryId ? 'Edit Event' : 'Add Event'}
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Event Name *</label>
-                  <input
-                    type="text"
-                    name="event_name"
-                    value={historyFormData.event_name}
-                    onChange={handleHistoryInputChange}
-                    required
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                    placeholder="e.g., VGS Inter University Gaming Fest"
-                  />
-                </div>
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                {/* History Form */}
+                <form onSubmit={handleHistorySubmit} className="mb-8 p-6 bg-black/20 rounded-xl border border-white/5">
+                  <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        {editingHistoryId ? <PencilIcon className="w-4 h-4 text-purple-400"/> : <PlusIcon className="w-4 h-4 text-green-400"/>}
+                        {editingHistoryId ? 'Edit Event' : 'Add New Event'}
+                      </h3>
+                      {editingHistoryId && (
+                           <button onClick={cancelEditHistory} type="button" className="text-xs text-red-300 hover:underline">Cancel</button>
+                      )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="md:col-span-2">
+                      <label className={labelClassName}>Event Name *</label>
+                      <input
+                        type="text"
+                        name="event_name"
+                        value={historyFormData.event_name}
+                        onChange={handleHistoryInputChange}
+                        required
+                        className={inputClassName}
+                        placeholder="e.g. VGS Winter Championship 2025"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Year *</label>
-                  <input
-                    type="number"
-                    name="year"
-                    value={historyFormData.year}
-                    onChange={handleHistoryInputChange}
-                    required
-                    min="2000"
-                    max="2100"
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
+                    <div>
+                      <label className={labelClassName}>Year *</label>
+                      <input
+                        type="number"
+                        name="year"
+                        value={historyFormData.year}
+                        onChange={handleHistoryInputChange}
+                        required
+                        min="2000"
+                        max="2100"
+                        className={inputClassName}
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Month *</label>
-                  <select
-                    name="month"
-                    value={historyFormData.month}
-                    onChange={handleHistoryInputChange}
-                    required
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                  >
-                    {MONTH_NAMES.map((month, index) => (
-                      <option key={index + 1} value={index + 1}>
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <div>
+                      <label className={labelClassName}>Month *</label>
+                      <select
+                        name="month"
+                        value={historyFormData.month}
+                        onChange={handleHistoryInputChange}
+                        required
+                        className={inputClassName}
+                      >
+                        {MONTH_NAMES.map((month, index) => (
+                          <option key={index + 1} value={index + 1} className="bg-gray-800">
+                            {month}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Participants Count</label>
-                  <input
-                    type="number"
-                    name="participants_count"
-                    value={historyFormData.participants_count}
-                    onChange={handleHistoryInputChange}
-                    min="0"
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                    placeholder="Total participants"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Prize Pool</label>
-                  <input
-                    type="text"
-                    name="prize_pool"
-                    value={historyFormData.prize_pool}
-                    onChange={handleHistoryInputChange}
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                    placeholder="e.g., ৳50,000"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Event Link</label>
-                  <input
-                    type="url"
-                    name="event_link"
-                    value={historyFormData.event_link}
-                    onChange={handleHistoryInputChange}
-                    className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-500"
-                    placeholder="https://facebook.com/... or website link"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-4">
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700"
-                >
-                  {editingHistoryId ? 'Update Event' : 'Add Event'}
-                </button>
-                {editingHistoryId && (
-                  <button
-                    type="button"
-                    onClick={cancelEditHistory}
-                    className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </form>
-
-            {/* History List */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Past Events</h3>
-              {gameHistory.length === 0 ? (
-                <p className="text-gray-400 text-center py-8">No event history yet. Add one above.</p>
-              ) : (
-                <div className="space-y-4">
-                  {gameHistory.map((history) => (
-                    <div
-                      key={history.id}
-                      className="bg-gray-800 rounded-lg p-4 border border-gray-700"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="text-white font-semibold text-lg">{history.event_name}</h4>
-                          <p className="text-gray-400 text-sm mt-1">
-                            {MONTH_NAMES[history.month - 1]} {history.year}
-                          </p>
-                          <div className="mt-3 flex flex-wrap gap-4 text-sm">
-                            {history.participants_count > 0 && (
-                              <span className="text-cyan-400">
-                                👥 {history.participants_count} Participants
-                              </span>
-                            )}
-                            {history.prize_pool && (
-                              <span className="text-green-400">
-                                💰 {history.prize_pool}
-                              </span>
-                            )}
-                            {history.event_link && (
-                              <a
-                                href={history.event_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-400 hover:text-blue-300 underline"
-                              >
-                                🔗 Event Link
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditHistory(history)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteHistory(history.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                    <div>
+                      <label className={labelClassName}>Participants</label>
+                      <div className="relative">
+                           <UserGroupIcon className="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
+                           <input
+                            type="number"
+                            name="participants_count"
+                            value={historyFormData.participants_count}
+                            onChange={handleHistoryInputChange}
+                            min="0"
+                            className={`${inputClassName} pl-10`}
+                            placeholder="0"
+                          />
                       </div>
                     </div>
-                  ))}
+
+                    <div>
+                      <label className={labelClassName}>Prize Pool</label>
+                       <div className="relative">
+                           <BanknotesIcon className="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
+                           <input
+                            type="text"
+                            name="prize_pool"
+                            value={historyFormData.prize_pool}
+                            onChange={handleHistoryInputChange}
+                            className={`${inputClassName} pl-10`}
+                            placeholder="e.g. ৳50,000"
+                          />
+                       </div>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className={labelClassName}>Event Link</label>
+                      <div className="relative">
+                           <ArrowTopRightOnSquareIcon className="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
+                           <input
+                            type="url"
+                            name="event_link"
+                            value={historyFormData.event_link}
+                            onChange={handleHistoryInputChange}
+                            className={`${inputClassName} pl-10`}
+                            placeholder="https://..."
+                          />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                      type="submit"
+                      className="mt-6 w-full py-3 bg-cyan-600/80 hover:bg-cyan-600 text-white rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-cyan-900/30"
+                    >
+                      {editingHistoryId ? 'Update Event Record' : 'Add Event to History'}
+                  </button>
+                </form>
+
+                {/* History List */}
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-4 pl-1">Past Events Timeline</h3>
+                  {gameHistory.length === 0 ? (
+                    <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                        <CalendarDaysIcon className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                        <p className="text-gray-400">No event history found.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {gameHistory.map((history) => (
+                        <div
+                          key={history.id}
+                          className="bg-black/40 rounded-xl p-5 border border-white/5 hover:border-white/20 transition-all group relative overflow-hidden"
+                        >
+                           <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50"></div>
+                           <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="text-white font-bold text-lg">{history.event_name}</h4>
+                              <p className="text-cyan-400 text-sm font-medium mt-1 flex items-center gap-2">
+                                <CalendarDaysIcon className="w-4 h-4" />
+                                {MONTH_NAMES[history.month - 1]} {history.year}
+                              </p>
+                              <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                                {history.participants_count > 0 && (
+                                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+                                    <UserGroupIcon className="w-4 h-4" />
+                                    {history.participants_count} Players
+                                  </span>
+                                )}
+                                {history.prize_pool && (
+                                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 text-green-300 border border-green-500/20">
+                                    <BanknotesIcon className="w-4 h-4" />
+                                    {history.prize_pool}
+                                  </span>
+                                )}
+                                {history.event_link && (
+                                  <a
+                                    href={history.event_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+                                  >
+                                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                                    External Link
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditHistory(history)}
+                                className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors"
+                                title="Edit"
+                              >
+                                <PencilIcon className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteHistory(history.id)}
+                                className="p-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
             </div>
           </div>
         </div>
       )}
 
+      {/* Built-in Instructions Menu (static) */}
       <AdminHelpButton
-        title="Games Library Management"
+        title="🎮 Games Library Management Instructions"
         instructions={[
-          'Add games to the VGS library',
-          'Upload game cover images',
-          'Write game descriptions',
-          'Categorize games by type',
-          'Set game popularity/featured status'
+          "Add games to the VGS library",
+          "Upload game cover images",
+          "Write game descriptions",
+          "Categorize games by type",
+          "Set game popularity/featured status"
         ]}
         tips={[
-          'Use official game artwork when possible',
-          'Write engaging descriptions',
-          'Tag games accurately for filtering'
+          "Use official game artwork when possible",
+          "Write engaging descriptions",
+          "Tag games accurately for filtering"
         ]}
         actions={[
-          { title: 'Add Game', description: 'create new game entry' },
-          { title: 'Edit Game', description: 'modify game details' },
-          { title: 'Delete Game', description: 'remove game' }
+          {
+            title: "🕹️ Usage Guide",
+            description: "Add Game: Create new game entry\nEdit Game: Modify game details\nDelete Game: Remove game"
+          }
         ]}
       />
+      
+      <style jsx global>{`
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-scaleIn {
+            animation: scaleIn 0.2s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

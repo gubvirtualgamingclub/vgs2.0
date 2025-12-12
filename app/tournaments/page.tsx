@@ -6,7 +6,7 @@ import { getTournamentWithGames } from '@/lib/supabase-queries';
 import { Tournament, TournamentGame, Organization } from '@/lib/types/database';
 import Image from 'next/image';
 
-// Dynamic imports for animations
+// Dynamic imports
 const ScrollProgressBar = dynamic(
   () => import('@/components/ScrollAnimations').then(mod => mod.ScrollProgressBar),
   { ssr: false }
@@ -24,132 +24,516 @@ const ScrollAnimation = dynamic(
   { ssr: false }
 );
 
-// Seamless logo display component - no cards
-function SeamlessLogo({ org }: { org: Organization }) {
-  const isImageUrl = org.logo && (org.logo.startsWith('http') || org.logo.startsWith('/'));
+// --- COMPONENTS ---
 
-  return (
-    <div className="group relative h-20 w-full flex items-center justify-center hover:opacity-80 transition-opacity duration-300">
-      {isImageUrl ? (
-        <div className="relative w-full h-full">
-          <Image 
-            src={org.logo} 
-            alt={org.name} 
-            fill 
-            className="object-contain group-hover:scale-105 transition-transform duration-300" 
-            title={org.name}
-          />
+
+// Premium Countdown Timer - Circular Neon Rings Design
+function CountdownTimer({ deadline }: { deadline: string }) {
+    const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number} | null>(null);
+
+    useEffect(() => {
+        if (!deadline) return;
+        
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const end = new Date(deadline).getTime();
+            const distance = end - now;
+
+            if (distance < 0) {
+                setTimeLeft(null);
+                clearInterval(interval);
+            } else {
+                setTimeLeft({
+                    days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                    minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+                    seconds: Math.floor((distance % (1000 * 60)) / 1000)
+                });
+            }
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [deadline]);
+
+    if (!deadline || !timeLeft) return (
+        <div className="text-center py-10">
+            <h3 className="text-4xl md:text-6xl font-black text-red-500 tracking-tighter uppercase animate-pulse">Registration Closed</h3>
         </div>
-      ) : (
-        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
-          {org.name.substring(0, 2).toUpperCase()}
+    );
+
+    const units = [
+        { key: 'days', max: 99, color: 'from-purple-500 to-violet-600', glow: 'rgba(139, 92, 246, 0.5)' },
+        { key: 'hours', max: 24, color: 'from-cyan-400 to-blue-500', glow: 'rgba(34, 211, 238, 0.5)' },
+        { key: 'minutes', max: 60, color: 'from-pink-500 to-rose-500', glow: 'rgba(236, 72, 153, 0.5)' },
+        { key: 'seconds', max: 60, color: 'from-emerald-400 to-teal-500', glow: 'rgba(52, 211, 153, 0.5)' }
+    ] as const;
+
+    return (
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 lg:gap-10">
+            {units.map(({ key, max, color, glow }, index) => {
+                const value = timeLeft[key as keyof typeof timeLeft];
+                const progress = key === 'days' ? Math.min(value / max, 1) : value / max;
+                const circumference = 2 * Math.PI * 54; // radius = 54
+                const strokeOffset = circumference - (progress * circumference);
+                const displayValue = value.toString().padStart(2, '0');
+
+                return (
+                    <div key={key} className="flex flex-col items-center group">
+                        {/* Circular Ring Container */}
+                        <div className="relative w-28 h-28 md:w-36 md:h-36">
+                            {/* Outer Glow */}
+                            <div 
+                                className="absolute inset-0 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-500"
+                                style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)` }}
+                            ></div>
+                            
+                            {/* SVG Ring */}
+                            <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 120 120">
+                                {/* Background Circle */}
+                                <circle
+                                    cx="60"
+                                    cy="60"
+                                    r="54"
+                                    fill="none"
+                                    stroke="rgba(255,255,255,0.05)"
+                                    strokeWidth="6"
+                                />
+                                {/* Progress Circle */}
+                                <circle
+                                    cx="60"
+                                    cy="60"
+                                    r="54"
+                                    fill="none"
+                                    stroke={`url(#gradient-${key})`}
+                                    strokeWidth="6"
+                                    strokeLinecap="round"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={strokeOffset}
+                                    className="transition-all duration-1000 ease-out"
+                                    style={{
+                                        filter: `drop-shadow(0 0 8px ${glow})`,
+                                    }}
+                                />
+                                {/* Gradient Definition */}
+                                <defs>
+                                    <linearGradient id={`gradient-${key}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" className={`text-${color.split(' ')[0].replace('from-', '')}`} style={{ stopColor: 'currentColor' }} />
+                                        <stop offset="100%" className={`text-${color.split(' ')[1].replace('to-', '')}`} style={{ stopColor: 'currentColor' }} />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            
+                            {/* Center Glass Card */}
+                            <div className="absolute inset-3 md:inset-4 rounded-full bg-[#0d1117]/80 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                                {/* Number Display */}
+                                <div className="relative overflow-hidden">
+                                    <span 
+                                        className="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter"
+                                        style={{
+                                            textShadow: `0 0 20px ${glow}, 0 0 40px ${glow}`,
+                                        }}
+                                    >
+                                        {displayValue}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Tick Marks */}
+                            <div className="absolute inset-0">
+                                {[...Array(12)].map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className="absolute w-1 h-1 rounded-full bg-white/20"
+                                        style={{
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: `rotate(${i * 30}deg) translateY(-52px) translateX(-50%)`
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* Unit Label */}
+                        <div className="mt-4 text-center">
+                            <span className={`text-xs md:text-sm uppercase tracking-[0.2em] font-bold bg-gradient-to-r ${color} bg-clip-text text-transparent`}>
+                                {key}
+                            </span>
+                        </div>
+
+                        {/* Separator Colon (except last) */}
+                        {index < units.length - 1 && (
+                            <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 ml-[calc(100%+1rem)] flex-col gap-2">
+                                <div className="w-2 h-2 rounded-full bg-white/30 animate-pulse"></div>
+                                <div className="w-2 h-2 rounded-full bg-white/30 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
-function GameCard({ game }: { game: TournamentGame }) {
-  const categoryColors = {
-    casual: 'from-blue-500 to-cyan-500',
-    mobile: 'from-purple-500 to-pink-500',
-    pc: 'from-orange-500 to-red-500',
-  };
 
+
+// 1. Premium Game Card with Holographic Effect
+function PremiumGameCard({ game, index }: { game: TournamentGame; index: number }) {
   const isRegistrationClosed = game.registration_status === 'closed';
-
+  
   return (
-    <div className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <div className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${categoryColors[game.category]}`}>
-          {game.category.toUpperCase()}
-        </div>
-        {isRegistrationClosed && (
-          <div className="px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r from-red-500 to-pink-600 animate-pulse">
-            🔒 CLOSED
-          </div>
-        )}
-      </div>
-
-      {game.game_logo && (
-        <div className={`relative h-48 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden ${isRegistrationClosed ? 'opacity-60' : ''}`}>
-          <Image src={game.game_logo} alt={game.game_name} fill className="object-contain p-6 group-hover:scale-110 transition-transform duration-300" />
-        </div>
-      )}
-      <div className="p-6">
-        <div className="flex items-start gap-3 mb-4">
-          <span className={`text-3xl ${isRegistrationClosed ? 'opacity-50' : ''}`}>{game.icon}</span>
-          <div className="flex-1">
-            <h3 className={`text-xl font-bold group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors ${
-              isRegistrationClosed 
-                ? 'text-gray-500 dark:text-gray-400' 
-                : 'text-gray-900 dark:text-white'
-            }`}>
-              {game.game_name}
-            </h3>
-            <p className={`text-sm mt-1 ${
-              isRegistrationClosed 
-                ? 'text-gray-500 dark:text-gray-500' 
-                : 'text-gray-600 dark:text-gray-400'
-            }`}>
-              {game.description}
-            </p>
-          </div>
+    <div 
+      className="group relative h-[500px] w-full rounded-2xl transition-all duration-500 hover:-translate-y-2 perspective-1000"
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      {/* 3D Card Container */}
+      <div className="absolute inset-0 bg-[#0f1219] rounded-2xl border border-white/5 overflow-hidden shadow-xl transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:border-purple-500/50">
+        
+        {/* Background Art */}
+        <div className="absolute inset-0 z-0">
+           <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f1219] to-[#0b0f19]"></div>
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
         </div>
 
-        {isRegistrationClosed && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-600 dark:text-red-400 text-center font-semibold animate-fadeIn">
-            ⏳ Registration is currently closed for this game
-          </div>
-        )}
+        {/* Content Layer */}
+        <div className="relative z-10 h-full flex flex-col p-8">
+           
+           {/* Logo Avatar - Large & Centered */}
+           <div className="flex flex-col items-center mb-8">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl group-hover:border-purple-500 group-hover:scale-110 transition-all duration-500 bg-[#1a1d29]">
+                 {game.game_logo ? (
+                    <Image 
+                       src={game.game_logo} 
+                       alt={game.game_name} 
+                       fill 
+                       className="object-cover"
+                    />
+                 ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-purple-500/20 text-purple-400 text-4xl font-bold">
+                       {game.game_name.charAt(0)}
+                    </div>
+                 )}
+              </div>
+              <div className="mt-6 text-center">
+                   <h3 className="text-3xl font-black text-white leading-none uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all">
+                      {game.game_name}
+                   </h3>
+                   <span className="inline-block mt-2 px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-white/10">
+                      {game.category} Edition
+                   </span>
+              </div>
+           </div>
 
-        <div className={`space-y-2 mb-4 ${isRegistrationClosed ? 'opacity-60' : ''}`}>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">💰 Prize Pool:</span>
-            <span className="font-semibold text-green-600 dark:text-green-400">{game.prize_pool}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">👥 Team Size:</span>
-            <span className="font-semibold text-gray-900 dark:text-white">{game.team_size}</span>
-          </div>
-          {game.format && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">🎯 Format:</span>
-              <span className="font-semibold text-gray-900 dark:text-white">{game.format}</span>
-            </div>
-          )}
-          {game.schedule && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">📅 Schedule:</span>
-              <span className="font-semibold text-gray-900 dark:text-white">{game.schedule}</span>
-            </div>
-          )}
-          {game.max_participants && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">🎮 Max Teams:</span>
-              <span className="font-semibold text-gray-900 dark:text-white">{game.max_participants}</span>
-            </div>
-          )}
-        </div>
+           {/* Stats Grid */}
+           <div className="grid grid-cols-2 gap-3 mb-8 mt-auto">
+              <div className="bg-white/5 rounded-xl p-4 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Prize Pool</div>
+                 <div className="text-green-400 font-bold font-mono text-lg">{game.prize_pool}</div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-4 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Team Size</div>
+                 <div className="text-blue-400 font-bold font-mono text-lg">{game.team_size}</div>
+              </div>
+           </div>
 
-        <div className="flex gap-3">
-          {isRegistrationClosed ? (
-            <button disabled className="flex-1 px-4 py-2 bg-gray-400 dark:bg-gray-600 text-gray-600 dark:text-gray-300 font-semibold rounded-lg cursor-not-allowed text-center opacity-75">
-              🔒 Registration Closed
-            </button>
-          ) : (
-            <a href={game.registration_link} target="_blank" rel="noopener noreferrer" className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 text-center">
-              Register Now
-            </a>
-          )}
-          <a href={game.rulebook_link} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
-            📖 Rules
-          </a>
+           {/* Action Buttons */}
+           <div className="flex gap-3">
+              <a 
+                href={isRegistrationClosed ? '#' : game.registration_link} 
+                target={isRegistrationClosed ? undefined : "_blank"}
+                rel="noopener noreferrer"
+                className={`flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-300 transform group-hover:translate-y-1 ${isRegistrationClosed 
+                   ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' 
+                   : 'bg-white text-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] border border-transparent'}`}
+              >
+                 {isRegistrationClosed ? 'Locked' : 'Register Now'}
+              </a>
+              
+              <a 
+                 href={game.rulebook_link} 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 download
+                 className="w-14 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 hover:text-white hover:border-purple-500/50 transition-all group-hover:translate-y-1"
+                 title="Download Rule Book"
+              >
+                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              </a>
+           </div>
+
         </div>
       </div>
     </div>
   );
 }
+
+// 2. Organization Logo with Glow
+function OrgLogo({ org, size = "medium" }: { org: Organization, size?: "small" | "medium" | "large" }) {
+   const sizeClasses = {
+       small: "w-16 h-16",
+       medium: "w-24 h-24 md:w-32 md:h-32",
+       large: "w-32 h-32 md:w-48 md:h-48"
+   };
+   
+   return (
+     <div className={`relative group ${sizeClasses[size]}`}>
+       <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+       <div className="relative w-full h-full bg-[#13161f] rounded-full border border-white/10 flex items-center justify-center p-4 transition-all duration-300 group-hover:scale-105 group-hover:border-purple-500/30 overflow-hidden shadow-lg">
+           {org.logo ? (
+               <Image 
+                 src={org.logo} 
+                 alt={org.name} 
+                 fill 
+                 className="object-contain p-2"
+                 title={org.name}
+               />
+           ) : (
+               <span className="text-xs text-center font-bold text-gray-500 group-hover:text-white">{org.name}</span>
+           )}
+       </div>
+       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs font-bold text-gray-400 tracking-wider uppercase bg-black/80 px-2 py-1 rounded">
+           {org.name}
+       </div>
+     </div>
+   );
+}
+
+// 3. Glimpse Gallery
+function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previous_glimpses']> }) {
+    const [activeEventIndex, setActiveEventIndex] = useState(0);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    if (glimpses.length === 0) return null;
+
+    const activeEvent = glimpses[activeEventIndex];
+
+    return (
+        <section className="py-24 px-6 relative overflow-hidden bg-[#0a0d14]">
+            {/* Background Mesh */}
+            <div className="absolute inset-0 opacity-20 bg-[linear-gradient(45deg,#1a1a1a_25%,transparent_25%,transparent_75%,#1a1a1a_75%,#1a1a1a),linear-gradient(45deg,#1a1a1a_25%,transparent_25%,transparent_75%,#1a1a1a_75%,#1a1a1a)] bg-[size:60px_60px] bg-[position:0_0,30px_30px]"></div>
+            
+            <div className="max-w-7xl mx-auto relative z-10">
+                <ScrollAnimation animation="slideUp">
+                    <h2 className="text-4xl md:text-6xl font-black text-white text-center mb-16 uppercase tracking-tighter">
+                        <span className="text-purple-500">{'///'}</span> Legacy Glimpses
+                    </h2>
+                </ScrollAnimation>
+
+                {/* Event Tabs */}
+                <div className="flex flex-wrap justify-center gap-4 mb-12">
+                    {glimpses.map((g, idx) => (
+                        <button 
+                            key={idx}
+                            onClick={() => setActiveEventIndex(idx)}
+                            className={`px-6 py-3 rounded-full font-bold uppercase text-xs tracking-widest transition-all ${
+                                idx === activeEventIndex 
+                                ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
+                                : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white border border-white/5'
+                            }`}
+                        >
+                            {g.title}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Masonry Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px]">
+                    {activeEvent.images.map((img, idx) => (
+                        <div 
+                            key={idx} 
+                            className={`relative group rounded-2xl overflow-hidden cursor-pointer border border-white/10 hover:border-purple-500 transition-all duration-500 ${idx % 3 === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
+                            onClick={() => setSelectedImage(img)}
+                        >
+                            <Image src={img} alt="Event Photo" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-white text-3xl font-bold tracking-widest">+</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Lightbox Modal */}
+            {selectedImage && (
+                <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+                    <div className="relative max-w-6xl max-h-[90vh] w-full h-full">
+                        <Image src={selectedImage} alt="Full View" fill className="object-contain" />
+                        <button className="absolute top-4 right-4 text-white hover:text-purple-500 transition-colors">
+                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+}
+
+// 4. Games In The Event - 3D Card Deck Carousel
+function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const totalGames = games.length;
+
+    // Auto-rotate carousel
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex((prev) => (prev + 1) % totalGames);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [totalGames]);
+
+    if (!games || games.length === 0) return null;
+
+    const goToNext = () => setActiveIndex((prev) => (prev + 1) % totalGames);
+    const goToPrev = () => setActiveIndex((prev) => (prev - 1 + totalGames) % totalGames);
+
+    return (
+        <section className="py-24 px-6 relative overflow-hidden bg-[#0b0f19]">
+            {/* Animated Background */}
+            <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+            </div>
+
+            <div className="max-w-7xl mx-auto relative z-10">
+                <ScrollAnimation animation="slideUp">
+                    <div className="text-center mb-20">
+                        <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                            Games <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400">In The Event</span>
+                        </h2>
+                        <p className="text-gray-500 text-lg max-w-2xl mx-auto">Click or wait to explore all titles</p>
+                    </div>
+                </ScrollAnimation>
+
+                {/* 3D Card Deck Container */}
+                <div className="relative h-[400px] md:h-[500px] w-full flex items-center justify-center" style={{ perspective: '1500px' }}>
+                    
+                    {/* Cards */}
+                    {games.map((game, index) => {
+                        // Calculate position relative to active card
+                        let offset = index - activeIndex;
+                        if (offset > totalGames / 2) offset -= totalGames;
+                        if (offset < -totalGames / 2) offset += totalGames;
+                        
+                        const isActive = offset === 0;
+                        const absOffset = Math.abs(offset);
+                        
+                        // 3D transforms
+                        const translateX = offset * 180;
+                        const translateZ = isActive ? 100 : -absOffset * 150;
+                        const rotateY = offset * -15;
+                        const scale = isActive ? 1 : Math.max(0.6, 1 - absOffset * 0.15);
+                        const opacity = isActive ? 1 : Math.max(0.3, 1 - absOffset * 0.3);
+                        const zIndex = totalGames - absOffset;
+                        
+                        return (
+                            <div
+                                key={game.id}
+                                onClick={() => setActiveIndex(index)}
+                                className="absolute w-[280px] md:w-[350px] h-[350px] md:h-[450px] cursor-pointer"
+                                style={{
+                                    transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                                    opacity,
+                                    zIndex,
+                                    transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
+                                    transformStyle: 'preserve-3d',
+                                }}
+                            >
+                                {/* Card */}
+                                <div className={`relative w-full h-full rounded-3xl overflow-hidden border-2 transition-all duration-500 ${isActive ? 'border-purple-500 shadow-[0_0_60px_rgba(139,92,246,0.4)]' : 'border-white/10 shadow-2xl'}`}>
+                                    
+                                    {/* Card Background */}
+                                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a1d29] via-[#13161f] to-[#0b0e15]"></div>
+                                    
+                                    {/* Decorative Pattern */}
+                                    <div className="absolute inset-0 opacity-30">
+                                        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_40%,rgba(139,92,246,0.05)_45%,rgba(139,92,246,0.05)_55%,transparent_60%)]"></div>
+                                        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.1)_0%,transparent_50%)]"></div>
+                                    </div>
+
+                                    {/* Game Logo - Large Centered */}
+                                    <div className="absolute inset-0 flex items-center justify-center p-8">
+                                        {game.game_logo ? (
+                                            <div className={`relative w-full h-3/5 transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
+                                                <Image 
+                                                    src={game.game_logo} 
+                                                    alt={game.game_name} 
+                                                    fill 
+                                                    className={`object-contain drop-shadow-2xl transition-all duration-500 ${isActive ? 'drop-shadow-[0_0_40px_rgba(139,92,246,0.5)]' : ''}`}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center text-6xl font-black text-white shadow-2xl transition-all duration-500 ${isActive ? 'bg-gradient-to-br from-purple-600 to-cyan-600 scale-110' : 'bg-gradient-to-br from-gray-700 to-gray-800'}`}>
+                                                {game.game_name.charAt(0)}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Game Name - Bottom */}
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+                                        <h3 className={`font-black text-white uppercase text-center transition-all duration-500 ${isActive ? 'text-2xl md:text-3xl tracking-tight' : 'text-lg md:text-xl tracking-wide text-white/70'}`}>
+                                            {game.game_name}
+                                        </h3>
+                                    </div>
+
+                                    {/* Active Card Glow Ring */}
+                                    {isActive && (
+                                        <div className="absolute inset-0 rounded-3xl ring-2 ring-purple-500/50 ring-offset-2 ring-offset-transparent animate-pulse pointer-events-none"></div>
+                                    )}
+
+                                    {/* Corner Accents */}
+                                    <div className={`absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 rounded-tl-lg transition-colors duration-500 ${isActive ? 'border-purple-500' : 'border-white/20'}`}></div>
+                                    <div className={`absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 rounded-tr-lg transition-colors duration-500 ${isActive ? 'border-cyan-500' : 'border-white/20'}`}></div>
+                                    <div className={`absolute bottom-3 left-3 w-8 h-8 border-l-2 border-b-2 rounded-bl-lg transition-colors duration-500 ${isActive ? 'border-cyan-500' : 'border-white/20'}`}></div>
+                                    <div className={`absolute bottom-3 right-3 w-8 h-8 border-r-2 border-b-2 rounded-br-lg transition-colors duration-500 ${isActive ? 'border-purple-500' : 'border-white/20'}`}></div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="flex items-center justify-center gap-6 mt-12">
+                    <button 
+                        onClick={goToPrev}
+                        className="w-14 h-14 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-purple-500/20 hover:border-purple-500/50 hover:text-white transition-all flex items-center justify-center group"
+                    >
+                        <svg className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    {/* Dots Indicator */}
+                    <div className="flex gap-2">
+                        {games.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setActiveIndex(idx)}
+                                className={`h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'w-8 bg-gradient-to-r from-purple-500 to-cyan-500' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                            />
+                        ))}
+                    </div>
+
+                    <button 
+                        onClick={goToNext}
+                        className="w-14 h-14 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-purple-500/20 hover:border-purple-500/50 hover:text-white transition-all flex items-center justify-center group"
+                    >
+                        <svg className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Current Game Counter */}
+                <div className="text-center mt-6">
+                    <span className="text-gray-600 font-mono text-sm tracking-widest">
+                        {String(activeIndex + 1).padStart(2, '0')} / {String(totalGames).padStart(2, '0')}
+                    </span>
+                </div>
+            </div>
+        </section>
+    );
+}
+
 
 export default function TournamentsPage() {
   const [tournament, setTournament] = useState<(Tournament & { games: TournamentGame[] }) | null>(null);
@@ -172,166 +556,253 @@ export default function TournamentsPage() {
     }
   }
 
-  const filteredGames = tournament?.games ? (activeCategory === 'all' ? tournament.games : tournament.games.filter((g) => g.category === activeCategory)) : [];
+  // Filter Logic
+  const filteredGames = tournament?.games ? tournament.games.filter(g => {
+     return activeCategory === 'all' || g.category === activeCategory;
+  }) : [];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading tournament...</p>
-        </div>
+      <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center">
+         <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-t-4 border-purple-500 border-r-4 border-r-transparent rounded-full animate-spin"></div>
+            <div className="text-purple-500 font-mono tracking-widest text-sm animate-pulse">SYSTEM INITIALIZING...</div>
+         </div>
       </div>
     );
   }
 
   if (!tournament || tournament.status === 'closed') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center relative overflow-hidden font-mono">
         <ScrollProgressBar />
         <GamingCursor />
-        <FloatingIcons />
-        <div className="text-center px-4">
-          <ScrollAnimation animation="fadeIn">
-            <div className="mb-8"><span className="text-9xl">🎮</span></div>
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 glitch-text">No Tournament Right Now</h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">We&rsquo;re currently preparing for our next epic gaming event. Stay tuned for announcements!</p>
-            <div className="space-y-4">
-              <p className="text-gray-400">Follow us on social media to get notified when registration opens</p>
-              <a href="/" className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105">Back to Home</a>
-            </div>
-          </ScrollAnimation>
+        
+        {/* Simple Red Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-900/10 rounded-full blur-[120px]"></div>
+
+        <div className="relative z-10 w-full max-w-3xl p-6 text-center">
+             {/* Glitch Icon */}
+             <div className="mb-8 relative inline-block">
+                 <div className="w-24 h-24 mx-auto bg-red-500/5 rounded-2xl flex items-center justify-center border border-red-500/20">
+                     <svg className="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                     </svg>
+                 </div>
+             </div>
+
+             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter uppercase relative">
+                 System <span className="text-red-600">Offline</span>
+             </h1>
+             
+             <div className="h-px w-24 bg-gray-800 mx-auto mb-8"></div>
+
+             <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-xl mx-auto font-light leading-relaxed">
+                 Tournament protocols are currently suspended. Standby for future command data and event initiation.
+             </p>
+
+             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                 <a href="/" className="px-8 py-4 bg-white text-black font-bold text-lg rounded-xl hover:bg-gray-200 transition-colors uppercase tracking-widest text-sm">
+                     Return Home
+                 </a>
+                 
+                 <button onClick={() => window.location.reload()} className="px-8 py-4 bg-transparent border border-white/10 text-white font-bold text-lg rounded-xl hover:bg-white/5 transition-colors uppercase tracking-widest text-sm flex items-center gap-2">
+                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                     Retry Connection
+                 </button>
+             </div>
+             
+             <div className="mt-16">
+                  <p className="text-gray-700 text-xs font-mono uppercase tracking-[0.3em]">Connection Lost • Status: Inactive</p>
+             </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 crt-effect">
+    <div className="min-h-screen bg-[#0b0f19] text-white font-sans selection:bg-purple-500/30 overflow-x-hidden">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
 
-      {/* BANNER SECTION - FULL WIDTH 1920x600 */}
-      <section className="relative w-full h-[600px] max-h-[600px] overflow-hidden">
-        {tournament.banner ? (
-          <Image
-            src={tournament.banner}
-            alt="Tournament Banner"
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-900 via-indigo-900 to-black"></div>
-        )}
+      {/* --- HERO SECTION --- */}
+      <section className="relative min-h-[90vh] w-full flex flex-col items-center justify-center overflow-hidden py-20">
+         {/* Background Video or Banner */}
+         <div className="absolute inset-0 z-0">
+             {tournament.teaser_video_url ? (
+                 <video 
+                    src={tournament.teaser_video_url} 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline 
+                    className="w-full h-full object-cover opacity-60"
+                 />
+             ) : tournament.banner ? (
+                 <Image src={tournament.banner} alt="Banner" fill className="object-cover opacity-60" priority />
+             ) : (
+                 <div className="w-full h-full bg-gradient-to-br from-purple-900 via-black to-blue-900"></div>
+             )}
+             
+             {/* Gradient Overlays */}
+             <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent"></div>
+             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+         </div>
+
+         {/* Hero Content */}
+         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto mt-20">
+            <ScrollAnimation animation="fadeIn">
+                {tournament.logo && (
+                   <div className="relative w-28 h-28 md:w-44 md:h-44 mx-auto mb-6 drop-shadow-[0_0_40px_rgba(168,85,247,0.3)]">
+                      <Image src={tournament.logo} alt="Logo" fill className="object-contain" />
+                   </div>
+                )}
+                
+                <h1 className="text-4xl md:text-6xl font-black mb-4 leading-none tracking-tight uppercase text-white drop-shadow-xl">
+                   {tournament.name}
+                </h1>
+                
+                {tournament.slogan && (
+                   <p className="text-xl md:text-3xl text-cyan-400 font-mono tracking-widest uppercase mb-12">
+                      {'//'}{tournament.slogan}
+                   </p>
+                )}
+
+                 {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mt-8">
+                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
+                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Date</div>
+                      <div className="text-white font-bold text-sm md:text-base">{tournament.date}</div>
+                   </div>
+                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
+                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Time</div>
+                      <div className="text-white font-bold text-sm md:text-base">{tournament.time}</div>
+                   </div>
+                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
+                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Venue</div>
+                      <div className="text-white font-bold text-sm md:text-base truncate" title={tournament.venue}>{tournament.venue}</div>
+                   </div>
+                   <div className="bg-purple-900/40 backdrop-blur-md border border-purple-500/30 p-4 rounded-xl hover:bg-purple-900/50 transition-colors group">
+                      <div className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-white">Prize Pool</div>
+                      <div className="text-white font-bold text-sm md:text-base">{tournament.total_prize_pool}</div>
+                   </div>
+                </div>
+            </ScrollAnimation>
+         </div>
+
+         {/* Scroll Indicator */}
+         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
+             <svg className="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+         </div>
       </section>
 
-      {/* TOURNAMENT INFO SECTION */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-12 items-start">
-            {/* Left: Logo & Name & Slogan */}
-            <div className="md:w-1/2 flex flex-col items-center md:items-start">
-              {tournament.logo && (
-                <div className="relative h-32 w-32 mb-8">
-                  <Image
-                    src={tournament.logo}
-                    alt={tournament.name}
-                    fill
-                    className="object-contain drop-shadow-xl"
-                  />
-                </div>
-              )}
-              
-              <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-4 text-center md:text-left leading-tight glitch-text">
-                {tournament.name}
-              </h1>
-              
-              {tournament.slogan && (
-                <p className="text-2xl text-purple-600 dark:text-purple-400 italic font-light text-center md:text-left mb-8">
-                  &quot;{tournament.slogan}&quot;
-                </p>
-              )}
-            </div>
+      {/* --- REGISTRATION COUNTDOWN --- */}
+      <section className="relative z-20 py-16 px-4 bg-[#0b0f19]">
+         <div className="max-w-5xl mx-auto bg-[#13161f]/90 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 shadow-2xl shadow-purple-900/20 text-center transform hover:scale-[1.01] transition-transform duration-500 relative overflow-hidden">
+             
+             {/* Decorative Elements */}
+             <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+             <div className="absolute bottom-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
-            {/* Right: Quick Info Grid */}
-            <div className="md:w-1/2 grid grid-cols-2 gap-4 w-full">
-              {/* Date */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                <div className="text-3xl mb-2">📅</div>
-                <div className="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wider">Date</div>
-                <div className="text-lg font-bold text-gray-900 dark:text-white mt-2">{tournament.date}</div>
-              </div>
+             <h2 className="text-sm font-bold text-purple-400 uppercase tracking-widest mb-10 flex items-center justify-center gap-4">
+                 <span className="w-8 md:w-16 h-[1px] bg-gradient-to-r from-transparent to-purple-500"></span>
+                 Registration Deadline
+                 <span className="w-8 md:w-16 h-[1px] bg-gradient-to-l from-transparent to-purple-500"></span>
+             </h2>
 
-              {/* Time */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-6 border border-green-200 dark:border-green-800">
-                <div className="text-3xl mb-2">⏰</div>
-                <div className="text-xs font-semibold text-green-600 dark:text-green-300 uppercase tracking-wider">Time</div>
-                <div className="text-lg font-bold text-gray-900 dark:text-white mt-2">{tournament.time}</div>
-              </div>
+             <CountdownTimer deadline={tournament.registration_deadline} />
+             
+             {/* Register Now Button */}
+             <div className="mt-12 flex justify-center">
+                <a 
+                   href="#games-roster" 
+                   className="group relative inline-flex items-center gap-4 px-12 py-5 bg-white text-black font-black text-xl uppercase tracking-widest rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(168,85,247,0.5)]"
+                >
+                   <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                   <span className="relative z-10 group-hover:text-white transition-colors">Register Now</span>
+                   <svg className="w-6 h-6 relative z-10 group-hover:text-white transition-colors group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+             </div>
+         </div>
+      </section>
 
-              {/* Venue */}
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 rounded-xl p-6 border border-orange-200 dark:border-orange-800">
-                <div className="text-3xl mb-2">📍</div>
-                <div className="text-xs font-semibold text-orange-600 dark:text-orange-300 uppercase tracking-wider">Venue</div>
-                <div className="text-lg font-bold text-gray-900 dark:text-white mt-2">{tournament.venue}</div>
-              </div>
-
-              {/* Prize Pool */}
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl p-6 border border-yellow-200 dark:border-yellow-800">
-                <div className="text-3xl mb-2">💰</div>
-                <div className="text-xs font-semibold text-yellow-600 dark:text-yellow-300 uppercase tracking-wider">Prize Pool</div>
-                <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400 mt-2">{tournament.total_prize_pool}</div>
-              </div>
-
-              {/* Deadline - Full Width */}
-              <div className="col-span-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 rounded-xl p-6 border border-red-200 dark:border-red-800">
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl">⚠️</div>
-                  <div>
-                    <div className="text-xs font-semibold text-red-600 dark:text-red-300 uppercase tracking-wider">Registration Deadline</div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white mt-1">{new Date(tournament.registration_deadline).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* --- EVENT TEASER SECTION --- */}
+      {tournament.teaser_video_url && (
+        <section className="py-24 px-6 relative overflow-hidden bg-[#0a0d14]">
+          {/* Animated Background Grid */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.1)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
           </div>
-        </div>
-      </section>
 
-      {/* ABOUT TOURNAMENT SECTION (HTML Template) */}
-      {tournament.description && (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 border-t border-gray-200 dark:border-gray-800">
-          <div className="max-w-7xl mx-auto">
+          {/* Radial Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none"></div>
+
+          <div className="max-w-7xl mx-auto relative z-10">
             <ScrollAnimation animation="slideUp">
-              <div className="mb-12">
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2">
-                  About Tournament
+              {/* Section Header */}
+              <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400">Event</span> Teaser
                 </h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
+                <p className="text-gray-500 text-lg">Get hyped for the action</p>
               </div>
+            </ScrollAnimation>
 
-              <div className="relative">
-                {/* Modern card design for description */}
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-2xl border border-gray-200 dark:border-gray-800 p-8 md:p-12">
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-purple-100 dark:bg-purple-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
-                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-pink-100 dark:bg-pink-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
+            <ScrollAnimation animation="zoomIn">
+              {/* Video Container with Gaming Frame */}
+              <div className="relative max-w-5xl mx-auto group">
+                
+                {/* Outer Glow Layer */}
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 rounded-3xl opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-700"></div>
+                
+                {/* Main Video Frame */}
+                <div className="relative rounded-2xl overflow-hidden border-2 border-white/10 bg-black shadow-[0_0_80px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_120px_rgba(139,92,246,0.5)] transition-all duration-500">
+                  
+                  {/* Corner Accents - Tech Style */}
+                  <div className="absolute top-0 left-0 w-20 h-20 border-l-4 border-t-4 border-purple-500 rounded-tl-2xl z-10 pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 border-r-4 border-t-4 border-cyan-500 rounded-tr-2xl z-10 pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute bottom-0 left-0 w-20 h-20 border-l-4 border-b-4 border-cyan-500 rounded-bl-2xl z-10 pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute bottom-0 right-0 w-20 h-20 border-r-4 border-b-4 border-purple-500 rounded-br-2xl z-10 pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity"></div>
 
-                  {/* Description content */}
-                  <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                    {tournament.description.includes('<') ? (
-                      // If it contains HTML, render as HTML
-                      <div 
-                        dangerouslySetInnerHTML={{ __html: tournament.description }}
-                        className="space-y-4"
-                      />
-                    ) : (
-                      // Otherwise, render as plain text with line breaks preserved
-                      <p className="whitespace-pre-wrap">{tournament.description}</p>
-                    )}
+                  {/* Top Tech Bar */}
+                  <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none flex items-center justify-between px-6">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                    <span className="text-xs text-purple-400 font-mono tracking-widest uppercase">Live Teaser</span>
                   </div>
+
+                  {/* Video Embed */}
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      src={tournament.teaser_video_url}
+                      title="Tournament Teaser"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                      style={{ border: 'none' }}
+                    ></iframe>
+                  </div>
+
+                  {/* Bottom Scanline Effect */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 opacity-70 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+
+                {/* Side Tech Details */}
+                <div className="absolute -left-4 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-8 h-[2px] bg-gradient-to-r from-purple-500 to-transparent" style={{ animationDelay: `${i * 0.1}s` }}></div>
+                  ))}
+                </div>
+                <div className="absolute -right-4 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-8 h-[2px] bg-gradient-to-l from-cyan-500 to-transparent" style={{ animationDelay: `${i * 0.1}s` }}></div>
+                  ))}
                 </div>
               </div>
             </ScrollAnimation>
@@ -339,128 +810,123 @@ export default function TournamentsPage() {
         </section>
       )}
 
-      {/* ORGANIZERS & SPONSORS - SEAMLESS DESIGN */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto space-y-20">
-          {/* Organized By */}
-          {tournament.organizers && tournament.organizers.length > 0 && (
-            <ScrollAnimation animation="slideUp">
-              <div>
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="text-4xl">🎯</div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Organized By</h3>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                  {tournament.organizers.map((org, index) => (
-                    <SeamlessLogo key={index} org={org} />
-                  ))}
-                </div>
-              </div>
-            </ScrollAnimation>
-          )}
+      {/* --- ABOUT SECTION --- */}
+      <section className="py-20 px-6 bg-[#0b0f19]">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
+              {/* About Event */}
+              <ScrollAnimation animation="slideRight">
+                  <div className="relative group">
+                      <div className="absolute -left-10 -top-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl opacity-50"></div>
+                      <h2 className="text-4xl font-black text-white mb-8 uppercase tracking-tight flex items-center gap-4">
+                          <span className="text-6xl text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-blue-400 opacity-50">01.</span>
+                          The Event
+                      </h2>
+                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-l-2 border-purple-500/30 pl-6 h-full" dangerouslySetInnerHTML={{ __html: tournament.about_event || tournament.description || '' }}></div>
+                  </div>
+              </ScrollAnimation>
 
-          {/* Co-Organized By */}
-          {tournament.co_organizers && tournament.co_organizers.length > 0 && (
-            <ScrollAnimation animation="slideUp" delay={100}>
-              <div className="pt-12 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="text-4xl">🤝</div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Co-Organized By</h3>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                  {tournament.co_organizers.map((org, index) => (
-                    <SeamlessLogo key={index} org={org} />
-                  ))}
-                </div>
-              </div>
-            </ScrollAnimation>
-          )}
-
-          {/* Associated With */}
-          {tournament.associated_with && tournament.associated_with.length > 0 && (
-            <ScrollAnimation animation="slideUp" delay={200}>
-              <div className="pt-12 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="text-4xl">🏆</div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Associated With</h3>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                  {tournament.associated_with.map((org, index) => (
-                    <SeamlessLogo key={index} org={org} />
-                  ))}
-                </div>
-              </div>
-            </ScrollAnimation>
-          )}
-
-          {/* Sponsors */}
-          {tournament.sponsors && tournament.sponsors.length > 0 && (
-            <ScrollAnimation animation="slideUp" delay={300}>
-              <div className="pt-12 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-3 mb-10">
-                  <div className="text-4xl">💎</div>
-                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Our Sponsors</h3>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                  {tournament.sponsors.map((org, index) => (
-                    <SeamlessLogo key={index} org={org} />
-                  ))}
-                </div>
-              </div>
-            </ScrollAnimation>
-          )}
-        </div>
+              {/* About Organizer */}
+              <ScrollAnimation animation="slideLeft">
+                   <div className="relative group">
+                       <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl opacity-50"></div>
+                       <h2 className="text-4xl font-black text-white mb-8 uppercase tracking-tight flex items-center gap-4 justify-end">
+                          The Organizer
+                          <span className="text-6xl text-transparent bg-clip-text bg-gradient-to-br from-blue-400 to-cyan-400 opacity-50">02.</span>
+                      </h2>
+                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-r-2 border-blue-500/30 pr-6 text-right h-full" dangerouslySetInnerHTML={{ __html: tournament.about_organizer || 'Proudly organized by VGS.' }}></div>
+                   </div>
+              </ScrollAnimation>
+          </div>
       </section>
 
-      {/* GAMES SECTION */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollAnimation animation="slideUp">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Tournament Games</h2>
-              <p className="text-xl text-gray-600 dark:text-gray-400">Choose your battlefield and register now!</p>
-            </div>
-          </ScrollAnimation>
+      {/* --- GLIMPSE GALLERY --- */}
+      {tournament.previous_glimpses && tournament.previous_glimpses.length > 0 && (
+          <GlimpseGallery glimpses={tournament.previous_glimpses} />
+      )}
 
-          <ScrollAnimation animation="slideUp" delay={100}>
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {[
-                { value: 'all', label: 'All Games', icon: '🎮' },
-                { value: 'casual', label: 'Casual', icon: '🎲' },
-                { value: 'mobile', label: 'Mobile', icon: '📱' },
-                { value: 'pc', label: 'PC', icon: '��' },
-              ].map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => setActiveCategory(category.value as any)}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 ${
-                    activeCategory === category.value
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <span className="mr-2">{category.icon}</span>
-                  {category.label}
-                </button>
-              ))}
-            </div>
-          </ScrollAnimation>
+      {/* --- FEATURED GAMES SHOWCASE --- */}
+      {tournament.games && tournament.games.length > 0 && (
+          <FeaturedGamesShowcase games={tournament.games} />
+      )}
 
-          {filteredGames.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredGames.map((game, index) => (
-                <ScrollAnimation key={game.id} animation="slideUp" delay={index * 100}>
-                  <GameCard game={game} />
-                </ScrollAnimation>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">🎮</span>
-              <p className="text-xl text-gray-600 dark:text-gray-400">No games in this category yet. Check back soon!</p>
-            </div>
-          )}
-        </div>
+      {/* --- GAMES ARENA --- */}
+      <section id="games-roster" className="py-32 px-6 relative z-10 bg-[#0b0f19]">
+         <div className="max-w-7xl mx-auto">
+             <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20 border-b border-white/5 pb-8">
+                <div className="max-w-xl">
+                   <h2 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">
+                      Game <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-500">Roster</span>
+                   </h2>
+                   <p className="text-gray-400 text-lg">Select your battlefield. Dominate the competition.</p>
+                </div>
+                
+                {/* Modern Filter Tabs */}
+                <div className="flex bg-[#1a1d29] p-1.5 rounded-2xl border border-white/5">
+                    {['all', 'pc', 'mobile', 'casual'].map((cat) => (
+                    <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat as any)}
+                        className={`px-6 py-3 rounded-xl text-sm font-bold uppercase transition-all ${
+                            activeCategory === cat 
+                            ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                            : 'text-gray-500 hover:text-white'
+                        }`}
+                    >
+                        {cat}
+                    </button>
+                    ))}
+                </div>
+             </div>
+
+            {/* Games Grid */}
+            {filteredGames.length > 0 ? (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredGames.map((game, index) => (
+                     <PremiumGameCard key={game.id} game={game} index={index} />
+                  ))}
+               </div>
+            ) : (
+               <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
+                  <div className="text-6xl mb-4 grayscale opacity-30">⚠️</div>
+                  <h3 className="text-2xl font-bold text-gray-500">No Games Found</h3>
+               </div>
+            )}
+         </div>
+      </section>
+
+      {/* --- COLLABORATORS & SPONSORS --- */}
+      <section className="py-32 px-6 bg-[#0a0d14] relative border-t border-white/5">
+         <div className="max-w-7xl mx-auto text-center space-y-24">
+             
+             {/* Organizers */}
+             {tournament.organizers && tournament.organizers.length > 0 && (
+                 <div>
+                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-10 w-full flex items-center justify-center gap-4">
+                         <span className="w-12 h-[1px] bg-gray-800"></span>
+                         Organized By
+                         <span className="w-12 h-[1px] bg-gray-800"></span>
+                     </h3>
+                     <div className="flex flex-wrap justify-center gap-12">
+                        {tournament.organizers.map((org, index) => <OrgLogo key={index} org={org} size="large" />)}
+                     </div>
+                 </div>
+             )}
+
+             {/* Sponsors */}
+             {tournament.sponsors && tournament.sponsors.length > 0 && (
+                 <div>
+                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-10 flex items-center justify-center gap-4">
+                        <span className="w-8 h-[1px] bg-gray-800"></span> Official Sponsors <span className="w-8 h-[1px] bg-gray-800"></span>
+                    </h3>
+                    <div className="flex flex-wrap justify-center gap-8">
+                        {tournament.sponsors.map((org, index) => (
+                            <OrgLogo key={index} org={org} size="medium" />
+                        ))}
+                    </div>
+                 </div>
+             )}
+
+         </div>
       </section>
     </div>
   );

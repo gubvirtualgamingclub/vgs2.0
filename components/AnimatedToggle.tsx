@@ -29,16 +29,19 @@ export default function AnimatedToggle({
   }, [isOn]);
 
   const handleToggle = async () => {
-    if (disabled || isLoading) return;
+    if (disabled) return;
 
-    setIsLoading(true);
+    // Optimistic Update: Update UI immediately
+    const previousState = displayState;
+    const newState = !displayState;
+    setDisplayState(newState);
+
     try {
-      await onToggle(!displayState);
-      setDisplayState(!displayState);
+      await onToggle(newState);
     } catch (error) {
       console.error('Toggle error:', error);
-    } finally {
-      setIsLoading(false);
+      // Revert on error
+      setDisplayState(previousState);
     }
   };
 

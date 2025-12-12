@@ -34,14 +34,14 @@ export function ScrollAnimation({
       }
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    const currentElement = elementRef.current;
+    if (currentElement) {
+      observer.observe(currentElement);
     }
 
     return () => {
-      const element = elementRef.current;
-      if (element) {
-        observer.unobserve(element);
+      if (currentElement) {
+        observer.unobserve(currentElement);
       }
     };
   }, []);

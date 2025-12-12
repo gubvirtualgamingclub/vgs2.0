@@ -7,14 +7,6 @@ import Image from 'next/image';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const categoryColors: Record<string, string> = {
-  Tournament: 'bg-red-500',
-  'Social Event': 'bg-blue-500',
-  Workshop: 'bg-green-500',
-  Seminar: 'bg-purple-500',
-  'Charity Event': 'bg-pink-500',
-};
-
 export default async function ActivityDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = await Promise.resolve(params);
   const activity = await getActivityBySlug(slug);
@@ -24,258 +16,208 @@ export default async function ActivityDetailPage({ params }: { params: { slug: s
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero Section with Content */}
-      <section className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-600 dark:from-purple-800 dark:via-purple-900 dark:to-indigo-900 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <nav className="mb-6">
-            <ol className="flex items-center space-x-2 text-sm text-white/80">
-              <li>
-                <Link href="/" className="hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
+<div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 selection:text-purple-200 pt-20">
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Navigation / Breadcrumb */}
+        <div className="flex items-center gap-4 text-sm font-mono mb-8 text-gray-400">
+            <Link 
+                href="/activities" 
+                className="flex items-center gap-2 hover:text-white transition-colors group"
+            >
+                <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-              </li>
-              <li>
-                <Link href="/activities" className="hover:text-white transition-colors">
-                  Activities
-                </Link>
-              </li>
-              <li>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </li>
-              <li className="text-white">{activity.title}</li>
-            </ol>
-          </nav>
-
-          {/* Tags */}
-          {activity.tags && activity.tags.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {activity.tags.map(tag => (
-                <span key={tag} className="px-4 py-2 bg-white/95 text-purple-700 rounded-full text-sm font-bold shadow-lg border-2 border-white/50 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
-            {activity.title}
-          </h1>
-
-          {/* Short Description */}
-          {activity.short_description && (
-            <div className="flex items-start gap-3 text-lg text-white/90 max-w-2xl">
-              <svg className="w-6 h-6 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p>
-                {activity.short_description}
-              </p>
-            </div>
-          )}
+                Back to Events
+            </Link>
+            <span className="text-gray-600">/</span>
+            <span className="text-gray-500 truncate max-w-[200px] md:max-w-md">
+                events / <span className="text-cyan-400">{activity.slug || slug}</span>
+            </span>
         </div>
-      </section>
 
-      {/* Back Button */}
-      <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href="/activities"
-            className="inline-flex items-center gap-2 px-4 py-2 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all font-medium"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to All Activities
-          </Link>
+        {/* Clear Banner Image */}
+        <div className="relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden mb-12 shadow-2xl shadow-purple-900/10 border border-white/10 group">
+            {activity.banner_image_url ? (
+                <Image
+                    src={activity.banner_image_url}
+                    alt={activity.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
+                />
+            ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-900 via-[#0f0f10] to-black" />
+            )}
+            
+            {/* Gradient Overlay for bottom text readability if needed, but keeping it clean for now as requested "clearly" */}
+             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
         </div>
-      </section>
 
-      {/* Banner Image Section */}
-      {activity.banner_image_url && (
-        <section className="py-8 bg-white dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="rounded-2xl overflow-hidden shadow-lg relative aspect-video">
-              <Image
-                src={activity.banner_image_url}
-                alt={activity.title}
-                fill
-                className="object-cover"
-              />
+        <div className="grid lg:grid-cols-3 gap-12">
+            
+            {/* Left Column (Main) */}
+            <div className="lg:col-span-2">
+                
+                {/* Header Section (Moved from Hero) */}
+                <div className="mb-12">
+                   {/* Tags */}
+                   <div className="flex flex-wrap gap-3 mb-6">
+                      <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider 
+                            ${activity.status === 'upcoming' ? 'bg-blue-600 text-white shadow-[0_0_15px_#2563eb]' :
+                              activity.status === 'ongoing' ? 'bg-green-600 text-white shadow-[0_0_15px_#16a34a]' :
+                              'bg-purple-600 text-white shadow-[0_0_15px_#9333ea]'}`}>
+                            {activity.status}
+                      </span>
+                      <span className="px-3 py-1 rounded-lg bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
+                            {activity.category}
+                      </span>
+                   </div>
+
+                   {/* Title */}
+                   <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-white">
+                      {activity.title}
+                   </h1>
+
+                   {/* Meta Data Row */}
+                   <div className="flex flex-wrap gap-8 text-gray-300">
+                      <div className="flex items-center gap-3">
+                         <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                         </div>
+                         <div>
+                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date</div>
+                            <div className="font-semibold text-white">{activity.date}</div>
+                         </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                         <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                         </div>
+                         <div>
+                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Time</div>
+                            <div className="font-semibold text-white">{activity.time}</div>
+                         </div>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                         <div className="p-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                         </div>
+                         <div>
+                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Location</div>
+                            <div className="font-semibold text-white">{activity.venue}</div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+                  
+                {/* About Card */}
+                <div className="bg-[#0f0f10] border border-white/10 rounded-3xl p-8 shadow-xl relative overflow-hidden group mb-8">
+                   <div className="absolute top-0 right-0 w-64 h-64 bg-purple-900/10 blur-[80px] rounded-full pointer-events-none" />
+                   
+                   <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                      <span className="w-1.5 h-8 bg-purple-500 rounded-full" />
+                       Mission Briefing
+                   </h2>
+                   <div className="space-y-4 text-gray-300 leading-relaxed text-lg">
+                      {activity.description.split('\n\n').map((p, i) => (
+                         <p key={i}>{p}</p>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Guests Section */}
+                {activity.guests && activity.guests.length > 0 && (
+                   <div className="bg-[#0f0f10] border border-white/10 rounded-3xl p-8 mb-8">
+                       <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                         <span className="w-1.5 h-8 bg-cyan-500 rounded-full" />
+                         Honored Guests
+                      </h2>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                         {activity.guests.map((guest, i) => (
+                            <div key={i} className="group relative text-center">
+                               <div className="relative mx-auto mb-4 w-28 h-28">
+                                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur opacity-20 group-hover:opacity-60 transition-opacity" />
+                                  <Image 
+                                     src={guest.photo || '/members/unknownMale.svg'} 
+                                     alt={guest.name} 
+                                     width={112} 
+                                     height={112} 
+                                     className="rounded-full w-full h-full object-cover border-2 border-white/10 group-hover:border-cyan-400 transition-colors relative z-10" 
+                                  />
+                               </div>
+                               <h3 className="font-bold text-white group-hover:text-cyan-400 transition-colors">{guest.name}</h3>
+                               <p className="text-sm text-gray-500 uppercase tracking-wider">{guest.designation}</p>
+                            </div>
+                         ))}
+                      </div>
+                   </div>
+                )}
+
+                {/* Sponsors Section */}
+                {activity.sponsors && activity.sponsors.length > 0 && (
+                   <div className="bg-[#0f0f10] border border-white/10 rounded-3xl p-8">
+                      <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                         <span className="w-1.5 h-8 bg-green-500 rounded-full" />
+                         Strategic Partners
+                      </h2>
+                      <div className="flex flex-wrap gap-8 items-center justify-center p-6 bg-white/5 rounded-2xl">
+                         {activity.sponsors.map((sponsor, i) => (
+                            <a key={i} href={sponsor.website} target="_blank" className="hover:scale-105 transition-transform opacity-70 hover:opacity-100">
+                               <Image src={sponsor.logo} alt={sponsor.name} width={120} height={60} className="object-contain max-h-16" />
+                            </a>
+                         ))}
+                      </div>
+                   </div>
+                )}
+
             </div>
-          </div>
-        </section>
-      )}
 
-      {/* Main Content */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content Area */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* About Section */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-l-4 border-purple-600 p-8 hover:shadow-xl transition-shadow">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">About This Event</h2>
-                </div>
-                <div className="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {activity.description.split('\n\n').map((p, i) => (
-                    <p key={i} className="text-base">{p}</p>
-                  ))}
-                </div>
-              </div>
-
-              {/* Guests Section */}
-              {activity.guests && activity.guests.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-l-4 border-green-600 p-8 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-6-6 6 6 0 00-6 6z" />
-                      </svg>
-                    </div>
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Speakers & Guests</h2>
-                  </div>
-                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {activity.guests.map(guest => (
-                      <div key={guest.name} className="text-center p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
-                        <Image src={guest.photo || '/members/unknownMale.svg'} alt={guest.name} width={120} height={120} className="rounded-full mx-auto mb-3 object-cover w-24 h-24 ring-4 ring-green-200 dark:ring-green-900/50" />
-                        <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{guest.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{guest.designation}</p>
+            {/* Right Column (Sidebar) */}
+            <div className="lg:col-span-1 space-y-6">
+               
+               {/* Event Intel Card */}
+               <div className="bg-[#0f0f10]/80 backdrop-blur-md border border-white/10 rounded-3xl p-6 sticky top-24 shadow-2xl">
+                   <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/5">
+                      <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center text-blue-400 font-bold">
+                         i
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <h3 className="text-xl font-bold">Event Intel</h3>
+                   </div>
 
-              {/* Sponsors Section */}
-              {activity.sponsors && activity.sponsors.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-l-4 border-yellow-600 p-8 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                      <svg className="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Our Sponsors</h2>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-center gap-8 p-6 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                    {activity.sponsors.map(sponsor => (
-                      <a key={sponsor.id} href={sponsor.website} target="_blank" rel="noopener noreferrer" className="hover:scale-105 transition-transform">
-                        <Image src={sponsor.logo} alt={sponsor.name} width={140} height={70} className="object-contain" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
+                   <div className="space-y-6">
+                      <div className="bg-white/5 rounded-xl p-4">
+                         <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Participants</div>
+                         <div className="text-lg font-bold text-white">{activity.participants || 'Unlimited Slots'}</div>
+                      </div>
+                      
+                      {activity.facebook_post_url && (
+                          <a 
+                            href={activity.facebook_post_url} 
+                            target="_blank"
+                            className="block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-center rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-blue-600/20"
+                          >
+                             View Facebook Event
+                          </a>
+                      )}
+                      
+                      <Link 
+                         href="/activities"
+                         className="block w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-bold text-center rounded-xl transition-all"
+                      >
+                         Back to Events
+                      </Link>
+                   </div>
+               </div>
+
             </div>
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8 space-y-6">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-t-4 border-blue-600">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Event Details</h3>
-                  </div>
-                  <div className="space-y-4">
-                    {/* Date */}
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                      <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                        <svg className="w-5 h-5 text-purple-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.date}</p>
-                      </div>
-                    </div>
-
-                    {/* Time */}
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                      <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                        <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Time</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.time}</p>
-                      </div>
-                    </div>
-
-                    {/* Venue */}
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                      <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                        <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Venue</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.venue}</p>
-                      </div>
-                    </div>
-
-                    {/* Participants */}
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                        <svg className="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-6-6 6 6 0 00-6 6z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Participants</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.participants}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Facebook Button */}
-                  {activity.facebook_post_url && (
-                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <a href={activity.facebook_post_url} target="_blank" rel="noopener noreferrer" className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                        View on Facebook
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </section>
+      </div>
+      
+      <div className="h-20" /> {/* Bottom spacer */}
     </div>
   );
 }

@@ -1,183 +1,166 @@
-# VGS 2.0 - Gaming Society Website
+<div align="center">
 
-A modern, full-stack web application for university gaming societies, built with Next.js 14, TypeScript, Tailwind CSS, and Supabase.
+  <img src="public/logos/club-logo.png" alt="VGS Logo" width="120" height="auto" />
 
-## ✨ Features
+# Varsity Gaming Society (VGS) 2.0
 
-### Public Website
-- 🏠 **Dynamic Home Page** - Hero section, latest updates, upcoming activities, sponsor showcase
-- 📢 **Updates System** - News and announcements with date sorting
-- 🎮 **Activities Hub** - Event listings with detailed pages (workshops, tournaments, seminars)
-- 🏆 **Tournaments Portal** - Multi-category gaming tournaments (Casual, Mobile, PC)
-- 👥 **Committee Profiles** - Year-based team member showcase with role history
-- 💼 **Sponsor Showcase** - Tier-based sponsor display (Platinum, Gold, Silver, Bronze)
-- 📱 **Fully Responsive** - Optimized for mobile, tablet, and desktop
+**The Ultimate Community Platform for Gamers, by Gamers.**
 
-### Admin Panel
-- 🔐 **Secure Authentication** - Email/password login with Supabase Auth
-- 📊 **Dashboard** - Quick stats and overview
-- ✏️ **Content Management** - Full CRUD operations for all content types
-- 👁️ **Publish Control** - Toggle visibility without deleting content
-- 📱 **Mobile-Friendly Admin** - Responsive admin panel with hamburger menu
-- 🔄 **Real-Time Updates** - Changes reflect immediately on public pages
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-success?style=for-the-badge)](https://vgs.green.edu.bd)
 
-## 🚀 Quick Start
+[Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-documentation) • [Screenshots](#-screenshots)
 
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Configure Environment
-```bash
-cp .env.local.example .env.local
-```
-Edit `.env.local` with your Supabase credentials.
-
-### 3. Set Up Database
-Run `db-setup.sql` in Supabase SQL Editor to create all tables.
-
-### 4. Add Sample Data (Optional)
-Run `mock-data-insert.sql` to populate with professional mock content.
-
-### 5. Start Development Server
-```bash
-npm run dev
-```
-Visit [http://localhost:3000](http://localhost:3000)
-
-### 6. Access Admin Panel
-- Login at `/admin/login`
-- Create admin user in Supabase Dashboard (Authentication → Users)
-
-## 📚 Documentation
-
-### For Setup & Deployment
-📖 **[SETUP_GUIDE.md](./SETUP_GUIDE.md)** - Complete setup, configuration, and deployment guide
-- Initial setup and dependencies
-- Supabase configuration step-by-step
-- Database schema details
-- Admin authentication setup
-- Mock data insertion
-- Deployment to Vercel/Netlify
-- Troubleshooting common issues
-
-### For Development & Code Reference
-💻 **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - Comprehensive developer reference
-- Project structure breakdown
-- CRUD operations reference
-- Admin panel architecture
-- Public pages integration
-- Code examples and patterns
-- Best practices and guidelines
-- Data flow diagrams
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose | Version |
-|------------|---------|---------|
-| **Next.js** | React framework with App Router | 14.2.33 |
-| **TypeScript** | Type-safe JavaScript | Latest |
-| **Tailwind CSS** | Utility-first styling | Latest |
-| **Supabase** | Database, Auth, Backend | Latest |
-| **PostgreSQL** | Database engine | via Supabase |
-| **React** | UI library | 18+ |
-
-## 📁 Project Structure
-
-```
-VGS-2-0/
-├── app/                     # Next.js App Router
-│   ├── admin/              # Admin panel (protected)
-│   ├── updates/            # Public updates page
-│   ├── activities/         # Public activities pages
-│   ├── tournaments/        # Public tournaments page
-│   ├── committee/          # Public committee page
-│   └── layout.tsx          # Root layout
-├── components/             # Reusable React components
-├── lib/                    # Utilities and configurations
-│   ├── supabase.ts         # Supabase client
-│   ├── supabase-queries.ts # All CRUD functions
-│   └── types/database.ts   # TypeScript types
-├── public/                 # Static assets
-├── db-setup.sql            # Database schema
-├── mock-data-insert.sql    # Sample data
-├── SETUP_GUIDE.md          # Setup documentation
-└── DEVELOPER_GUIDE.md      # Developer reference
-```
-
-## 🗄️ Database Tables
-
-- **updates** - News and announcements
-- **activities** - Events, workshops, seminars
-- **tournaments** - Gaming competitions
-- **sponsors** - Sponsor partnerships
-- **committee** - Team member profiles
-
-All tables include:
-- UUID primary key
-- Timestamps (created_at, updated_at)
-- Publish status flag (is_published)
-
-## 🎯 Key Features Highlight
-
-### Admin Panel
-✅ Complete CRUD for all content  
-✅ Publish/unpublish toggle  
-✅ Real-time data sync  
-✅ Mobile responsive with hamburger menu  
-✅ Secure authentication  
-✅ Loading states and error handling  
-
-### Public Pages
-✅ SEO-optimized server components  
-✅ Dynamic content from Supabase  
-✅ Responsive design (mobile-first)  
-✅ Smooth animations and transitions  
-✅ Category filtering (tournaments, committee)  
-✅ Year-based organization (committee)  
-
-## 🔗 Important Links
-
-- **Admin Login:** `/admin/login`
-- **Admin Dashboard:** `/admin`
-- **Public Home:** `/`
-- **Supabase Dashboard:** [supabase.com/dashboard](https://supabase.com/dashboard)
-
-## 📝 Available Scripts
-
-```bash
-npm run dev        # Start development server
-npm run build      # Build for production
-npm start          # Start production server
-npm run lint       # Run ESLint
-```
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-1. Push code to GitHub
-2. Import repository in Vercel
-3. Add environment variables
-4. Deploy automatically
-
-See [SETUP_GUIDE.md](./SETUP_GUIDE.md#deployment) for detailed deployment instructions.
-
-## 🆘 Support & Troubleshooting
-
-Common issues and solutions are documented in [SETUP_GUIDE.md](./SETUP_GUIDE.md#troubleshooting).
-
-For code reference and examples, see [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md#code-examples).
-
-## 📄 License
-
-This project is for educational purposes.
-
-## 👨‍💻 Developer
-
-Developed with ❤️ for gaming communities
+</div>
 
 ---
 
-**Version:** 2.0  
-**Last Updated:** November 2025
+## 🚀 Overview
+
+**VGS 2.0** is a state-of-the-art web platform engineered for modern university gaming societies. It bridges the gap between casual gaming and competitive esports management. Built with a focus on performance, aesthetics, and ease of use, VGS 2.0 empowers administrators to manage tournaments, members, and events while providing players with a stunning, immersive interface.
+
+> "More than just a website; it's the digital headquarters of our gaming community."
+
+---
+
+## ✨ Features
+
+### 🎮 For Gamers & Members
+
+- **Immersive Battle Arena**: A dynamic tournament hub showcasing active, upcoming, and past esports events.
+- **Live Registration**: Seamless team registration with real-time slot tracking and status updates.
+- **Hall of Fame**: Detailed profiles for committee members and top players, including role history and social links.
+- **Event Calendar**: Interactive timeline of workshops, seminars, and gaming sessions.
+- **Sponsor Showcase**: Premium visibility for partners with tiered displays (Platinum, Gold, Silver).
+
+### 🛠️ For Administrators
+
+- **Powerful Admin Panel**: A secure, mobile-responsive dashboard to manage every aspect of the platform.
+- **Drag & Drop Management**: Intuitive reordering for committee members and sponsors.
+- **Email Command Center**: Built-in system to send personalized bulk emails to hundreds of participants in seconds.
+- **Dynamic Form Builder**: Create custom registration forms for any game title without writing a single line of code.
+- **Content Control**: Real-time publish/unpublish toggles for updates, events, and games.
+
+---
+
+## 🛠️ Tech Stack
+
+Built on a foundation of modern, scalable technologies:
+
+| Layer         | Technology                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| **Frontend**  | [Next.js 14 (App Router)](https://nextjs.org/), [React 18](https://react.dev/)            |
+| **Language**  | [TypeScript](https://www.typescriptlang.org/) (Strict Mode)                               |
+| **Styling**   | [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/) |
+| **Backend**   | [Supabase](https://supabase.com/) (PostgreSQL + Auth + Storage)                           |
+| **Utilities** | `@dnd-kit` (Drag & Drop), `react-hook-form` (Forms), `lucide-react` (Icons)               |
+
+---
+
+## ⚡ Getting Started
+
+Run the VGS 2.0 platform locally in minutes.
+
+### Prerequisites
+
+- Node.js 18.17+
+- npm or pnpm
+
+### Installation
+
+1.  **Clone the repository**
+
+    ```bash
+    git clone https://github.com/your-org/vgs-2.0.git
+    cd vgs-2.0
+    ```
+
+2.  **Install dependencies**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Configure Environment**
+    Create a `.env.local` file in the root directory:
+
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+4.  **Initialize Database**
+    Run the SQL scripts located in the `database/` folder in your Supabase SQL Editor:
+
+    - `database/01_schema.sql` (Creates tables)
+    - `database/02_seeds.sql` (Populates initial data)
+
+5.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+---
+
+## 📚 Documentation
+
+Comprehensive guides are available in the `docs/` directory:
+
+- 📖 **[User & Admin Manual](docs/01_USER_MANUAL.md)**
+
+  - _Best for: Administrators, Moderators, Content Creators_
+  - How to manage tournaments, send emails, and update content.
+
+- 💻 **[Developer Reference](docs/02_DEVELOPER_MANUAL.md)**
+  - _Best for: Developers, DevOps, System Architects_
+  - Database schema, API architecture, and deployment instructions.
+
+---
+
+## 📸 Screenshots
+
+<details>
+<summary><b>Click to view Dashboard Preview</b></summary>
+
+> _Place a screenshot of your Admin Dashboard here_
+
+</details>
+
+<details>
+<summary><b>Click to view Tournament Page Preview</b></summary>
+
+> _Place a screenshot of your Tournament Page here_
+
+</details>
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Developer Manual](docs/02_DEVELOPER_MANUAL.md) for architectural guidelines.
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <p>To learn more about the <b>Varsity Gaming Society</b>, visit our <a href="https://vgs.green.edu.bd">official website</a>.</p>
+  
+  <p>
+    <sub>Built with ❤️ by the VGS Development Team</sub>
+  </p>
+</div>

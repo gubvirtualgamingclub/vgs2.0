@@ -71,11 +71,23 @@ export async function POST(request: NextRequest) {
         // Replace {{name}} placeholder with actual name
         const personalizedContent = htmlContent.replace(/\{\{name\}\}/g, recipient.name);
         
+        // Add anti-spam headers and improve deliverability
         await transporter.sendMail({
-          from: `"VGS Notification" <${process.env.EMAIL_USER}>`,
+          from: `"Virtual Gaming Society" <${process.env.EMAIL_USER}>`,
           to: recipient.email,
           subject: subject,
           html: personalizedContent,
+          text: personalizedContent.replace(/<[^>]*>/g, ''), // Plain text version
+          replyTo: process.env.EMAIL_USER,
+          // Anti-spam headers
+          headers: {
+            'X-Mailer': 'VGS Email System',
+            'X-Priority': '3',
+            'Importance': 'normal',
+            'X-MSMail-Priority': 'Normal',
+            'Precedence': 'bulk',
+            'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
+          }
         });
 
         results.push({

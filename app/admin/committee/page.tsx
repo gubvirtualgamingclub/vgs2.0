@@ -17,6 +17,39 @@ import {
   searchCommitteeMembers
 } from '@/lib/supabase-queries';
 import type { Committee, CommitteeMember } from '@/lib/types/database';
+import {
+  UserGroupIcon,
+  AcademicCapIcon,
+  UsersIcon,
+  PlusIcon,
+  XMarkIcon,
+  PencilIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  MagnifyingGlassIcon,
+  GlobeAltIcon,
+  BuildingLibraryIcon,
+  ArrowPathRoundedSquareIcon
+} from '@heroicons/react/24/outline';
+
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors, 
+  DragEndEvent 
+} from '@dnd-kit/core';
+import { 
+  arrayMove, 
+  SortableContext, 
+  sortableKeyboardCoordinates, 
+  rectSortingStrategy 
+} from '@dnd-kit/sortable';
+import { SortableMemberCard } from './SortableMemberCard';
 
 type CommitteeWithMembers = Committee & { members: CommitteeMember[] };
 
@@ -62,9 +95,17 @@ export default function AdminCommitteePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   
-  // Drag-and-drop state
-  const [draggedMemberId, setDraggedMemberId] = useState<string | null>(null);
-  const [draggedOverMemberId, setDraggedOverMemberId] = useState<string | null>(null);
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     fetchCommittees();
@@ -103,6 +144,10 @@ export default function AdminCommitteePage() {
       setLoading(true);
       const data = await getCommitteesWithMembers();
       setCommittees(data);
+       // Auto-expand the first committee if none are expanded
+      if (expandedCommittees.size === 0 && data.length > 0) {
+        setExpandedCommittees(new Set([data[0].id]));
+      }
     } catch (error) {
       console.error('Error fetching committees:', error);
       alert('Failed to fetch committees. Please try again.');
@@ -112,12 +157,9 @@ export default function AdminCommitteePage() {
   }
   
   function handleSelectMember(member: CommitteeMember) {
-    // Convert legacy string[] format to new object format if needed
     const previousRoles = Array.isArray(member.previous_roles) 
       ? member.previous_roles.map(role => 
-          typeof role === 'string' 
-            ? { year: '', role: role } 
-            : role
+          typeof role === 'string' ? { year: '', role: role } : role
         )
       : [];
     
@@ -133,7 +175,7 @@ export default function AdminCommitteePage() {
       github: member.github || '',
       previous_roles: previousRoles,
       order_index: memberFormData.order_index,
-      is_published: false,
+      is_published: false, // Default to unpublished when importing for a new year
     });
     setSearchQuery('');
     setShowSearchResults(false);
@@ -152,21 +194,17 @@ export default function AdminCommitteePage() {
     });
   };
 
-  // Filter search results to show only the latest profile of each member
   const getFilteredSearchResults = (results: CommitteeMember[]) => {
     const memberMap = new Map<string, CommitteeMember>();
     
-    // Group by name (primary key for member identity)
+    // Group by name, keep latest profile
     results.forEach(member => {
       const existingMember = memberMap.get(member.name);
-      
       if (!existingMember) {
         memberMap.set(member.name, member);
       } else {
-        // Keep the member with the highest order_index (most recent profile)
         const existingOrder = existingMember.order_index || 0;
         const newOrder = member.order_index || 0;
-        
         if (newOrder > existingOrder) {
           memberMap.set(member.name, member);
         }
@@ -176,62 +214,73 @@ export default function AdminCommitteePage() {
     return Array.from(memberMap.values());
   };
 
-  // Drag and drop handlers for member reordering
-  const handleMemberDragStart = (memberId: string) => {
-    setDraggedMemberId(memberId);
-  };
+  const handleDragEnd = async (event: DragEndEvent, committeeId: string) => {
+    const { active, over } = event;
 
-  const handleMemberDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleMemberDragEnter = (memberId: string) => {
-    setDraggedOverMemberId(memberId);
-  };
-
-  const handleMemberDragLeave = () => {
-    setDraggedOverMemberId(null);
-  };
-
-  const handleMemberDrop = async (e: React.DragEvent, targetMemberId: string, committeeId: string) => {
-    e.preventDefault();
-    setDraggedOverMemberId(null);
-
-    if (!draggedMemberId || draggedMemberId === targetMemberId) {
+    if (!over || active.id === over.id) {
       return;
     }
 
+    // Find the committee
+    const committeeIndex = committees.findIndex(c => c.id === committeeId);
+    if (committeeIndex === -1) return;
+
+    const committee = committees[committeeIndex];
+    
+    const oldIndex = committee.members.findIndex(m => m.id === active.id);
+    const newIndex = committee.members.findIndex(m => m.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistic Update
+    const newMembers = arrayMove(committee.members, oldIndex, newIndex);
+    
+    const updatedCommittees = [...committees];
+    updatedCommittees[committeeIndex] = {
+      ...committee,
+      members: newMembers,
+    };
+    
+    setCommittees(updatedCommittees);
+
+    // Persist changes
     try {
-      // Find the committee and members
-      const committee = committees.find(c => c.id === committeeId);
-      if (!committee) return;
+        // We need to update the order_index for ALL members between the old and new index
+        // Simpler approach: update the moved member and the target member swapping orders?
+        // Better approach for strict ordering: Update indices for affected items.
+        
+        // Let's just update the order_index of *all* members in the array to match their new position
+        const updates = newMembers.map((member, index) => ({
+            ...member,
+            order_index: index + 1 // 1-based index
+        }));
 
-      const draggedMember = committee.members.find(m => m.id === draggedMemberId);
-      const targetMember = committee.members.find(m => m.id === targetMemberId);
-
-      if (!draggedMember || !targetMember) return;
-
-      // Swap order_index values
-      const tempOrder = draggedMember.order_index;
-      draggedMember.order_index = targetMember.order_index;
-      targetMember.order_index = tempOrder;
-
-      // Update both members in database
-      await updateCommitteeMember(draggedMember.id, draggedMember);
-      await updateCommitteeMember(targetMember.id, targetMember);
-
-      // Refresh committees data
-      await fetchCommittees();
+        // In a real app, you'd batch update. Here we iterate (not efficient but checking robust for now)
+        // Or simply update the swapped two? No, arrayMove shifts everything.
+        // Let's iterate and update only those whose index changed conceptually.
+        
+        for (let i = 0; i < updates.length; i++) {
+            const member = updates[i];
+            const originalMember = committee.members.find(m => m.id === member.id);
+            // Only update if index changed relative to list position (which we just set)
+            // Actually simplest is just to save the new order_index for the moved item
+            // But arrayMove shifts others up/down.
+            // Dnd-kit logic: visually moved.
+            // Database logic: order_index.
+            
+            await updateCommitteeMember(member.id, { 
+                ...member, 
+                order_index: i + 1 
+            });
+        }
+        
     } catch (error) {
-      console.error('Error reordering members:', error);
-      alert('Failed to reorder members. Please try again.');
-    } finally {
-      setDraggedMemberId(null);
+        console.error('Error reordering members:', error);
+        alert('Failed to save order.');
+        fetchCommittees(); // Revert
     }
   };
 
-  // Committee CRUD handlers
   const handleOpenCommitteeForm = (committee?: Committee) => {
     if (committee) {
       setEditingCommittee(committee);
@@ -261,14 +310,12 @@ export default function AdminCommitteePage() {
 
   const handleSubmitCommittee = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       if (editingCommittee) {
         await updateCommittee(editingCommittee.id, committeeFormData);
       } else {
         await createCommittee(committeeFormData);
       }
-      
       await fetchCommittees();
       handleCloseCommitteeForm();
     } catch (error) {
@@ -280,7 +327,6 @@ export default function AdminCommitteePage() {
   const handleDeleteCommittee = async (id: string, name: string) => {
     const committee = committees.find(c => c.id === id);
     const memberCount = committee?.members.length || 0;
-    
     const message = memberCount > 0
       ? `Are you sure you want to delete "${name}"? This will also delete ${memberCount} member(s).`
       : `Are you sure you want to delete "${name}"?`;
@@ -296,7 +342,8 @@ export default function AdminCommitteePage() {
     }
   };
 
-  const handleToggleCommitteePublish = async (id: string, currentStatus: boolean) => {
+  const handleToggleCommitteePublish = async (id: string, currentStatus: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       await toggleCommitteePublish(id, !currentStatus);
       await fetchCommittees();
@@ -306,13 +353,12 @@ export default function AdminCommitteePage() {
     }
   };
 
-  // Member CRUD handlers
-  const handleOpenMemberForm = (committeeId: string, member?: CommitteeMember) => {
+  const handleOpenMemberForm = (committeeId: string, member?: CommitteeMember, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setSelectedCommitteeId(committeeId);
     
     if (member) {
       setEditingMember(member);
-      // Convert legacy string[] format to new object format if needed
       const convertedPreviousRoles = member.previous_roles.map(role => 
         typeof role === 'string' ? { year: '', role } : role
       );
@@ -376,8 +422,6 @@ export default function AdminCommitteePage() {
       });
       setRoleYear('');
       setRoleTitle('');
-    } else {
-      alert('Please enter both year and role');
     }
   };
 
@@ -390,35 +434,22 @@ export default function AdminCommitteePage() {
 
   const handleSubmitMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedCommitteeId) {
-      alert('No committee selected');
-      return;
-    }
+    if (!selectedCommitteeId) return;
     
     try {
       if (editingMember) {
-        // When updating, don't send committee_id (it shouldn't change)
-        const updateData = { ...memberFormData };
-        console.log('Updating member with ID:', editingMember.id);
-        console.log('Update data:', updateData);
-        const result = await updateCommitteeMember(editingMember.id, updateData);
-        console.log('Update result:', result);
+        await updateCommitteeMember(editingMember.id, memberFormData);
       } else {
-        // When creating, include committee_id
-        console.log('Creating new member');
         await createCommitteeMember({
           ...memberFormData,
           committee_id: selectedCommitteeId,
         });
       }
-      
       await fetchCommittees();
       handleCloseMemberForm();
-      alert('Member saved successfully!');
     } catch (error) {
       console.error('Error saving committee member:', error);
-      alert(`Failed to save committee member: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert('Failed to save committee member.');
     }
   };
 
@@ -429,7 +460,7 @@ export default function AdminCommitteePage() {
         await fetchCommittees();
       } catch (error) {
         console.error('Error deleting committee member:', error);
-        alert('Failed to delete committee member. Please try again.');
+        alert('Failed to delete committee member.');
       }
     }
   };
@@ -440,277 +471,188 @@ export default function AdminCommitteePage() {
       await fetchCommittees();
     } catch (error) {
       console.error('Error toggling member publish status:', error);
-      alert('Failed to update publish status. Please try again.');
+      alert('Failed to update publish status.');
     }
   };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'Faculty Advisors': 'bg-purple-900/50 text-purple-300',
-      'Executive Committee': 'bg-blue-900/50 text-blue-300',
-      'Student Members': 'bg-green-900/50 text-green-300',
+      'Faculty Advisors': 'bg-purple-500/10 text-purple-300 border-purple-500/20',
+      'Executive Committee': 'bg-blue-500/10 text-blue-300 border-blue-500/20',
+      'Student Members': 'bg-green-500/10 text-green-300 border-green-500/20',
     };
-    return colors[category] || 'bg-gray-900/50 text-gray-300';
+    return colors[category] || 'bg-gray-700/50 text-gray-300 border-gray-600';
   };
 
   const totalMembers = committees.reduce((sum, c) => sum + c.members.length, 0);
   const totalPublishedMembers = committees.reduce((sum, c) => sum + c.members.filter(m => m.is_published).length, 0);
 
+  // Helper for input styles
+  const inputClassName = "w-full px-4 py-3 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-white placeholder-gray-500 hover:bg-black/30";
+  const labelClassName = "block text-sm font-medium text-gray-300 mb-2 ml-1";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fadeIn pb-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Committee Manager</h1>
-          <p className="text-gray-400">Manage committees and their members hierarchically</p>
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2">Committee Manager</h1>
+          <p className="text-gray-400 text-lg">Manage committees, members, and organizational hierarchy</p>
         </div>
         <button
           onClick={() => handleOpenCommitteeForm()}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center space-x-2"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] transition-all"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Create Committee</span>
+          <BuildingLibraryIcon className="w-5 h-5" />
+          <span>New Committee</span>
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-          <p className="text-gray-400 text-sm">Total Committees</p>
-          <p className="text-2xl font-bold text-white">{committees.length}</p>
-        </div>
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-          <p className="text-gray-400 text-sm">Total Members</p>
-          <p className="text-2xl font-bold text-white">{totalMembers}</p>
-        </div>
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-          <p className="text-gray-400 text-sm">Published Committees</p>
-          <p className="text-2xl font-bold text-green-400">
-            {committees.filter((c) => c.is_published).length}
-          </p>
-        </div>
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-4">
-          <p className="text-gray-400 text-sm">Published Members</p>
-          <p className="text-2xl font-bold text-green-400">{totalPublishedMembers}</p>
-        </div>
+       {/* Stats Cards */}
+       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Committees', value: committees.length, color: 'text-white', icon: BuildingLibraryIcon, border: 'border-white/10' },
+          { label: 'Total Members', value: totalMembers, color: 'text-blue-400', icon: UserGroupIcon, border: 'border-blue-500/20' },
+          { label: 'Active Members', value: totalPublishedMembers, color: 'text-green-400', icon: CheckCircleIcon, border: 'border-green-500/20' },
+          { label: 'Student Execs', value: committees.reduce((sum, c) => sum + c.members.filter(m => m.category === 'Student Executives').length, 0), color: 'text-purple-400', icon: AcademicCapIcon, border: 'border-purple-500/20' },
+        ].map((stat, index) => (
+          <div key={index} className={`bg-gray-900/60 backdrop-blur-xl border ${stat.border} p-4 rounded-xl flex flex-col items-center justify-center text-center shadow-lg`}>
+            <stat.icon className={`w-6 h-6 mb-2 ${stat.color} opacity-80`} />
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{stat.label}</p>
+            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Committees List */}
+      {/* Committees Accordion */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading committees...</p>
+        <div className="flex items-center justify-center py-24">
+           <div className="flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-400 animate-pulse">Loading committees...</p>
           </div>
         </div>
       ) : committees.length === 0 ? (
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-12 text-center">
-          <p className="text-gray-400 mb-4">No committees found</p>
-          <button
-            onClick={() => handleOpenCommitteeForm()}
-            className="text-purple-400 hover:text-purple-300 font-semibold"
-          >
-            Create your first committee
-          </button>
+        <div className="bg-gray-900/40 border border-white/5 rounded-2xl p-16 text-center">
+          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BuildingLibraryIcon className="w-10 h-10 text-gray-600" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">No committees found</h3>
+          <p className="text-gray-400 mb-6">Create your first committee to start managing members.</p>
+           <button
+             onClick={() => handleOpenCommitteeForm()}
+             className="text-purple-400 hover:text-purple-300 font-semibold"
+           >
+             + Create Committee
+           </button>
         </div>
       ) : (
         <div className="space-y-4">
           {committees.map((committee) => (
-            <div
-              key={committee.id}
-              className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden"
-            >
+            <div key={committee.id} className="bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-lg transition-all hover:border-purple-500/30">
+              
               {/* Committee Header */}
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <button
-                        onClick={() => toggleExpanded(committee.id)}
-                        className="p-1 hover:bg-gray-700 rounded transition-colors"
-                      >
-                        <svg
-                          className={`w-5 h-5 text-gray-400 transition-transform ${
-                            expandedCommittees.has(committee.id) ? 'transform rotate-90' : ''
-                          }`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                      <h2 className="text-2xl font-bold text-white">{committee.name}</h2>
-                      <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full text-sm font-semibold">
-                        {committee.year_range}
-                      </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          committee.is_published
-                            ? 'bg-green-900/50 text-green-300'
-                            : 'bg-yellow-900/50 text-yellow-300'
-                        }`}
-                      >
-                        {committee.is_published ? '✓ Published' : '○ Draft'}
-                      </span>
+              <div 
+                className="p-6 cursor-pointer hover:bg-white/5 transition-colors"
+                onClick={() => toggleExpanded(committee.id)}
+              >
+                 <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 text-purple-300 transition-transform duration-300 ${expandedCommittees.has(committee.id) ? 'rotate-180' : ''}`}>
+                             <ChevronDownIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-xl font-bold text-white">{committee.name}</h2>
+                                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-gray-300 border border-white/5">
+                                    {committee.year_range}
+                                </span>
+                                 <button
+                                    onClick={(e) => handleToggleCommitteePublish(committee.id, committee.is_published, e)}
+                                    className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${
+                                      committee.is_published
+                                        ? 'bg-green-500/10 text-green-300 border-green-500/20 hover:bg-green-500/20'
+                                        : 'bg-yellow-500/10 text-yellow-300 border-yellow-500/20 hover:bg-yellow-500/20'
+                                    } transition-colors`}
+                                  >
+                                    {committee.is_published ? 'Published' : 'Draft'}
+                                  </button>
+                            </div>
+                            <p className="text-gray-400 text-sm mt-1">{committee.members.length} member{committee.members.length !== 1 ? 's' : ''} • {committee.description || 'No description'}</p>
+                        </div>
                     </div>
-                    {committee.description && (
-                      <p className="text-gray-400 ml-9 mb-2">{committee.description}</p>
-                    )}
-                    <p className="text-gray-500 text-sm ml-9">
-                      {committee.members.length} member{committee.members.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleOpenMemberForm(committee.id)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-                    >
-                      + Add Member
-                    </button>
-                    <button
-                      onClick={() => handleToggleCommitteePublish(committee.id, committee.is_published)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-                      title={committee.is_published ? 'Unpublish' : 'Publish'}
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleOpenCommitteeForm(committee)}
-                      className="p-2 text-blue-400 hover:text-blue-300 hover:bg-gray-700 rounded-lg transition-colors"
-                      title="Edit Committee"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCommittee(committee.id, committee.name)}
-                      className="p-2 text-red-400 hover:text-red-300 hover:bg-gray-700 rounded-lg transition-colors"
-                      title="Delete Committee"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => handleOpenMemberForm(committee.id, undefined, e)}
+                          className="px-4 py-2 bg-purple-600/20 text-purple-300 border border-purple-600/30 rounded-lg hover:bg-purple-600/30 transition-all text-sm font-semibold flex items-center gap-2"
+                        >
+                          <PlusIcon className="w-4 h-4" /> Add Member
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleOpenCommitteeForm(committee); }}
+                          className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                          <PencilIcon className="w-5 h-5" />
+                        </button>
+                         <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteCommittee(committee.id, committee.name); }}
+                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
+                    </div>
+                 </div>
               </div>
 
-              {/* Members (expandable) */}
+              {/* Members Grid (Expanded) */}
               {expandedCommittees.has(committee.id) && (
-                <div className="border-t border-gray-700 bg-gray-900/50 p-6">
-                  {committee.members.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 mb-4">No members in this committee</p>
-                      <button
-                        onClick={() => handleOpenMemberForm(committee.id)}
-                        className="text-blue-400 hover:text-blue-300 font-semibold"
-                      >
-                        Add first member
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-gray-400 text-sm mb-4">💡 Drag members to reorder them</p>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        {[...committee.members]
-                          .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-                          .map((member) => (
-                            <div
-                              key={member.id}
-                              draggable
-                              onDragStart={() => handleMemberDragStart(member.id)}
-                              onDragOver={handleMemberDragOver}
-                              onDragEnter={() => handleMemberDragEnter(member.id)}
-                              onDragLeave={handleMemberDragLeave}
-                              onDrop={(e) => handleMemberDrop(e, member.id, committee.id)}
-                              className={`bg-gray-800 rounded-lg border-2 p-4 hover:border-gray-600 transition-all cursor-move ${
-                                draggedMemberId === member.id
-                                  ? 'opacity-50 border-purple-500'
-                                  : draggedOverMemberId === member.id
-                                  ? 'border-purple-400 bg-gray-700'
-                                  : 'border-gray-700'
-                              }`}
-                            >
-                              <div className="flex items-start space-x-3 mb-3">
-                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-700 flex-shrink-0">
-                                  <AdminImage
-                                src={member.photo}
-                                alt={member.name}
-                                width={64}
-                                height={64}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-bold text-white truncate">{member.name}</h3>
-                              <p className="text-purple-400 text-sm font-semibold truncate">{member.designation}</p>
-                              <span className={`inline-block px-2 py-1 rounded text-xs font-semibold mt-1 ${getCategoryColor(member.category)}`}>
-                                {member.category}
-                              </span>
-                            </div>
-                          </div>
-
-                          {member.previous_roles.length > 0 && (
-                            <div className="mb-3 pt-3 border-t border-gray-700">
-                              <p className="text-gray-500 text-xs mb-1">Previous:</p>
-                              {member.previous_roles.slice(0, 2).map((role, idx) => {
-                                const roleText = typeof role === 'string' ? role : role.role;
-                                const roleYear = typeof role === 'string' ? '' : role.year;
-                                return (
-                                  <p key={idx} className="text-gray-400 text-xs truncate">
-                                    • {roleYear && `${roleYear} - `}{roleText}
-                                  </p>
-                                );
-                              })}
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-3 border-t border-gray-700">
-                            <button
-                              onClick={() => handleToggleMemberPublish(member.id, member.is_published)}
-                              className={`px-2 py-1 rounded text-xs font-semibold ${
-                                member.is_published
-                                  ? 'bg-green-900/50 text-green-300 hover:bg-green-900/70'
-                                  : 'bg-yellow-900/50 text-yellow-300 hover:bg-yellow-900/70'
-                              } transition-colors`}
-                            >
-                              {member.is_published ? '✓' : '○'}
-                            </button>
-
-                            <div className="flex items-center space-x-1">
-                              <button
-                                onClick={() => handleOpenMemberForm(committee.id, member)}
-                                className="p-1 text-blue-400 hover:text-blue-300 hover:bg-gray-700 rounded transition-colors"
-                                title="Edit"
-                              >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => handleDeleteMember(member.id, member.name)}
-                                className="p-1 text-red-400 hover:text-red-300 hover:bg-gray-700 rounded transition-colors"
-                                title="Delete"
-                              >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                <div className="border-t border-white/5 bg-black/20 p-6 animate-fadeIn">
+                   {committee.members.length === 0 ? (
+                      <div className="text-center py-12 border-2 border-dashed border-white/10 rounded-xl">
+                        <UsersIcon className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                        <p className="text-gray-400 mb-4">No members in this committee yet.</p>
+                        <button
+                            onClick={(e) => handleOpenMemberForm(committee.id, undefined, e)}
+                            className="text-purple-400 hover:text-purple-300 font-semibold"
+                        >
+                            + Add First Member
+                        </button>
                       </div>
-                    </div>
-                  )}
+                   ) : (
+                      <div>
+                         <p className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <ArrowPathRoundedSquareIcon className="w-4 h-4" /> Drag to reorder members
+                         </p>
+                         
+                         <DndContext 
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={(e) => handleDragEnd(e, committee.id)}
+                         >
+                             <SortableContext 
+                                items={[...committee.members].sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map(m => m.id)}
+                                strategy={rectSortingStrategy}
+                             >
+                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                   {[...committee.members]
+                                     .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+                                     .map((member) => (
+                                       <SortableMemberCard
+                                          key={member.id}
+                                          member={member}
+                                          committeeId={committee.id}
+                                          getCategoryColor={getCategoryColor}
+                                          onTogglePublish={handleToggleMemberPublish}
+                                          onEdit={(e) => handleOpenMemberForm(committee.id, member, e)}
+                                          onDelete={(e) => handleDeleteMember(member.id, member.name)}
+                                       />
+                                   ))}
+                                 </div>
+                             </SortableContext>
+                         </DndContext>
+                      </div>
+                   )}
                 </div>
               )}
             </div>
@@ -718,450 +660,328 @@ export default function AdminCommitteePage() {
         </div>
       )}
 
-      {/* Committee Form Modal */}
+      {/* Slide-over Committee Form */}
       {isCommitteeFormOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseCommitteeForm}></div>
-            
-            <div className="relative bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full border border-gray-700">
-              <div className="flex items-center justify-between p-6 border-b border-gray-700">
-                <h2 className="text-2xl font-bold text-white">
-                  {editingCommittee ? 'Edit Committee' : 'Create Committee'}
-                </h2>
-                <button onClick={handleCloseCommitteeForm} className="text-gray-400 hover:text-white transition-colors">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmitCommittee} className="p-6 space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Committee Name *</label>
-                  <input
-                    type="text"
-                    value={committeeFormData.name}
-                    onChange={(e) => setCommitteeFormData({ ...committeeFormData, name: e.target.value })}
-                    placeholder="e.g., VGS Executive Committee"
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required
-                  />
+         <div className="fixed inset-0 z-50 overflow-hidden">
+           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseCommitteeForm} />
+           <div className="absolute inset-y-0 right-0 max-w-xl w-full flex">
+             <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
+                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
+                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                     <BuildingLibraryIcon className="w-5 h-5 text-purple-500" />
+                     {editingCommittee ? 'Edit Committee' : 'New Committee'}
+                   </h2>
+                   <button onClick={handleCloseCommitteeForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
+                     <XMarkIcon className="w-6 h-6" />
+                   </button>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Year Range *</label>
-                  <input
-                    type="text"
-                    value={committeeFormData.year_range}
-                    onChange={(e) => setCommitteeFormData({ ...committeeFormData, year_range: e.target.value })}
-                    placeholder="e.g., 2025-2026"
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required
-                  />
-                  <p className="text-gray-500 text-sm mt-1">Format: YYYY-YYYY (e.g., 2025-2026)</p>
+                
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    <form id="committee-form" onSubmit={handleSubmitCommittee} className="space-y-6">
+                       <div>
+                          <label className={labelClassName}>Committee Name *</label>
+                          <input
+                            type="text"
+                            value={committeeFormData.name}
+                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, name: e.target.value })}
+                            placeholder="e.g. Executive Committee"
+                            className={inputClassName}
+                            required
+                          />
+                       </div>
+                       
+                       <div>
+                          <label className={labelClassName}>Year Range *</label>
+                          <input
+                            type="text"
+                            value={committeeFormData.year_range}
+                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, year_range: e.target.value })}
+                            placeholder="e.g. 2024-2025"
+                            className={inputClassName}
+                            required
+                          />
+                       </div>
+                       
+                       <div>
+                          <label className={labelClassName}>Description</label>
+                          <textarea
+                            value={committeeFormData.description}
+                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, description: e.target.value })}
+                            placeholder="Brief description..."
+                            rows={3}
+                            className={inputClassName}
+                          />
+                       </div>
+                       
+                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                            <input 
+                              type="checkbox" 
+                              checked={committeeFormData.is_published} 
+                              onChange={(e) => setCommitteeFormData({ ...committeeFormData, is_published: e.target.checked })}
+                              className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent" 
+                            />
+                            <span className="text-gray-300 font-medium text-sm">Publish immediately</span>
+                        </label>
+                    </form>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Description (Optional)</label>
-                  <textarea
-                    value={committeeFormData.description}
-                    onChange={(e) => setCommitteeFormData({ ...committeeFormData, description: e.target.value })}
-                    placeholder="Brief description of this committee..."
-                    rows={3}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                  />
+                
+                <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
+                   <button
+                      type="submit"
+                      form="committee-form"
+                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    >
+                     {editingCommittee ? 'Update Committee' : 'Create Committee'}
+                   </button>
                 </div>
-
-                <div>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={committeeFormData.is_published}
-                      onChange={(e) => setCommitteeFormData({ ...committeeFormData, is_published: e.target.checked })}
-                      className="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-600 focus:ring-2"
-                    />
-                    <span className="text-gray-300 font-medium">Publish immediately</span>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-700">
-                  <button
-                    type="button"
-                    onClick={handleCloseCommitteeForm}
-                    className="px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
-                  >
-                    {editingCommittee ? 'Update' : 'Create'} Committee
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+             </div>
+           </div>
+         </div>
       )}
 
-      {/* Member Form Modal */}
+      {/* Slide-over Member Form */}
       {isMemberFormOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseMemberForm}></div>
-            
-            <div className="relative bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full border border-gray-700 max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-gray-800 flex items-center justify-between p-6 border-b border-gray-700 z-10">
-                <h2 className="text-2xl font-bold text-white">
-                  {editingMember ? 'Edit Member' : 'Add Committee Member'}
-                </h2>
-                <button onClick={handleCloseMemberForm} className="text-gray-400 hover:text-white transition-colors">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmitMember} className="p-6 space-y-6">
-                {/* Member Search - Only show when adding new member */}
-                {!editingMember && (
-                  <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-lg p-4 border border-purple-700/50">
-                    <label className="block text-sm font-medium text-purple-300 mb-2">
-                      🔍 Search Existing Member
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by name, email, or student ID..."
-                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                      />
-                      {isSearching && (
-                        <div className="absolute right-3 top-3 text-purple-400">
-                          <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-gray-400 text-xs mt-2">
-                      Type at least 2 characters to search. If found, member details will auto-fill below.
-                    </p>
-                    
-                    {/* Search Results Dropdown */}
-                    {showSearchResults && getFilteredSearchResults(searchResults).length > 0 && (
-                      <div className="mt-3 bg-gray-800 border border-gray-600 rounded-lg max-h-64 overflow-y-auto">
-                        {getFilteredSearchResults(searchResults).map((member) => (
-                          <button
-                            key={member.id}
-                            type="button"
-                            onClick={() => handleSelectMember(member)}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-0"
-                          >
-                            <div className="flex items-center gap-3">
-                              <AdminImage
-                                src={member.photo}
-                                alt={member.name}
-                                width={40}
-                                height={40}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                              <div className="flex-1">
-                                <p className="text-white font-semibold">{member.name}</p>
-                                <p className="text-gray-400 text-sm">{member.designation}</p>
-                                <div className="flex gap-3 text-xs text-gray-500 mt-1">
-                                  {member.email && <span>📧 {member.email}</span>}
-                                  {member.student_id && <span>🆔 {member.student_id}</span>}
-                                </div>
-                              </div>
-                              <div className="text-purple-400">
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {showSearchResults && searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
-                      <div className="mt-3 bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-center">
-                        <p className="text-gray-400 text-sm">No members found matching &quot;{searchQuery}&quot;</p>
-                        <p className="text-gray-500 text-xs mt-1">You can create a new member below</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+         <div className="fixed inset-0 z-50 overflow-hidden">
+           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseMemberForm} />
+           <div className="absolute inset-y-0 right-0 max-w-2xl w-full flex">
+             <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
+                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
+                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                     <UsersIcon className="w-5 h-5 text-purple-500" />
+                     {editingMember ? 'Edit Member' : 'Add Member'}
+                   </h2>
+                   <button onClick={handleCloseMemberForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
+                     <XMarkIcon className="w-6 h-6" />
+                   </button>
+                </div>
                 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
-                    <input
-                      type="text"
-                      value={memberFormData.name}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, name: e.target.value })}
-                      placeholder="e.g., John Doe"
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Designation *</label>
-                    <input
-                      type="text"
-                      value={memberFormData.designation}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, designation: e.target.value })}
-                      placeholder="e.g., President, Secretary"
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Category *</label>
-                  <select
-                    value={memberFormData.category}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, category: e.target.value as any })}
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required
-                  >
-                    <option value="Faculty Advisors">Faculty Advisor</option>
-                    <option value="Student Executives">Student Executives</option>
-                  </select>
-                  <p className="text-gray-500 text-sm mt-1">
-                    {memberFormData.category === 'Faculty Advisors' 
-                      ? 'Faculty Advisor require: Name, Position, Email, Photo'
-                      : 'Student Executives require: Name, Position, Student ID, Social Links, Photo'}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Photo Path *</label>
-                  <input
-                    type="text"
-                    value={memberFormData.photo}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, photo: e.target.value })}
-                    placeholder="/members/president-2025.jpg"
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required
-                  />
-                  <p className="text-gray-500 text-sm mt-1">
-                    Upload photo to <code className="text-purple-400">public/members/</code> folder first, then enter path here
-                  </p>
-                  {memberFormData.photo && (
-                    <div className="mt-3 flex justify-center">
-                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-700">
-                        <AdminImage
-                          src={memberFormData.photo}
-                          alt="Preview"
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover"
-                        />
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    {/* Member Search */}
+                   {!editingMember && (
+                      <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-xl p-4 border border-white/10 mb-6">
+                         <label className="text-sm font-medium text-purple-300 mb-2 block flex items-center gap-2">
+                            <MagnifyingGlassIcon className="w-4 h-4" /> Import Existing Member
+                         </label>
+                         <div className="relative">
+                            <input
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              placeholder="Search by name or email..."
+                              className={inputClassName}
+                            />
+                            {isSearching && <div className="absolute right-3 top-3.5"><div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"/></div>}
+                         </div>
+                         
+                         {showSearchResults && searchResults.length > 0 && (
+                            <div className="mt-2 bg-gray-800 border border-white/10 rounded-xl overflow-hidden max-h-48 overflow-y-auto custom-scrollbar shadow-2xl z-20">
+                               {getFilteredSearchResults(searchResults).map(member => (
+                                  <button
+                                     key={member.id}
+                                     onClick={() => handleSelectMember(member)}
+                                     className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 flex items-center gap-3 transition-colors"
+                                  >
+                                     <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
+                                        <AdminImage src={member.photo} alt={member.name} width={32} height={32} className="w-full h-full object-cover"/>
+                                     </div>
+                                     <div>
+                                        <p className="text-white text-sm font-semibold">{member.name}</p>
+                                        <p className="text-gray-500 text-xs">{member.designation} ({member.email})</p>
+                                     </div>
+                                  </button>
+                               ))}
+                            </div>
+                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
+                   )}
 
-                {/* Email field - Required for Faculty, Optional for Students */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email {memberFormData.category === 'Faculty Advisors' ? '*' : '(Optional)'}
-                  </label>
-                  <input
-                    type="email"
-                    value={memberFormData.email}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
-                    placeholder="john.doe@example.com"
-                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    required={memberFormData.category === 'Faculty Advisors'}
-                  />
-                </div>
-
-                {/* Student-specific fields */}
-                {memberFormData.category === 'Student Executives' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Student ID</label>
-                      <input
-                        type="text"
-                        value={memberFormData.student_id}
-                        onChange={(e) => setMemberFormData({ ...memberFormData, student_id: e.target.value })}
-                        placeholder="e.g., 20250001"
-                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          <span className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                            Facebook
-                          </span>
-                        </label>
-                        <input
-                          type="url"
-                          value={memberFormData.facebook}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, facebook: e.target.value })}
-                          placeholder="https://facebook.com/..."
-                          className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          <span className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                            </svg>
-                            LinkedIn
-                          </span>
-                        </label>
-                        <input
-                          type="url"
-                          value={memberFormData.linkedin}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, linkedin: e.target.value })}
-                          placeholder="https://linkedin.com/in/..."
-                          className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          <span className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                            </svg>
-                            GitHub
-                          </span>
-                        </label>
-                        <input
-                          type="url"
-                          value={memberFormData.github}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, github: e.target.value })}
-                          placeholder="https://github.com/..."
-                          className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Previous Roles (Optional)</label>
-                  <div className="grid grid-cols-[1fr_2fr_auto] gap-2 mb-3">
-                    <input
-                      type="text"
-                      value={roleYear}
-                      onChange={(e) => setRoleYear(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
-                      placeholder="Year (e.g., 2024)"
-                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    />
-                    <input
-                      type="text"
-                      value={roleTitle}
-                      onChange={(e) => setRoleTitle(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
-                      placeholder="Role (e.g., Treasurer)"
-                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddRole}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"
-                    >
-                      Add Role
-                    </button>
-                  </div>
-                  {memberFormData.previous_roles.length > 0 && (
-                    <div className="space-y-2">
-                      {memberFormData.previous_roles.map((roleObj, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-gradient-to-r from-purple-900/30 to-pink-900/30 px-4 py-3 rounded-lg border border-purple-700/30">
-                          <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 bg-purple-600/50 text-purple-200 rounded-full text-xs font-semibold">
-                              {roleObj.year || 'N/A'}
-                            </span>
-                            <span className="text-gray-200 font-medium">{roleObj.role}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveRole(idx)}
-                            className="text-red-400 hover:text-red-300 transition-colors p-1"
-                          >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                    <form id="member-form" onSubmit={handleSubmitMember} className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="col-span-2 md:col-span-1">
+                              <label className={labelClassName}>Full Name *</label>
+                              <input
+                                type="text"
+                                value={memberFormData.name}
+                                onChange={(e) => setMemberFormData({ ...memberFormData, name: e.target.value })}
+                                className={inputClassName}
+                                required
+                              />
+                           </div>
+                           <div className="col-span-2 md:col-span-1">
+                              <label className={labelClassName}>Designation *</label>
+                              <input
+                                type="text"
+                                value={memberFormData.designation}
+                                onChange={(e) => setMemberFormData({ ...memberFormData, designation: e.target.value })}
+                                className={inputClassName}
+                                required
+                              />
+                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                <div>
-                  <label className="flex items-center space-x-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={memberFormData.is_published}
-                      onChange={(e) => setMemberFormData({ ...memberFormData, is_published: e.target.checked })}
-                      className="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-600 focus:ring-2"
-                    />
-                    <span className="text-gray-300 font-medium">Publish immediately</span>
-                  </label>
-                </div>
+                        <div>
+                            <label className={labelClassName}>Category *</label>
+                            <select
+                                value={memberFormData.category}
+                                onChange={(e) => setMemberFormData({ ...memberFormData, category: e.target.value as any })}
+                                className={inputClassName}
+                            >
+                                <option value="Student Executives" className="bg-gray-900">Student Executive</option>
+                                <option value="Faculty Advisors" className="bg-gray-900">Faculty Advisor</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                             <label className={labelClassName}>Photo Path *</label>
+                             <div className="flex gap-4">
+                                <input
+                                  type="text"
+                                  value={memberFormData.photo}
+                                  onChange={(e) => setMemberFormData({ ...memberFormData, photo: e.target.value })}
+                                  className={inputClassName}
+                                  placeholder="/members/name.jpg"
+                                  required
+                                />
+                                <div className="w-12 h-12 bg-black/40 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
+                                   <AdminImage src={memberFormData.photo} alt="Preview" width={48} height={48} className="w-full h-full object-cover" />
+                                </div>
+                             </div>
+                        </div>
 
-                <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-700">
-                  <button
-                    type="button"
-                    onClick={handleCloseMemberForm}
-                    className="px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
-                  >
-                    {editingMember ? 'Update' : 'Add'} Member
-                  </button>
+                        <div className="space-y-4 pt-4 border-t border-white/5">
+                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact & Social</h3>
+                           
+                           <div>
+                              <label className={labelClassName}>Email</label>
+                              <input
+                                type="email"
+                                value={memberFormData.email}
+                                onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
+                                className={inputClassName}
+                              />
+                           </div>
+                           
+                           {memberFormData.category === 'Student Executives' && (
+                             <>
+                               <div>
+                                  <label className={labelClassName}>Student ID</label>
+                                  <input
+                                    type="text"
+                                    value={memberFormData.student_id}
+                                    onChange={(e) => setMemberFormData({ ...memberFormData, student_id: e.target.value })}
+                                    className={inputClassName}
+                                  />
+                               </div>
+                               <div className="grid grid-cols-3 gap-3">
+                                  <input
+                                    type="text"
+                                    value={memberFormData.facebook}
+                                    onChange={(e) => setMemberFormData({ ...memberFormData, facebook: e.target.value })}
+                                    className={inputClassName}
+                                    placeholder="Facebook URL"
+                                  />
+                                   <input
+                                    type="text"
+                                    value={memberFormData.linkedin}
+                                    onChange={(e) => setMemberFormData({ ...memberFormData, linkedin: e.target.value })}
+                                    className={inputClassName}
+                                    placeholder="LinkedIn URL"
+                                  />
+                                   <input
+                                    type="text"
+                                    value={memberFormData.github}
+                                    onChange={(e) => setMemberFormData({ ...memberFormData, github: e.target.value })}
+                                    className={inputClassName}
+                                    placeholder="GitHub URL"
+                                  />
+                               </div>
+                             </>
+                           )}
+                        </div>
+
+                        <div className="space-y-4 pt-4 border-t border-white/5">
+                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Previous Roles</h3>
+                           <div className="flex gap-2">
+                              <input
+                                value={roleYear}
+                                onChange={(e) => setRoleYear(e.target.value)}
+                                className={`${inputClassName} w-24`}
+                                placeholder="Year"
+                              />
+                              <input
+                                value={roleTitle}
+                                onChange={(e) => setRoleTitle(e.target.value)}
+                                className={inputClassName}
+                                placeholder="Role (e.g. Treasurer)"
+                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
+                              />
+                              <button type="button" onClick={handleAddRole} className="px-4 bg-purple-600 rounded-xl text-white font-bold hover:bg-purple-500 transition-colors">Add</button>
+                           </div>
+                           <div className="space-y-2">
+                              {memberFormData.previous_roles.map((role, idx) => (
+                                 <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
+                                    <span className="text-sm text-gray-300"><span className="text-purple-400 font-bold">{role.year}</span> - {role.role}</span>
+                                    <button type="button" onClick={() => handleRemoveRole(idx)} className="text-red-400 hover:text-red-300"><XMarkIcon className="w-4 h-4"/></button>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+
+                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                            <input 
+                              type="checkbox" 
+                              checked={memberFormData.is_published} 
+                              onChange={(e) => setMemberFormData({ ...memberFormData, is_published: e.target.checked })}
+                              className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent" 
+                            />
+                            <span className="text-gray-300 font-medium text-sm">Publish member immediately</span>
+                        </label>
+                    </form>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
+                
+                 <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
+                   <button
+                      type="submit"
+                      form="member-form"
+                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    >
+                     {editingMember ? 'Update Member' : 'Add Member'}
+                   </button>
+                </div>
+             </div>
+           </div>
+         </div>
       )}
 
       <AdminHelpButton
-        title="Committee Management"
+        title="👥 Committee Management"
         instructions={[
-          'Add and manage committee members',
-          'Upload member photos',
-          'Assign roles and positions',
-          'Reorder members by dragging cards',
-          'Remove members when needed'
+          "Manage executive committees, faculty advisors, and members",
+          "Create new committee terms (e.g. 2024-2025)",
+          "Add members manually or import from previous years",
+          "Drag and drop members to reorder them in the list"
         ]}
         tips={[
-          'Use professional photos for committee members',
-          'Keep titles short and descriptive',
-          'Order members by hierarchy or importance'
+          "Use the import feature to quickly promote members from previous years",
+          "Ensure photo paths are correct (upload to public/members first)",
+          "Published committees will appear on the 'Our Team' page"
         ]}
         actions={[
-          { title: 'Add Member', description: 'create new committee entry' },
-          { title: 'Edit Member', description: 'modify details' },
-          { title: 'Delete Member', description: 'remove from committee' }
+           { title: "Drag to Reorder", description: "Click and drag member cards to change their display order" }
         ]}
       />
+
+      <style jsx global>{`
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slideRight {
+            animation: slideRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </div>
   );
 }
+
+

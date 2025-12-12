@@ -16,22 +16,17 @@ const navigation = [
     )
   },
   { 
-    name: 'Updates', 
-    href: '/updates',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-      </svg>
-    )
-  },
-  { 
     name: 'Activities', 
     href: '/activities',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
-    )
+    ),
+    submenu: [
+      { name: 'Event', href: '/activities', icon: '📅' },
+      { name: 'Games', href: '/games', icon: '🎮' }
+    ]
   },
   { 
     name: 'Tournaments', 
@@ -42,15 +37,7 @@ const navigation = [
       </svg>
     )
   },
-  { 
-    name: 'Sponsors', 
-    href: '/sponsors',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    )
-  },
+
   { 
     name: 'Committee', 
     href: '/committee',
@@ -60,22 +47,21 @@ const navigation = [
       </svg>
     )
   },
-  { 
-    name: 'Games', 
-    href: '/games',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-      </svg>
-    )
-  },
+
 ];
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedMobileSubmenus, setExpandedMobileSubmenus] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
+
+  const toggleMobileSubmenu = (name: string) => {
+    setExpandedMobileSubmenus(prev => 
+      prev.includes(name) ? prev.filter(i => i !== name) : [...prev, name]
+    );
+  };
 
   // Handle scroll to show/hide header
   useEffect(() => {
@@ -151,6 +137,51 @@ export default function Header() {
           <div className="hidden md:flex md:items-center md:space-x-1">
             {navigation.map((item) => {
               const active = isActive(item.href);
+              const hasSubmenu = item.submenu && item.submenu.length > 0;
+              
+              if (hasSubmenu) {
+                return (
+                  <div key={item.name} className="relative group">
+                    <button
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                        active
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/30'
+                          : 'text-gray-700 hover:text-cyan-600 hover:bg-cyan-50/50 dark:text-gray-300 dark:hover:text-cyan-400 dark:hover:bg-cyan-900/20'
+                      }`}
+                    >
+                      <span className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
+                        {item.icon}
+                      </span>
+                      {item.name}
+                      <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </button>
+                    
+                    {/* Dropdown Menu */}
+                    <div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl dark:shadow-gray-900/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 border border-gray-200 dark:border-gray-700">
+                      {item.submenu.map((subitem) => {
+                        const subActive = isActive(subitem.href);
+                        return (
+                          <Link
+                            key={subitem.name}
+                            href={subitem.href}
+                            className={`block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                              subActive
+                                ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                            }`}
+                          >
+                            <span className="text-lg">{subitem.icon}</span>
+                            {subitem.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
+              
               return (
                 <Link
                   key={item.name}
@@ -230,6 +261,52 @@ export default function Header() {
           <div className="space-y-1 pt-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-2">
             {navigation.map((item) => {
               const active = isActive(item.href);
+              const hasSubmenu = item.submenu && item.submenu.length > 0;
+              const isExpanded = expandedMobileSubmenus.includes(item.name);
+              
+              if (hasSubmenu) {
+                return (
+                  <div key={item.name}>
+                    <button
+                      onClick={() => toggleMobileSubmenu(item.name)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 text-base font-medium rounded-lg transition-all duration-200 ${
+                        active
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
+                          : 'text-gray-700 hover:text-cyan-600 hover:bg-cyan-50 dark:text-gray-300 dark:hover:text-cyan-400 dark:hover:bg-cyan-900/20'
+                      }`}
+                    >
+                      {item.icon}
+                      {item.name}
+                      <svg className={`w-4 h-4 ml-auto transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </button>
+                    {isExpanded && item.submenu && (
+                      <div className="ml-4 space-y-1 mt-1">
+                        {item.submenu.map((subitem) => {
+                          const subActive = isActive(subitem.href);
+                          return (
+                            <Link
+                              key={subitem.name}
+                              href={subitem.href}
+                              className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                                subActive
+                                  ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                              }`}
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              <span className="text-lg">{subitem.icon}</span>
+                              {subitem.name}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              
               return (
                 <Link
                   key={item.name}

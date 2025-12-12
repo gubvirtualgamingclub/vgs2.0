@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import AdminHelpButton from '@/components/AdminHelpButton';
 import FormModal from './FormModal';
 import FieldModal from './FieldModal';
+import PaymentMethodModal from './PaymentMethodModal';
 import {
   getAllRegistrationForms,
   createRegistrationForm,
@@ -12,7 +13,31 @@ import {
   toggleFormStatus,
   getSubmissionCount,
 } from '@/lib/registration-api';
-import type { RegistrationForm, FormField } from '@/lib/types/database';
+import {
+  getPaymentMethods,
+  createPaymentMethod,
+  updatePaymentMethod,
+  deletePaymentMethod,
+  togglePaymentMethodStatus,
+} from '@/lib/payment-api';
+import type { RegistrationForm, FormField, PaymentMethod } from '@/lib/types/database';
+import {
+  ClipboardDocumentCheckIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  EyeIcon,
+  ClipboardIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  DocumentDuplicateIcon,
+  ChartBarIcon,
+  UsersIcon,
+  CalendarIcon,
+  CreditCardIcon,
+  BanknotesIcon
+} from '@heroicons/react/24/outline';
+import AnimatedToggle from '@/components/AnimatedToggle';
 
 export default function RegistrationFormsAdmin() {
   const [forms, setForms] = useState<RegistrationForm[]>([]);
@@ -20,6 +45,13 @@ export default function RegistrationFormsAdmin() {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editingForm, setEditingForm] = useState<RegistrationForm | null>(null);
   const [submissionCounts, setSubmissionCounts] = useState<Record<string, number>>({});
+  const [submissionLoading, setSubmissionLoading] = useState(true);
+
+  // Payment Methods State
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [paymentLoading, setPaymentLoading] = useState(true);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [editingPaymentMethod, setEditingPaymentMethod] = useState<PaymentMethod | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -69,15 +101,56 @@ export default function RegistrationFormsAdmin() {
 
   useEffect(() => {
     fetchForms();
+    fetchPayments();
   }, []);
+
+  async function fetchPayments() {
+    try {
+      setPaymentLoading(true);
+      const data = await getPaymentMethods();
+      setPaymentMethods(data);
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+    } finally {
+      setPaymentLoading(false);
+    }
+  }
+
+  async function handleSavePaymentMethod(data: Partial<PaymentMethod>) {
+    if (editingPaymentMethod) {
+      await updatePaymentMethod(editingPaymentMethod.id, data);
+    } else {
+      await createPaymentMethod(data);
+    }
+    fetchPayments();
+  }
+
+  async function handleDeletePaymentMethod(id: string) {
+    if (confirm('Delete this payment method?')) {
+      await deletePaymentMethod(id);
+      fetchPayments();
+    }
+  }
+
+  async function handleTogglePaymentStatus(id: string, currentStatus: boolean) {
+    await togglePaymentMethodStatus(id, !currentStatus);
+    fetchPayments();
+  }
+
+  function openPaymentModal(method?: PaymentMethod) {
+    setEditingPaymentMethod(method || null);
+    setPaymentModalOpen(true);
+  }
 
   async function fetchForms() {
     try {
       setLoading(true);
       const data = await getAllRegistrationForms();
       setForms(data);
+      setLoading(false);
 
-      // Fetch submission counts
+      // Fetch submission counts separately to avoid blocking UI
+      setSubmissionLoading(true);
       const counts: Record<string, number> = {};
       for (const form of data) {
         counts[form.id] = await getSubmissionCount(form.id);
@@ -88,6 +161,7 @@ export default function RegistrationFormsAdmin() {
       alert('Failed to load registration forms');
     } finally {
       setLoading(false);
+      setSubmissionLoading(false);
     }
   }
 
@@ -185,10 +259,8 @@ export default function RegistrationFormsAdmin() {
 
       if (editingForm) {
         await updateRegistrationForm(editingForm.id, payload);
-        alert('Registration form updated successfully!');
       } else {
         await createRegistrationForm(payload);
-        alert('Registration form created successfully!');
       }
 
       setFormModalOpen(false);
@@ -206,7 +278,6 @@ export default function RegistrationFormsAdmin() {
 
     try {
       await deleteRegistrationForm(id);
-      alert('Registration form deleted successfully!');
       fetchForms();
     } catch (error) {
       console.error('Error deleting form:', error);
@@ -255,108 +326,156 @@ export default function RegistrationFormsAdmin() {
     setFormFields(formFields.filter((f) => f.id !== fieldId));
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-purple-600 mx-auto mb-4"></div>
-          <p>Loading registration forms...</p>
+  return (
+    <div className="space-y-8 animate-fadeIn pb-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div>
+           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2">Registration Forms</h1>
+           <p className="text-gray-400 text-lg">Create and manage dynamic registration forms for tournaments and events</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => openPaymentModal()}
+            className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 text-purple-300 rounded-xl font-bold hover:bg-white/10 transition-all"
+          >
+            <CreditCardIcon className="w-5 h-5" />
+            <span>Payment Methods</span>
+          </button>
+          <button
+            onClick={() => openFormModal()}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-purple-500/30 hover:scale-[1.02] transition-all"
+          >
+            <PlusIcon className="w-5 h-5" />
+            <span>Create Form</span>
+          </button>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-700/50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Registration Forms Management</h1>
-              <p className="text-sm text-gray-400">Create and manage game registration forms</p>
-            </div>
-            <button
-              onClick={() => openFormModal()}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition"
-            >
-              + Create New Form
-            </button>
-          </div>
-        </div>
+      {/* Payment Methods Section (Collapsible or Gridded) */}
+      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-2xl border border-white/5 p-6 backdrop-blur-sm">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <BanknotesIcon className="w-6 h-6 text-green-400" />
+          Active Payment Methods
+        </h2>
+        
+        {paymentLoading ? (
+           <div className="flex gap-4 animate-pulse">
+             {[1,2].map(i => <div key={i} className="h-24 w-64 bg-white/5 rounded-xl"></div>)}
+           </div>
+        ) : paymentMethods.length === 0 ? (
+           <div className="text-gray-500 italic">No payment methods configured. Click "Payment Methods" to add one.</div>
+        ) : (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {paymentMethods.map(method => (
+                <div key={method.id} className="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-col relative group hover:border-purple-500/30 transition-colors">
+                   <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="font-bold text-white">{method.name}</h3>
+                        <p className="text-xs text-gray-400 font-mono tracking-wider">{method.account_type.toUpperCase()}</p>
+                      </div>
+                      <AnimatedToggle 
+                        isOn={method.is_active} 
+                        onToggle={() => handleTogglePaymentStatus(method.id, method.is_active)}
+                        size="sm"
+                      />
+                   </div>
+                   <div className="text-lg font-mono font-bold text-purple-400 mb-2">{method.number}</div>
+                   
+                   <div className="mt-auto flex gap-2 pt-2 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openPaymentModal(method)} className="text-xs flex-1 bg-white/5 hover:bg-white/10 py-1.5 rounded text-blue-300">Edit</button>
+                      <button onClick={() => handleDeletePaymentMethod(method.id)} className="text-xs flex-1 bg-red-500/10 hover:bg-red-500/20 py-1.5 rounded text-red-400">Delete</button>
+                   </div>
+                </div>
+              ))}
+           </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {forms.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">📋</div>
-            <h3 className="text-2xl font-semibold mb-3">No Registration Forms Yet</h3>
-            <p className="text-gray-400 mb-6">Create your first registration form to start collecting submissions</p>
-            <button
-              onClick={() => openFormModal()}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition"
-            >
-              Create Form
-            </button>
+      <div className="min-h-[400px]">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+             <div className="flex flex-col items-center">
+              <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-400 animate-pulse">Loading forms...</p>
+            </div>
+          </div>
+        ) : forms.length === 0 ? (
+          <div className="bg-gray-900/40 border border-white/5 rounded-2xl p-16 text-center backdrop-blur-sm">
+             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                 <ClipboardDocumentCheckIcon className="w-10 h-10 text-gray-600" />
+             </div>
+             <h3 className="text-xl font-bold text-white mb-2">No Registration Forms</h3>
+             <p className="text-gray-400 mb-6">Create your first custom registration form to start accepting participants.</p>
+             <button
+               onClick={() => openFormModal()}
+               className="text-purple-400 hover:text-purple-300 font-semibold flex items-center justify-center gap-2 mx-auto"
+             >
+                <PlusIcon className="w-4 h-4" /> Create New Form
+             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {forms.map((form) => (
-              <div key={form.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-purple-500 transition">
-                <div className="p-6">
+              <div key={form.id} className="group bg-gray-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-900/10 flex flex-col">
+                <div className="p-6 flex-1">
                   <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">{form.game_name}</h3>
-                      <p className="text-sm text-gray-400">{form.title}</p>
+                    <div className="flex-1 min-w-0 pr-4">
+                      {form.game_name && (
+                         <div className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-1 truncate">{form.game_name}</div>
+                      )}
+                      <h3 className="text-xl font-bold text-white truncate group-hover:text-purple-300 transition-colors" title={form.title}>{form.title}</h3>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
+                    <button
                         onClick={() => handleToggleStatus(form.id, form.is_active)}
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          form.is_active ? 'bg-green-600' : 'bg-gray-600'
+                        className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
+                          form.is_active 
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20' 
+                          : 'bg-gray-700/50 text-gray-400 border-gray-600/30 hover:bg-gray-700'
                         }`}
                       >
-                        {form.is_active ? 'Active' : 'Inactive'}
-                      </button>
-                    </div>
+                       {form.is_active ? 'Active' : 'Inactive'}
+                    </button>
                   </div>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-3 mb-6 bg-black/20 rounded-xl p-4 border border-white/5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Form Fields:</span>
-                      <span className="font-semibold">{form.form_fields?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Submissions:</span>
-                      <span className="font-semibold text-green-400">{submissionCounts[form.id] || 0}</span>
-                    </div>
-                    {form.max_registrations && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Max Registrations:</span>
-                        <span className="font-semibold">{form.max_registrations}</span>
+                      <div className="flex items-center gap-2 text-gray-400">
+                          <ClipboardIcon className="w-4 h-4" /> Fields
                       </div>
-                    )}
+                      <span className="font-semibold text-white">{form.form_fields?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-400">
+                         <UsersIcon className="w-4 h-4" /> Submissions
+                      </div>
+                      <span className="font-semibold text-green-400">
+                          {submissionLoading && !submissionCounts[form.id] ? '...' : submissionCounts[form.id] || 0}
+                      </span>
+                    </div>
                     {form.registration_deadline && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Deadline:</span>
-                        <span className="font-semibold">{new Date(form.registration_deadline).toLocaleDateString()}</span>
+                         <div className="flex items-center gap-2 text-gray-400">
+                            <CalendarIcon className="w-4 h-4" /> Deadline
+                         </div>
+                        <span className="font-medium text-gray-300">{new Date(form.registration_deadline).toLocaleDateString()}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => openFormModal(form)}
-                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-blue-400 rounded-lg text-sm font-medium transition-colors"
                     >
-                      Edit
+                      <PencilIcon className="w-4 h-4" /> Edit
                     </button>
                     <button
                       onClick={() => window.open(`/register/${form.game_slug}`, '_blank')}
-                      className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-purple-400 rounded-lg text-sm font-medium transition-colors"
                     >
-                      View
+                      <EyeIcon className="w-4 h-4" /> View
                     </button>
                     <button
                       onClick={() => {
@@ -364,16 +483,15 @@ export default function RegistrationFormsAdmin() {
                         navigator.clipboard.writeText(url);
                         alert('✅ Registration link copied to clipboard!');
                       }}
-                      className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold"
-                      title="Copy registration link"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-green-400 rounded-lg text-sm font-medium transition-colors"
                     >
-                      📋
+                       <DocumentDuplicateIcon className="w-4 h-4" /> Copy Link
                     </button>
                     <button
                       onClick={() => handleDeleteForm(form.id)}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-semibold"
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white/5 hover:bg-red-500/10 text-red-400 rounded-lg text-sm font-medium transition-colors"
                     >
-                      Delete
+                      <TrashIcon className="w-4 h-4" /> Delete
                     </button>
                   </div>
                 </div>
@@ -383,7 +501,6 @@ export default function RegistrationFormsAdmin() {
         )}
       </div>
 
-      {/* Form Modal (To be continued in next part...) */}
       {formModalOpen && (
         <FormModal
           formData={formData}
@@ -398,7 +515,6 @@ export default function RegistrationFormsAdmin() {
         />
       )}
 
-      {/* Field Modal */}
       {fieldModalOpen && editingField && (
         <FieldModal
           field={editingField}
@@ -407,171 +523,38 @@ export default function RegistrationFormsAdmin() {
         />
       )}
 
-      {/* Comprehensive Registration Forms Help Button */}
       <AdminHelpButton
-        title="📝 Registration Forms - Complete Guide with Code"
+        title="📝 Registration Forms - Complete Guide"
         instructions={[
-          "STEP 1: Click 'Create New Form' button to begin",
-          "STEP 2: Enter Game Name (e.g., 'Valorant') and Game Slug (e.g., 'valorant-2025')",
-          "STEP 3: Add Form Title and Description",
-          "STEP 4: Create Google Sheet (see detailed setup below)",
-          "STEP 5: Add Apps Script code to Google Sheet (CRITICAL - see code below)",
-          "STEP 6: Deploy Apps Script as Web App and get URL",
-          "STEP 7: Paste the Web App URL in 'Google Sheet URL' field",
-          "STEP 8: Add custom form fields (Name, Email, Phone, etc.)",
-          "STEP 9: Set Max Registrations and Deadline (optional)",
-          "STEP 10: Test form while keeping it inactive",
-          "STEP 11: Activate form and share URL with users",
-          "STEP 12: Monitor submissions in your Google Sheet"
+          "Click 'Create Form' to start a new registration page",
+          "Setup a Google Sheet to collect responses (Code provided)",
+          "Deploy the Google Apps Script as a Web App",
+          "Link the Web App URL to your form",
+          "Customize form fields (Text, Email, Dropdowns, etc.)",
+          "Share the generated registration link"
         ]}
         tips={[
-          "🔑 Game Slug must be unique, lowercase, use hyphens only (e.g., valorant-2025)",
-          "📊 Google Apps Script is REQUIRED to receive form data - copy the exact code below",
-          "🚀 Web App URL looks like: https://script.google.com/macros/s/YOUR_ID/exec",
-          "✅ Test the Web App URL first before adding to admin panel",
-          "📧 Use 'email' type for email fields to enable validation",
-          "💾 All submissions save automatically to Google Sheet in real-time",
-          "🔒 Keep form inactive while testing to avoid incomplete submissions",
-          "📱 Forms are mobile-responsive automatically",
-          "🗓️ Forms automatically close after deadline if set",
-          "⚙️ Apps Script must be deployed as 'Anyone' with 'Anonymous' access"
+          "Use the exact Apps Script code provided below",
+          "Deploy as 'Me' with 'Anyone' access",
+          "Test the form before sharing with users",
+          "Check the Google Sheet for live submissions"
         ]}
         actions={[
           {
-            title: "🆕 COMPLETE SETUP PROCESS",
-            description: "1. Create Google Sheet → 2. Copy Apps Script code → 3. Deploy as Web App → 4. Get deployment URL → 5. Create form in admin panel → 6. Paste Web App URL → 7. Add form fields → 8. Test → 9. Activate"
-          },
-          {
-            title: "📊 STEP-BY-STEP: Google Sheet Setup",
-            description: "Go to sheets.google.com → Create new spreadsheet → Name it (e.g., 'Valorant Registrations') → Add headers: Timestamp | Name | Email | Phone | [Your Fields] → Save sheet"
-          },
-          {
-            title: "💻 CRITICAL: Apps Script Code (COPY EXACT CODE)",
-            description: `function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    // Create row array with timestamp
-    var rowData = [new Date()];
-    
-    // Add all field values in order
-    for (var key in data) {
-      rowData.push(data[key]);
-    }
-    
-    // Append to sheet
-    sheet.appendRow(rowData);
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({success: true}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({success: false, error: error.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}`
-          },
-          {
-            title: "🚀 DEPLOY APPS SCRIPT AS WEB APP",
-            description: `After pasting code: Click 'Deploy' → 'New deployment' → Click ⚙️ gear icon → Select 'Web app' → Settings: Execute as: 'Me' | Who has access: 'Anyone' → Click 'Deploy' → Authorize (click your email → Advanced → Go to Form Handler → Allow) → Copy Web App URL → Click 'Done' → Paste URL in admin form's Google Sheet URL field`
-          },
-          {
-            title: "✅ TEST YOUR WEB APP (IMPORTANT)",
-            description: `Test URL format: https://script.google.com/macros/s/LONG_ID_HERE/exec → Open Postman or use browser console → Send POST request with test data → Check if data appears in Google Sheet → If working, proceed with form creation`
-          },
-          {
-            title: "➕ CREATE FORM IN ADMIN PANEL",
-            description: `Admin Panel → Registration Forms → Create New Form → Fill: Game Name, Slug, Title, Description → Paste Web App URL in 'Google Sheet URL' → Set max registrations & deadline → Save form`
-          },
-          {
-            title: "📝 ADD CUSTOM FORM FIELDS",
-            description: `Click 'Add Form Field' → Choose type (text/email/tel/select/etc.) → Enter label → For select/radio/checkbox: add options (one per line) → Mark 'Required' if mandatory → Save → Repeat for all fields → Field order = form appearance order`
-          },
-          {
-            title: "🎮 COMPLETE EXAMPLE: Valorant Tournament",
-            description: `Sheet Headers: Timestamp | Full Name | Email | Phone | In-Game Name | Rank | Team Name
-
-Form Fields:
-1. Full Name (text, required)
-2. Email (email, required)
-3. Phone (tel, required)
-4. In-Game Name (text, required)
-5. Rank (select, required) - Options: Iron, Bronze, Silver, Gold, Platinum, Diamond
-6. Team Name (text, optional)
-
-Game Slug: valorant-championship-2025
-URL: yoursite.com/registration/valorant-championship-2025`
-          },
-          {
-            title: "🔧 TROUBLESHOOTING GUIDE",
-            description: `Problem: Submissions not saving → Check Apps Script deployed as 'Anyone' access | Problem: 'Authorization required' → Re-authorize in Apps Script | Problem: Wrong data order → Match sheet headers with form field order | Problem: Form URL 404 → Verify game slug format | Problem: Script error → Check code copied exactly, no extra spaces`
-          },
-          {
-            title: "🔄 UPDATE EXISTING DEPLOYMENT",
-            description: `If you need to update Apps Script: Open script → Make changes → Save → Click 'Deploy' → 'Manage deployments' → Click ✏️ edit icon → New version → Update → Paste new URL in admin panel`
-          },
-          {
-            title: "📋 FULL DEPLOYMENT CHECKLIST",
-            description: `□ Google Sheet created with proper headers
-□ Apps Script code pasted exactly
-□ Script saved with project name
-□ Deployed as Web App
-□ Execute as: 'Me' selected
-□ Access: 'Anyone' selected
-□ Authorization completed
-□ Web App URL copied
-□ Test submission successful
-□ Data appears in sheet
-□ Form created in admin panel
-□ Web App URL pasted
-□ All fields added
-□ Field order correct
-□ Required fields marked
-□ Test form submission
-□ Form activated
-□ URL shared with users`
-          },
-          {
-            title: "💡 ADVANCED: Email Notification Code (Optional)",
-            description: `function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    var rowData = [new Date()];
-    for (var key in data) {
-      rowData.push(data[key]);
-    }
-    sheet.appendRow(rowData);
-    
-    // Send email notification
-    MailApp.sendEmail({
-      to: 'admin@yoursite.com',
-      subject: 'New Registration Received',
-      body: 'Name: ' + data.name + '\\nEmail: ' + data.email
-    });
-    
-    return ContentService
-      .createTextOutput(JSON.stringify({success: true}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(error) {
-    return ContentService
-      .createTextOutput(JSON.stringify({success: false, error: error.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}`
+            title: "💻 CRITICAL: Apps Script Code",
+            description: `function doPost(e) { try { var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet(); var data = JSON.parse(e.postData.contents); var rowData = [new Date()]; for (var key in data) { rowData.push(data[key]); } sheet.appendRow(rowData); return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON); } catch(error) { return ContentService.createTextOutput(JSON.stringify({success: false, error: error.toString()})).setMimeType(ContentService.MimeType.JSON); } }`
           }
         ]}
       />
+
+      {/* Payment Method Modal */}
+      {paymentModalOpen && (
+        <PaymentMethodModal
+          method={editingPaymentMethod}
+          onSave={handleSavePaymentMethod}
+          onClose={() => setPaymentModalOpen(false)}
+        />
+      )}
     </div>
   );
-}
-
-function generateSlug(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
 }

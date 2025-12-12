@@ -64,7 +64,11 @@ export interface Tournament {
   logo?: string;
   banner?: string;
   banner_source?: 'url' | 'path';
+  teaser_video_url?: string; // New
   description?: string;
+  about_event?: string; // New
+  about_organizer?: string; // New
+  previous_glimpses?: { id: string; title: string; images: string[] }[]; // New
   date: string;
   time: string;
   venue: string;
@@ -242,6 +246,22 @@ export interface RegistrationForm {
   updated_at: string;
 }
 
+// ============================================
+// Payment Types
+// ============================================
+
+export interface PaymentMethod {
+  id: string;
+  name: string; // e.g., Bkash, Nagad
+  number: string;
+  logo_url?: string;
+  instructions?: string;
+  account_type: 'personal' | 'merchant' | 'agent';
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface RegistrationSubmission {
   id: string;
   form_id: string;
@@ -249,6 +269,9 @@ export interface RegistrationSubmission {
   submitted_at: string;
   ip_address?: string;
   user_agent?: string;
+  // New Payment Fields
+  transaction_id?: string;
+  payment_method_id?: string;
 }
 
 export interface SiteSetting {
@@ -356,7 +379,7 @@ export interface Participant {
 }
 
 // Database table names
-export type TableName = 'updates' | 'activities' | 'tournaments' | 'sponsors' | 'committees' | 'committee_members' | 'registration_forms' | 'registration_submissions' | 'site_settings' | 'activity_sponsors' | 'games' | 'game_events' | 'game_history' | 'email_templates' | 'email_logs';
+export type TableName = 'updates' | 'activities' | 'tournaments' | 'sponsors' | 'committees' | 'committee_members' | 'registration_forms' | 'registration_submissions' | 'site_settings' | 'activity_sponsors' | 'games' | 'game_events' | 'game_history' | 'email_templates' | 'email_logs' | 'payment_methods';
 
 // Union type for all database records
-export type DatabaseRecord = Update | Activity | Tournament | Sponsor | Committee | CommitteeMember | RegistrationForm | RegistrationSubmission | SiteSetting | ActivitySponsor | Game | GameHistory | EmailTemplate | EmailLog;
+export type DatabaseRecord = Update | Activity | Tournament | Sponsor | Committee | CommitteeMember | RegistrationForm | RegistrationSubmission | SiteSetting | ActivitySponsor | Game | GameHistory | EmailTemplate | EmailLog | PaymentMethod;

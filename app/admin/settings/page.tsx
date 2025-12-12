@@ -1,9 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
 import AdminHelpButton from '@/components/AdminHelpButton';
+
 import { getSiteSetting, upsertSiteSetting } from '@/lib/supabase-queries';
 import type { SiteSetting } from '@/lib/types/database';
+
+import { 
+  CloudArrowUpIcon, 
+  EnvelopeIcon, 
+  PhoneIcon, 
+  ChatBubbleBottomCenterTextIcon, 
+  ArrowPathIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  LinkIcon,
+  DocumentTextIcon,
+  InformationCircleIcon
+} from '@heroicons/react/24/outline';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -89,40 +104,23 @@ export default function SettingsPage() {
   }
 
   function convertToDirectDownloadLink(url: string): string {
-    // Convert various Google Drive formats to direct download link
     if (!url) return '';
-    
-    // Extract file ID from various Google Drive URL formats
     let fileId = '';
-    
-    // Format 1: https://drive.google.com/file/d/FILE_ID/view
     const viewMatch = url.match(/\/file\/d\/([^/]+)/);
-    if (viewMatch) {
-      fileId = viewMatch[1];
-    }
-    
-    // Format 2: https://drive.google.com/open?id=FILE_ID
+    if (viewMatch) fileId = viewMatch[1];
     const openMatch = url.match(/[?&]id=([^&]+)/);
-    if (openMatch) {
-      fileId = openMatch[1];
-    }
-    
-    // Format 3: https://drive.google.com/uc?id=FILE_ID
+    if (openMatch) fileId = openMatch[1];
     const ucMatch = url.match(/\/uc\?id=([^&]+)/);
-    if (ucMatch) {
-      fileId = ucMatch[1];
-    }
+    if (ucMatch) fileId = ucMatch[1];
 
     if (fileId) {
       return `https://drive.google.com/uc?export=download&id=${fileId}`;
     }
-    
-    return url; // Return as-is if no pattern matched
+    return url;
   }
 
   function handleUrlChange(value: string) {
     setPartnershipBrochureUrl(value);
-    // Auto-convert if user pastes a regular Drive link
     if (value.includes('drive.google.com') && !value.includes('export=download')) {
       const directLink = convertToDirectDownloadLink(value);
       if (directLink !== value) {
@@ -131,163 +129,116 @@ export default function SettingsPage() {
     }
   }
 
+  const inputClassName = "w-full px-4 py-3 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-white placeholder-gray-500 hover:bg-black/30";
+  const labelClassName = "block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2";
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
-            <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-            </div>
-          </div>
-        </div>
+      <div className="flex items-center justify-center h-96">
+        <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Site Settings</h1>
-          <p className="text-gray-300">Manage site-wide configuration and settings</p>
-        </div>
+    <div className="space-y-8 animate-fadeIn pb-10">
+      {/* Header */}
+      <div>
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2">System Settings</h1>
+        <p className="text-gray-400 text-lg">Manage global configuration and contact details</p>
+      </div>
 
-        {/* Success/Error Messages */}
-        {successMessage && (
-          <div className="mb-6 bg-green-900/50 border border-green-500 text-green-200 px-6 py-4 rounded-xl flex items-center gap-3 animate-fade-in">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+       {/* Success/Error Messages */}
+       {successMessage && (
+          <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-6 py-4 rounded-xl flex items-center gap-3 animate-slideDown backdrop-blur-sm">
+            <CheckCircleIcon className="w-6 h-6" />
             {successMessage}
           </div>
         )}
-
         {errorMessage && (
-          <div className="mb-6 bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-xl flex items-center gap-3 animate-fade-in">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-xl flex items-center gap-3 animate-slideDown backdrop-blur-sm">
+            <ExclamationCircleIcon className="w-6 h-6" />
             {errorMessage}
           </div>
         )}
 
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Partnership Brochure Section */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20 mb-6">
-          <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl hover:border-purple-500/30 transition-all">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-900/20">
+               <DocumentTextIcon className="w-6 h-6 text-white" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-2">Partnership Brochure Link</h2>
-              <p className="text-gray-400">Google Drive direct download link for the partnership brochure PDF</p>
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-1">Brochure Link</h2>
+              <p className="text-gray-400 text-sm">Google Drive direct download link for the partnership brochure</p>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className={labelClassName}>
+                <CloudArrowUpIcon className="w-4 h-4 text-purple-400" />
                 Google Drive URL
               </label>
               <input
                 type="url"
                 value={partnershipBrochureUrl}
                 onChange={(e) => handleUrlChange(e.target.value)}
-                placeholder="https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                placeholder="Paste Google Drive link here..."
+                className={inputClassName}
               />
-              <p className="text-gray-500 text-sm mt-2">
-                Paste your Google Drive link here. It will be automatically converted to a direct download link.
+              <p className="text-gray-500 text-xs mt-2 pl-1">
+                Automatic conversion to direct download link enabled.
               </p>
             </div>
 
             {/* Preview */}
             {partnershipBrochureUrl && (
-              <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                <p className="text-sm text-gray-400 mb-2">Preview:</p>
-                <code className="text-xs text-purple-400 break-all">{partnershipBrochureUrl}</code>
-                <div className="mt-3 flex gap-2">
-                  <a
-                    href={partnershipBrochureUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-400 hover:text-blue-300 underline flex items-center gap-1"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Test Link
-                  </a>
-                </div>
+              <div className="bg-black/30 p-4 rounded-xl border border-white/5">
+                <p className="text-xs text-gray-400 mb-2 font-bold uppercase tracking-wider">Generated Direct Link</p>
+                <code className="text-xs text-purple-400 break-all bg-black/30 p-2 rounded block mb-3 font-mono border border-white/5">{partnershipBrochureUrl}</code>
+                <a
+                  href={partnershipBrochureUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                  Test Download Link
+                </a>
               </div>
             )}
-
-            {/* Instructions */}
-            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6 mt-6">
-              <h3 className="text-lg font-bold text-blue-300 mb-3 flex items-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                How to Get Google Drive Direct Download Link
-              </h3>
-              <ol className="space-y-3 text-sm text-gray-300">
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">1</span>
-                  <div>
-                    <strong>Upload PDF to Google Drive</strong>
-                    <p className="text-gray-400 mt-1">Upload your partnership brochure PDF file to your Google Drive</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">2</span>
-                  <div>
-                    <strong>Set File Sharing to &quot;Anyone with the link&quot;</strong>
-                    <p className="text-gray-400 mt-1">Right-click file → Share → Change to &quot;Anyone with the link can view&quot;</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">3</span>
-                  <div>
-                    <strong>Copy the shareable link</strong>
-                    <p className="text-gray-400 mt-1">Click &quot;Copy link&quot; button</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">4</span>
-                  <div>
-                    <strong>Paste the link here</strong>
-                    <p className="text-gray-400 mt-1">The link will be automatically converted to a direct download format</p>
-                  </div>
-                </li>
-              </ol>
+            
+            <div className="mt-4 p-4 bg-purple-500/5 rounded-xl border border-purple-500/10">
+                <h4 className="text-purple-400 text-sm font-bold mb-2 flex items-center gap-2">
+                    <CheckCircleIcon className="w-4 h-4" /> Quick Guide
+                </h4>
+                <ol className="list-decimal list-inside text-xs text-gray-400 space-y-1 ml-1">
+                    <li>Upload PDF to Google Drive</li>
+                    <li>Set access to <strong>"Anyone with the link"</strong></li>
+                    <li>Copy link and paste above</li>
+                </ol>
             </div>
           </div>
         </div>
 
         {/* Contact Information Section */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20 mb-6">
-          <div className="flex items-start gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
+        <div className="bg-gray-900/60 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-xl hover:border-blue-500/30 transition-all">
+          <div className="flex items-start gap-4 mb-8">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/20">
+               <ChatBubbleBottomCenterTextIcon className="w-6 h-6 text-white" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-2">Contact Information</h2>
-              <p className="text-gray-400">Manage partnership contact details shown in &quot;Get in Touch&quot; modal</p>
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-1">Contact Info</h2>
+              <p className="text-gray-400 text-sm">Manage contact details visible to users</p>
             </div>
           </div>
 
           <div className="space-y-6">
-            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                </svg>
+              <label className={labelClassName}>
+                <EnvelopeIcon className="w-4 h-4 text-blue-400" />
                 Partnership Email
               </label>
               <input
@@ -295,39 +246,27 @@ export default function SettingsPage() {
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
                 placeholder="partnerships@vgs.com"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={inputClassName}
               />
-              <p className="text-gray-500 text-sm mt-2">
-                Email address for partnership inquiries
-              </p>
             </div>
 
-            {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Contact Phone Number
+              <label className={labelClassName}>
+                <PhoneIcon className="w-4 h-4 text-blue-400" />
+                Phone Number
               </label>
               <input
                 type="tel"
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
                 placeholder="+1 (234) 567-890"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                className={inputClassName}
               />
-              <p className="text-gray-500 text-sm mt-2">
-                Format: +1 (234) 567-890 (displayed as-is)
-              </p>
             </div>
 
-            {/* WhatsApp */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                </svg>
+              <label className={labelClassName}>
+                <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
                 WhatsApp Number
               </label>
               <input
@@ -335,53 +274,43 @@ export default function SettingsPage() {
                 value={contactWhatsApp}
                 onChange={(e) => setContactWhatsApp(e.target.value)}
                 placeholder="1234567890"
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                className={inputClassName}
               />
-              <p className="text-gray-500 text-sm mt-2">
-                Enter numbers only (no + or spaces). Example: 1234567890 for +1 (234) 567-890
+              <p className="text-gray-500 text-xs mt-2 pl-1">
+                Numbers only (no + or spaces).
               </p>
             </div>
-
-            {/* Preview */}
-            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-              <p className="text-sm text-gray-400 mb-3 font-semibold">Preview:</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-purple-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                  Email: <span className="text-white">{contactEmail || 'Not set'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-blue-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  Phone: <span className="text-white">{contactPhone || 'Not set'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-green-400">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                  </svg>
-                  WhatsApp: <span className="text-white">{contactWhatsApp ? `+${contactWhatsApp}` : 'Not set'}</span>
-                </div>
-              </div>
-            </div>
+            
+             <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2">
+               <p className="text-xs text-gray-400 mb-2 font-bold uppercase tracking-wider">Live Preview</p>
+               <div className="text-sm text-gray-300 flex items-center gap-2">
+                   <EnvelopeIcon className="w-4 h-4 text-gray-500" /> {contactEmail || 'Not set'}
+               </div>
+                <div className="text-sm text-gray-300 flex items-center gap-2">
+                   <PhoneIcon className="w-4 h-4 text-gray-500" /> {contactPhone || 'Not set'}
+               </div>
+                <div className="text-sm text-gray-300 flex items-center gap-2">
+                   <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg> {contactWhatsApp ? `+${contactWhatsApp}` : 'Not set'}
+               </div>
+             </div>
           </div>
         </div>
+      </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end gap-4">
-          <button
+       {/* Actions */}
+       <div className="flex justify-end gap-4 border-t border-white/10 pt-8">
+           <button
             onClick={fetchSettings}
             disabled={saving}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50"
+            className="px-6 py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2"
           >
-            Reset
+            <ArrowPathIcon className="w-5 h-5" />
+            Reset Changes
           </button>
-          <button
+           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-purple-900/20 hover:scale-[1.02]"
           >
             {saving ? (
               <>
@@ -390,36 +319,31 @@ export default function SettingsPage() {
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Save Settings
+                <CheckCircleIcon className="w-5 h-5" />
+                Save All Settings
               </>
             )}
           </button>
-        </div>
+       </div>
 
-        <AdminHelpButton
-          title="Admin Settings"
-          instructions={[
-            'Configure admin panel settings',
-            'Update admin profile',
-            'Change admin password',
-            'Manage system preferences',
-            'Backup and restore data'
-          ]}
-          tips={[
-            'Keep your password secure and unique',
-            'Regularly backup important data',
-            'Update contact information'
-          ]}
-          actions={[
-            { title: 'Update Profile', description: 'change admin info' },
-            { title: 'Change Password', description: 'update credentials' },
-            { title: 'Backup Data', description: 'export settings' }
-          ]}
-        />
-      </div>
+      <AdminHelpButton
+        title="⚙️ Settings Instructions"
+        instructions={[
+            "Paste your Google Drive link for the brochure; it auto-converts to a download link.",
+            "Update contact email and phone displayed on the site.",
+            "Click 'Save All Settings' to apply changes instantly."
+        ]}
+        tips={[
+            "Test the brochure link after saving to ensure it downloads.",
+            "Use international format for phone numbers (e.g., +1...)"
+        ]}
+        actions={[
+            {
+               title: "About the Brochure",
+               description: "We use a direct download link trick for Google Drive files. You just need the shareable link set to 'Anyone with the link'."
+            }
+        ]}
+      />
     </div>
   );
 }

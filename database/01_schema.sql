@@ -1,33 +1,16 @@
 -- ============================================
--- VGS 2.0 - COMPLETE DATABASE SETUP
+-- VGS 2.0 - CONSOLIDATED SCHEMA (v4.0.0)
 -- ============================================
--- This file contains ALL tables, indexes, and configurations
--- Run this for FRESH DATABASE INSTALLATION
--- Version: 3.1.0
--- Last Updated: November 18, 2025
--- ============================================
---
--- INSTRUCTIONS:
--- 1. Open Supabase Dashboard
--- 2. Navigate to SQL Editor
--- 3. Copy this ENTIRE file
--- 4. Paste into SQL Editor
--- 5. Click "Run" button
--- 6. Wait for "Success" message
--- 7. Database is ready!
---
--- ⚠️ WARNING: For FRESH setup only!
---    For existing databases, use DATABASE_MIGRATION_UPDATE.sql
---
+-- This file contains the complete database structure.
+-- Run this in the Supabase SQL Editor to set up the database.
 -- ============================================
 
 -- Enable required PostgreSQL extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For full-text search
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- ============================================
 -- TABLE: UPDATES
--- News, announcements, and general updates
 -- ============================================
 CREATE TABLE IF NOT EXISTS updates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -47,8 +30,6 @@ COMMENT ON TABLE updates IS 'News updates and announcements';
 
 -- ============================================
 -- TABLE: ACTIVITIES
--- Events, workshops, seminars, and activities
--- Latest version with enhanced features (v3.1.0)
 -- ============================================
 CREATE TABLE IF NOT EXISTS activities (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -65,7 +46,6 @@ CREATE TABLE IF NOT EXISTS activities (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     is_published BOOLEAN DEFAULT FALSE,
     is_featured BOOLEAN DEFAULT FALSE,
-    -- v3.1.0 Enhancements
     banner_image_url TEXT,
     short_description TEXT,
     facebook_post_url TEXT,
@@ -79,16 +59,9 @@ CREATE INDEX IF NOT EXISTS idx_activities_featured ON activities(is_featured, is
 CREATE INDEX IF NOT EXISTS idx_activities_status ON activities(status, is_published);
 
 COMMENT ON TABLE activities IS 'Club activities and events';
-COMMENT ON COLUMN activities.banner_image_url IS 'Banner image path or URL (e.g., /activities/event.jpg)';
-COMMENT ON COLUMN activities.short_description IS 'Brief summary for activity cards';
-COMMENT ON COLUMN activities.facebook_post_url IS 'Official Facebook post link';
-COMMENT ON COLUMN activities.tags IS 'Keywords for filtering (e.g., ["online", "free", "workshop"])';
-COMMENT ON COLUMN activities.guests IS 'Guest speakers: [{"name": "...", "photo": "...", "designation": "..."}]';
 
 -- ============================================
 -- TABLE: GAMES
--- Gaming titles supported by the society
--- With team modes and event history tracking
 -- ============================================
 CREATE TABLE IF NOT EXISTS games (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -109,13 +82,9 @@ CREATE INDEX IF NOT EXISTS idx_games_type ON games(game_type, is_published);
 CREATE INDEX IF NOT EXISTS idx_games_slug ON games(slug);
 
 COMMENT ON TABLE games IS 'Gaming titles with categorization';
-COMMENT ON COLUMN games.game_mode IS 'Team-based or individual gameplay';
-COMMENT ON COLUMN games.team_size IS 'Team composition if game_mode is "team"';
-COMMENT ON COLUMN games.display_order IS 'Manual sorting (lower = first)';
 
 -- ============================================
 -- TABLE: GAME_HISTORY
--- Tournament/event history for each game
 -- ============================================
 CREATE TABLE IF NOT EXISTS game_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -136,7 +105,6 @@ COMMENT ON TABLE game_history IS 'Historical records of game tournaments and eve
 
 -- ============================================
 -- TABLE: TOURNAMENTS
--- Gaming competitions and tournaments
 -- ============================================
 CREATE TABLE IF NOT EXISTS tournaments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -154,6 +122,13 @@ CREATE TABLE IF NOT EXISTS tournaments (
     organizers JSONB DEFAULT '[]'::jsonb,
     co_organizers JSONB DEFAULT '[]'::jsonb,
     associated_with JSONB DEFAULT '[]'::jsonb,
+    
+    -- New columns from v4.0.0
+    teaser_video_url TEXT,
+    about_event TEXT,
+    about_organizer TEXT,
+    previous_glimpses JSONB DEFAULT '[]'::jsonb,
+
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     is_published BOOLEAN DEFAULT FALSE
@@ -164,14 +139,9 @@ CREATE INDEX IF NOT EXISTS idx_tournaments_category ON tournaments(category, is_
 CREATE INDEX IF NOT EXISTS idx_tournaments_status ON tournaments(status, is_published);
 
 COMMENT ON TABLE tournaments IS 'Gaming tournaments and competitions';
-COMMENT ON COLUMN tournaments.organizers IS 'Main organizers: [{"name": "...", "logo": "..."}]';
-COMMENT ON COLUMN tournaments.co_organizers IS 'Co-organizers: [{"name": "...", "logo": "..."}]';
-COMMENT ON COLUMN tournaments.associated_with IS 'Associated entities: [{"name": "...", "logo": "..."}]';
 
 -- ============================================
 -- TABLE: SPONSORS
--- Financial sponsors and collaborative partners
--- With multiple category support (v3.0+)
 -- ============================================
 CREATE TABLE IF NOT EXISTS sponsors (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -194,19 +164,11 @@ CREATE TABLE IF NOT EXISTS sponsors (
 
 CREATE INDEX IF NOT EXISTS idx_sponsors_published ON sponsors(is_published, display_order ASC);
 CREATE INDEX IF NOT EXISTS idx_sponsors_type ON sponsors(type, is_published);
-CREATE INDEX IF NOT EXISTS idx_sponsors_featured ON sponsors(is_featured, is_published);
-CREATE INDEX IF NOT EXISTS idx_sponsors_display_order ON sponsors(display_order);
 
-COMMENT ON TABLE sponsors IS 'Sponsors and collaborative partners with multiple categories';
-COMMENT ON COLUMN sponsors.sponsor_types IS 'Multiple sponsor categories: ["title_sponsor", "gold_sponsor"]';
-COMMENT ON COLUMN sponsors.collaborator_types IS 'Multiple collaborator types: ["media_partner", "food_partner"]';
-COMMENT ON COLUMN sponsors.custom_type_name IS 'Custom category when "other" is selected';
-COMMENT ON COLUMN sponsors.display_order IS 'Manual ordering priority';
-COMMENT ON COLUMN sponsors.social_media IS '{"facebook": "url", "twitter": "url", "instagram": "url"}';
+COMMENT ON TABLE sponsors IS 'Sponsors and collaborative partners';
 
 -- ============================================
 -- TABLE: ACTIVITY_SPONSORS
--- Join table linking activities with their sponsors
 -- ============================================
 CREATE TABLE IF NOT EXISTS activity_sponsors (
     activity_id UUID NOT NULL REFERENCES activities(id) ON DELETE CASCADE,
@@ -222,7 +184,6 @@ COMMENT ON TABLE activity_sponsors IS 'Links activities to their sponsors';
 
 -- ============================================
 -- TABLE: COMMITTEES
--- Committee groups organized by year
 -- ============================================
 CREATE TABLE IF NOT EXISTS committees (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -236,11 +197,10 @@ CREATE TABLE IF NOT EXISTS committees (
 
 CREATE INDEX IF NOT EXISTS idx_committees_published ON committees(is_published, year_range DESC);
 
-COMMENT ON TABLE committees IS 'Committee groups by year (e.g., "2025 Committee")';
+COMMENT ON TABLE committees IS 'Committee groups by year';
 
 -- ============================================
 -- TABLE: COMMITTEE_MEMBERS
--- Individual committee member profiles
 -- ============================================
 CREATE TABLE IF NOT EXISTS committee_members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -263,15 +223,11 @@ CREATE TABLE IF NOT EXISTS committee_members (
 
 CREATE INDEX IF NOT EXISTS idx_committee_members_committee ON committee_members(committee_id, order_index);
 CREATE INDEX IF NOT EXISTS idx_committee_members_published ON committee_members(is_published, committee_id);
-CREATE INDEX IF NOT EXISTS idx_committee_members_category ON committee_members(category, committee_id);
 
 COMMENT ON TABLE committee_members IS 'Individual committee member profiles';
-COMMENT ON COLUMN committee_members.previous_roles IS 'Historical roles: [{"year": "2024", "role": "..."}]';
-COMMENT ON COLUMN committee_members.order_index IS 'Display order within category';
 
 -- ============================================
 -- TABLE: SITE_SETTINGS
--- Global site configuration
 -- ============================================
 CREATE TABLE IF NOT EXISTS site_settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -287,18 +243,27 @@ CREATE INDEX IF NOT EXISTS idx_site_settings_key ON site_settings(setting_key);
 
 COMMENT ON TABLE site_settings IS 'Global site configuration and settings';
 
--- Insert default settings
-INSERT INTO site_settings (setting_key, setting_value, setting_type, description)
-VALUES 
-    ('partnership_brochure_url', '', 'url', 'Google Drive direct download link for partnership brochure PDF'),
-    ('contact_email', 'partnerships@vgs.com', 'email', 'Partnership contact email address'),
-    ('contact_phone', '+1 (234) 567-890', 'phone', 'Partnership contact phone number'),
-    ('contact_whatsapp', '1234567890', 'phone', 'WhatsApp number (without + or spaces)')
-ON CONFLICT (setting_key) DO NOTHING;
+-- ============================================
+-- TABLE: PAYMENT_METHODS
+-- ============================================
+CREATE TABLE IF NOT EXISTS payment_methods (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  number TEXT NOT NULL,
+  logo_url TEXT,
+  instructions TEXT,
+  account_type TEXT DEFAULT 'personal',
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_payment_methods_active ON payment_methods(is_active);
+
+COMMENT ON TABLE payment_methods IS 'Payment methods for registration fees';
 
 -- ============================================
 -- TABLE: REGISTRATION_FORMS
--- Available registration forms
 -- ============================================
 CREATE TABLE IF NOT EXISTS registration_forms (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -311,46 +276,41 @@ CREATE TABLE IF NOT EXISTS registration_forms (
     is_active BOOLEAN DEFAULT TRUE,
     max_registrations INTEGER,
     registration_deadline TIMESTAMPTZ,
+    
+    -- Design assets
     club_logo_url TEXT,
     tournament_logo_url TEXT,
     game_logo_url TEXT,
-    -- Design customization fields (v3.2.0)
     hero_image_url TEXT,
     hero_image_source VARCHAR(50) DEFAULT 'url',
+    
+    -- Theme
     primary_color VARCHAR(7) DEFAULT '#6B46C1',
     secondary_color VARCHAR(7) DEFAULT '#EC4899',
     accent_color VARCHAR(7) DEFAULT '#3B82F6',
     heading_font VARCHAR(50) DEFAULT 'default',
     body_font VARCHAR(50) DEFAULT 'default',
-    -- Content sections
+    
+    -- Sections
     tournament_details JSONB DEFAULT '{"about": "", "key_features": [], "prize_pool_highlights": ""}'::jsonb,
     game_details JSONB DEFAULT '{"description": "", "game_image_url": "", "game_image_source": "url"}'::jsonb,
     schedule JSONB DEFAULT '{"registration_deadline_label": "Registration Deadline", "tournament_start": "", "tournament_end": "", "other_dates": []}'::jsonb,
     rules_and_regulations JSONB DEFAULT '{"summary": "", "rulebook_url": "", "full_rulebook_file": ""}'::jsonb,
-    -- Section visibility
+    
+    -- Visibility
     show_tournament_section BOOLEAN DEFAULT FALSE,
     show_game_details_section BOOLEAN DEFAULT FALSE,
     show_schedule_section BOOLEAN DEFAULT FALSE,
     show_rules_section BOOLEAN DEFAULT FALSE,
+    
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE registration_forms IS 'Registration forms with design customization and content sections (v3.2.0)';
-COMMENT ON COLUMN registration_forms.hero_image_url IS 'Hero section background image (URL or /public path)';
-COMMENT ON COLUMN registration_forms.primary_color IS 'Primary brand color in hex';
-COMMENT ON COLUMN registration_forms.secondary_color IS 'Secondary brand color in hex';
-COMMENT ON COLUMN registration_forms.accent_color IS 'Accent color in hex';
-COMMENT ON COLUMN registration_forms.heading_font IS 'Heading typography (default, modern, gaming, elegant)';
-COMMENT ON COLUMN registration_forms.body_font IS 'Body typography (default, modern, gaming, elegant)';
-COMMENT ON COLUMN registration_forms.tournament_details IS 'Tournament info: {about, key_features[], prize_pool_highlights}';
-COMMENT ON COLUMN registration_forms.game_details IS 'Game info: {description, game_image_url, game_image_source}';
-COMMENT ON COLUMN registration_forms.schedule IS 'Schedule: {registration_deadline_label, tournament_start, tournament_end, other_dates[]}';
-COMMENT ON COLUMN registration_forms.rules_and_regulations IS 'Rules: {summary, rulebook_url, full_rulebook_file}';
+COMMENT ON TABLE registration_forms IS 'Customizable registration forms';
 
 -- ============================================
 -- TABLE: REGISTRATION_SUBMISSIONS
--- Registration form submissions
 -- ============================================
 CREATE TABLE IF NOT EXISTS registration_submissions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -358,7 +318,11 @@ CREATE TABLE IF NOT EXISTS registration_submissions (
     form_data JSONB NOT NULL,
     submitted_at TIMESTAMPTZ DEFAULT NOW(),
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-    admin_notes TEXT
+    admin_notes TEXT,
+    
+    -- Payment info
+    transaction_id TEXT,
+    payment_method_id UUID REFERENCES payment_methods(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_registration_submissions_form ON registration_submissions(form_id, submitted_at DESC);
@@ -368,7 +332,6 @@ COMMENT ON TABLE registration_submissions IS 'User registration form submissions
 
 -- ============================================
 -- TABLE: EMAIL_TEMPLATES
--- Reusable email templates for participant communication
 -- ============================================
 CREATE TABLE IF NOT EXISTS email_templates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -382,11 +345,10 @@ CREATE TABLE IF NOT EXISTS email_templates (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE email_templates IS 'Reusable HTML email templates with variable support';
+COMMENT ON TABLE email_templates IS 'Reusable HTML email templates';
 
 -- ============================================
 -- TABLE: EMAIL_LOGS
--- Track sent emails for audit and history
 -- ============================================
 CREATE TABLE IF NOT EXISTS email_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -402,16 +364,12 @@ CREATE TABLE IF NOT EXISTS email_logs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_email_logs_sent_at ON email_logs(sent_at DESC);
-CREATE INDEX IF NOT EXISTS idx_email_logs_template ON email_logs(template_id);
-CREATE INDEX IF NOT EXISTS idx_email_logs_status ON email_logs(status);
 
-COMMENT ON TABLE email_logs IS 'Log of all sent emails for tracking and audit';
+COMMENT ON TABLE email_logs IS 'Log of sent emails';
 
 -- ============================================
--- TRIGGERS FOR UPDATED_AT
--- Automatically update timestamp on record changes
+-- TRIGGERS
 -- ============================================
-
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -420,7 +378,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Apply triggers
 CREATE TRIGGER update_updates_updated_at BEFORE UPDATE ON updates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_activities_updated_at BEFORE UPDATE ON activities FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_games_updated_at BEFORE UPDATE ON games FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -432,13 +389,13 @@ CREATE TRIGGER update_committee_members_updated_at BEFORE UPDATE ON committee_me
 CREATE TRIGGER update_site_settings_updated_at BEFORE UPDATE ON site_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_registration_forms_updated_at BEFORE UPDATE ON registration_forms FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_email_templates_updated_at BEFORE UPDATE ON email_templates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_payment_methods_updated_at BEFORE UPDATE ON payment_methods FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS)
--- Security policies for data access
 -- ============================================
 
--- Enable RLS on all tables
+-- Enable RLS
 ALTER TABLE updates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE games ENABLE ROW LEVEL SECURITY;
@@ -453,14 +410,13 @@ ALTER TABLE registration_forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE registration_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_methods ENABLE ROW LEVEL SECURITY;
 
--- Public read policies (published content only)
+-- Public READ policies
 CREATE POLICY "Public can view published updates" ON updates FOR SELECT USING (is_published = true);
 CREATE POLICY "Public can view published activities" ON activities FOR SELECT USING (is_published = true);
 CREATE POLICY "Public can view published games" ON games FOR SELECT USING (is_published = true);
-CREATE POLICY "Public can view game history" ON game_history FOR SELECT USING (
-    EXISTS (SELECT 1 FROM games WHERE games.id = game_history.game_id AND games.is_published = true)
-);
+CREATE POLICY "Public can view game history" ON game_history FOR SELECT USING (EXISTS (SELECT 1 FROM games WHERE games.id = game_history.game_id AND games.is_published = true));
 CREATE POLICY "Public can view published tournaments" ON tournaments FOR SELECT USING (is_published = true);
 CREATE POLICY "Public can view published sponsors" ON sponsors FOR SELECT USING (is_published = true);
 CREATE POLICY "Public can view activity sponsors" ON activity_sponsors FOR SELECT USING (true);
@@ -469,8 +425,9 @@ CREATE POLICY "Public can view published members" ON committee_members FOR SELEC
 CREATE POLICY "Public can read site settings" ON site_settings FOR SELECT TO public USING (true);
 CREATE POLICY "Public can view active forms" ON registration_forms FOR SELECT USING (is_active = true);
 CREATE POLICY "Public can submit registrations" ON registration_submissions FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public can view active payment methods" ON payment_methods FOR SELECT USING (is_active = true);
 
--- Admin full access (authenticated users)
+-- Admin FULL ACCESS policies (Authenticated)
 CREATE POLICY "Admins can manage updates" ON updates FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admins can manage activities" ON activities FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admins can manage games" ON games FOR ALL USING (auth.role() = 'authenticated');
@@ -486,22 +443,6 @@ CREATE POLICY "Admins can view submissions" ON registration_submissions FOR SELE
 CREATE POLICY "Admins can update submissions" ON registration_submissions FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Admins can manage email templates" ON email_templates FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "Admins can view email logs" ON email_logs FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Admins can manage payment methods" ON payment_methods FOR ALL USING (auth.role() = 'authenticated');
 
--- ============================================
--- SETUP COMPLETE!
--- ============================================
--- ✅ All tables created with proper schema
--- ✅ All indexes added for performance
--- ✅ All triggers configured for automation
--- ✅ Row Level Security enabled
--- ✅ Default settings inserted
---
--- Your VGS 2.0 database is ready to use!
---
--- NEXT STEPS:
--- 1. Create admin user in Supabase Dashboard
--- 2. Configure .env.local with Supabase credentials
--- 3. Start adding content through admin panel
---
--- For help, see: SETUP_AND_DEPLOYMENT.md
--- ============================================
+-- End of Schema

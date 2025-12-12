@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import FloatingContactButton from '@/components/FloatingContactButton';
 
 export default function LayoutContent({
   children,
@@ -28,6 +29,7 @@ export default function LayoutContent({
     <>
       <Header />
       <main className="flex-grow">{children}</main>
+      <FloatingContactButton />
       <Footer />
     </>
   );

@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import type { EmailTemplate, EmailLog, Participant } from '@/lib/types/database';
 import AdminHelpButton from '@/components/AdminHelpButton';
+import EmailSendingOverlay from '@/components/EmailSendingOverlay';
+import { EyeIcon, ClipboardDocumentIcon, TrashIcon, UserGroupIcon, TableCellsIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 
 export default function EmailManagementPage() {
   const [activeTab, setActiveTab] = useState<'compose' | 'templates' | 'history'>('compose');
@@ -10,14 +13,17 @@ export default function EmailManagementPage() {
   // Templates state
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
-  
+  const [showTemplatePreview, setShowTemplatePreview] = useState<EmailTemplate | null>(null);
+
   // Compose state
+  const [inputMode, setInputMode] = useState<'sheet' | 'manual'>('sheet');
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
+  const [manualInput, setManualInput] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
   const [subject, setSubject] = useState('');
   const [htmlContent, setHtmlContent] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  const [showLivePreview, setShowLivePreview] = useState(false);
   
   // History state
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
@@ -27,7 +33,6 @@ export default function EmailManagementPage() {
   const [fetchingParticipants, setFetchingParticipants] = useState(false);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; total: number; failed: number } | null>(null);
 
   // Auto-hide message after 5 seconds
@@ -49,13 +54,7 @@ export default function EmailManagementPage() {
     try {
       const response = await fetch('/api/emails/templates');
       const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Failed to fetch templates:', data);
-        setMessage({ type: 'error', text: data.error || 'Failed to load templates' });
-        return;
-      }
-      
+      if (!response.ok) throw new Error(data.error);
       setTemplates(data.templates || []);
     } catch (error: any) {
       console.error('Error fetching templates:', error);
@@ -91,9 +90,7 @@ export default function EmailManagementPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch participants');
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to fetch participants');
 
       setParticipants(data.participants);
       setSelectedParticipants(new Set(data.participants.map((p: Participant) => p.email)));
@@ -103,6 +100,67 @@ export default function EmailManagementPage() {
       setParticipants([]);
     } finally {
       setFetchingParticipants(false);
+    }
+  }
+
+  function parseManualInput() {
+    if (!manualInput.trim()) return;
+
+    const lines = manualInput.split('\n');
+    const newParticipants: Participant[] = [];
+    const errors: string[] = [];
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+
+      // Try CSV format (Name, Email)
+      const parts = trimmed.split(',');
+      let name = '';
+      let email = '';
+
+      if (parts.length >= 2) {
+        name = parts[0].trim();
+        email = parts.slice(1).join(',').trim(); // Join rest in case name has commas? No, usually email is last. Assume Name, Email
+      } else {
+        // Just email?
+        email = trimmed;
+        name = 'Participant';
+      }
+
+      // Basic email validation
+      if (email.includes('@') && email.includes('.')) {
+        newParticipants.push({ name, email });
+      } else {
+        errors.push(`Line ${index + 1}: Invalid email "${email}"`);
+      }
+    });
+
+    if (newParticipants.length > 0) {
+      setParticipants(prev => {
+        // Merge without duplicates based on email
+        const existingEmails = new Set(prev.map(p => p.email));
+        const filteredNew = newParticipants.filter(p => !existingEmails.has(p.email));
+        return [...prev, ...filteredNew];
+      });
+      
+      // Auto-select new
+      setSelectedParticipants(prev => {
+        const newSet = new Set(prev);
+        newParticipants.forEach(p => newSet.add(p.email));
+        return newSet;
+      });
+
+      setMessage({ type: 'success', text: `Added ${newParticipants.length} participants.` });
+      setManualInput(''); // Clear input
+    }
+    
+    if (errors.length > 0) {
+      console.warn('Parsing errors:', errors);
+      // Maybe show errors somewhere?
+      if (newParticipants.length === 0) {
+        setMessage({ type: 'error', text: 'No valid emails found.' });
+      }
     }
   }
 
@@ -118,6 +176,7 @@ export default function EmailManagementPage() {
     }
 
     setSending(true);
+    setSendResult({ sent: 0, total: selectedParticipants.size, failed: 0 }); // Init progress
     setMessage(null);
 
     try {
@@ -131,75 +190,36 @@ export default function EmailManagementPage() {
           subject,
           htmlContent,
           templateId: selectedTemplate?.id,
-          googleSheetUrl,
-          sentBy: 'admin@vgs.com' // TODO: Get from auth context
+          googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
+          sentBy: 'admin@vgs.com' 
         })
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send emails');
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to send emails');
 
-      // Store result for modal
       setSendResult(data.summary);
+      fetchEmailLogs(); // Refresh logs immediately
 
-      // Show detailed success/failure notification
-      if (data.status === 'success') {
-        setMessage({ 
-          type: 'success', 
-          text: `✅ All emails sent successfully! ${data.summary.sent} of ${data.summary.total} delivered.` 
-        });
-        setShowSuccessModal(true);
-      } else if (data.status === 'partial') {
-        setMessage({ 
-          type: 'error', 
-          text: `⚠️ Partial success: ${data.summary.sent} sent, ${data.summary.failed} failed. Check History for details.` 
-        });
-        setShowSuccessModal(true);
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: `❌ Failed to send emails. ${data.summary.failed} of ${data.summary.total} failed. Check your email settings.` 
-        });
-      }
-
-      // Refresh logs
-      fetchEmailLogs();
-
-      // Only reset form on full success
-      if (data.status === 'success') {
-        setParticipants([]);
-        setSelectedParticipants(new Set());
-        setGoogleSheetUrl('');
-      }
     } catch (error: any) {
-      setMessage({ 
-        type: 'error', 
-        text: `❌ Error: ${error.message}. Please check your email configuration in .env.local` 
-      });
+      setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size }); // Assume all failed on api error
+      setMessage({ type: 'error', text: `Server Error: ${error.message}` });
     } finally {
-      setSending(false);
+       // Note: setSending(false) is handled by the overlay onComplete callback
     }
   }
 
   function toggleParticipant(email: string) {
     const newSelected = new Set(selectedParticipants);
-    if (newSelected.has(email)) {
-      newSelected.delete(email);
-    } else {
-      newSelected.add(email);
-    }
+    if (newSelected.has(email)) newSelected.delete(email);
+    else newSelected.add(email);
     setSelectedParticipants(newSelected);
   }
 
   function toggleAll() {
-    if (selectedParticipants.size === participants.length) {
-      setSelectedParticipants(new Set());
-    } else {
-      setSelectedParticipants(new Set(participants.map(p => p.email)));
-    }
+    if (selectedParticipants.size === participants.length) setSelectedParticipants(new Set());
+    else setSelectedParticipants(new Set(participants.map(p => p.email)));
   }
 
   function loadTemplate(template: EmailTemplate) {
@@ -209,8 +229,10 @@ export default function EmailManagementPage() {
     setMessage({ type: 'success', text: `Template "${template.name}" loaded` });
   }
 
-  function getPreviewHtml() {
-    return htmlContent.replace(/\{\{name\}\}/g, '<span style="background: yellow;">Sample Name</span>');
+  function getPreviewHtml(content: string) {
+    return content
+      .replace(/\{\{name\}\}/g, '<span style="background: yellow; color: black; padding: 0 4px; border-radius: 2px;">John Doe</span>')
+      .replace(/\{\{email\}\}/g, '<span style="background: yellow; color: black; padding: 0 4px; border-radius: 2px;">john@example.com</span>');
   }
 
   async function saveAsTemplate() {
@@ -222,6 +244,8 @@ export default function EmailManagementPage() {
     const name = prompt('Enter template name:');
     if (!name) return;
 
+    const description = prompt('Enter a short description (optional):');
+
     setLoading(true);
     try {
       const response = await fetch('/api/emails/templates', {
@@ -231,6 +255,7 @@ export default function EmailManagementPage() {
           name,
           subject,
           html_content: htmlContent,
+          description: description || '',
           category: 'general',
           is_active: true
         })
@@ -238,15 +263,12 @@ export default function EmailManagementPage() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save template');
-      }
+      if (!response.ok) throw new Error(data.error || 'Failed to save template');
 
       setMessage({ type: 'success', text: `✅ Template "${name}" saved successfully!` });
       fetchTemplates();
     } catch (error: any) {
       setMessage({ type: 'error', text: `❌ Failed to save template: ${error.message}` });
-      console.error('Save template error:', error);
     } finally {
       setLoading(false);
     }
@@ -254,215 +276,177 @@ export default function EmailManagementPage() {
 
   async function deleteTemplate(id: string) {
     if (!confirm('Are you sure you want to delete this template?')) return;
-
     setLoading(true);
     try {
-      const response = await fetch(`/api/emails/templates?id=${id}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete template');
-      }
-
-      setMessage({ type: 'success', text: '✅ Template deleted successfully' });
+      const response = await fetch(`/api/emails/templates?id=${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete template');
+      setMessage({ type: 'success', text: '✅ Template deleted' });
       fetchTemplates();
     } catch (error: any) {
-      setMessage({ type: 'error', text: `❌ Failed to delete template: ${error.message}` });
-      console.error('Delete template error:', error);
+      setMessage({ type: 'error', text: `❌ Failed to delete: ${error.message}` });
     } finally {
       setLoading(false);
     }
   }
 
-  async function deleteEmailLog(id: string) {
-    if (!confirm('Are you sure you want to delete this email log?')) return;
+  // Copy template content functionality
+  const copyTemplateContent = (template: EmailTemplate) => {
+    navigator.clipboard.writeText(template.html_content).then(() => {
+        setMessage({ type: 'success', text: '📋 Template HTML copied to clipboard!' });
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
+  };
 
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/emails/logs?id=${id}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete email log');
-      }
-
-      setMessage({ type: 'success', text: '✅ Email log deleted successfully' });
-      fetchEmailLogs();
-    } catch (error: any) {
-      setMessage({ type: 'error', text: `❌ Failed to delete email log: ${error.message}` });
-      console.error('Delete email log error:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const clearCompose = () => {
+      setParticipants([]);
+      setSelectedParticipants(new Set());
+      setGoogleSheetUrl('');
+      setManualInput('');
+      setSubject('');
+      setHtmlContent('');
+      setSendResult(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/50 to-pink-900/30 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">📧 Email Management</h1>
-          <p className="text-gray-300">Send personalized emails to participants</p>
-        </div>
+      <EmailSendingOverlay 
+        isSending={sending} 
+        progress={sendResult || { sent: 0, total: 0, failed: 0 }}
+        onComplete={() => {
+            setSending(false);
+            if (sendResult?.failed === 0) {
+                // Clear form on perfect success only? Or keep to allow resend?
+                // Let's keep it but show a clear button.
+            }
+        }}
+      />
 
-        {/* Success/Error Modal */}
-        {showSuccessModal && sendResult && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-white/20 rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fadeIn">
-              {sendResult.failed === 0 ? (
-                <>
-                  <div className="text-center mb-6">
-                    <div className="text-6xl mb-4 animate-bounce">✅</div>
-                    <h2 className="text-3xl font-bold text-green-400 mb-2">All Emails Sent!</h2>
-                    <p className="text-gray-300">Successfully delivered to all recipients</p>
-                  </div>
-                  <div className="bg-green-500/20 border border-green-500 rounded-lg p-4 mb-6">
-                    <div className="flex justify-between text-green-300">
-                      <span>Total Sent:</span>
-                      <span className="font-bold text-xl">{sendResult.sent}</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-center mb-6">
-                    <div className="text-6xl mb-4">{sendResult.sent > 0 ? '⚠️' : '❌'}</div>
-                    <h2 className="text-3xl font-bold text-yellow-400 mb-2">
-                      {sendResult.sent > 0 ? 'Partially Sent' : 'Send Failed'}
-                    </h2>
-                    <p className="text-gray-300">Some emails could not be delivered</p>
-                  </div>
-                  <div className="space-y-3 mb-6">
-                    <div className="bg-green-500/20 border border-green-500 rounded-lg p-3">
-                      <div className="flex justify-between text-green-300">
-                        <span>✅ Sent:</span>
-                        <span className="font-bold">{sendResult.sent}</span>
-                      </div>
-                    </div>
-                    <div className="bg-red-500/20 border border-red-500 rounded-lg p-3">
-                      <div className="flex justify-between text-red-300">
-                        <span>❌ Failed:</span>
-                        <span className="font-bold">{sendResult.failed}</span>
-                      </div>
-                    </div>
-                    <div className="bg-blue-500/20 border border-blue-500 rounded-lg p-3">
-                      <div className="flex justify-between text-blue-300">
-                        <span>📊 Total:</span>
-                        <span className="font-bold">{sendResult.total}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-yellow-300 text-sm mb-6 text-center">
-                    Check the History tab for detailed error information
-                  </p>
-                </>
-              )}
-              <button
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  if (sendResult.failed === 0) {
-                    setActiveTab('history');
-                  }
-                }}
-                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-lg transition-all"
-              >
-                {sendResult.failed === 0 ? 'View History' : 'Close'}
-              </button>
-            </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">📧 Email Management</h1>
+            <p className="text-gray-300">Send personalized campaigns efficiently</p>
           </div>
-        )}
+          {activeTab === 'compose' && (
+              <button onClick={clearCompose} className="text-gray-400 hover:text-white text-sm underline">
+                  Clear Form
+              </button>
+          )}
+        </div>
 
         {/* Message Alert */}
         {message && (
-          <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-500/20 border border-green-500' : 'bg-red-500/20 border border-red-500'}`}>
-            <p className={`${message.type === 'success' ? 'text-green-300' : 'text-red-300'}`}>
-              {message.text}
-            </p>
+          <div className={`mb-6 p-4 rounded-lg animate-fadeIn ${message.type === 'success' ? 'bg-green-500/20 border border-green-500 text-green-300' : 'bg-red-500/20 border border-red-500 text-red-300'}`}>
+            {message.text}
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('compose')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'compose' ? 'bg-purple-600 text-white' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
-          >
-            ✉️ Compose
-          </button>
-          <button
-            onClick={() => setActiveTab('templates')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'templates' ? 'bg-purple-600 text-white' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
-          >
-            📝 Templates
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'history' ? 'bg-purple-600 text-white' : 'bg-white/10 text-gray-300 hover:bg-white/20'}`}
-          >
-            📊 History
-          </button>
+        <div className="flex gap-2 mb-6 border-b border-gray-700 pb-1">
+          {[
+            { id: 'compose', label: '✉️ Compose', icon: '' },
+            { id: 'templates', label: '📝 Templates', icon: '' },
+            { id: 'history', label: '📊 History', icon: '' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-6 py-3 rounded-t-lg font-semibold transition-all relative ${activeTab === tab.id ? 'bg-purple-600 text-white' : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+              {tab.label}
+              {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></div>}
+            </button>
+          ))}
         </div>
 
         {/* Compose Tab */}
         {activeTab === 'compose' && (
           <div className="space-y-6">
-            {/* Step 1: Fetch Participants */}
+            
+            {/* Step 1: Participants */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">📋 Step 1: Load Participants</h2>
-              <div className="flex gap-4">
-                <input
-                  type="url"
-                  value={googleSheetUrl}
-                  onChange={(e) => setGoogleSheetUrl(e.target.value)}
-                  placeholder="Enter Google Sheet URL"
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400"
-                />
-                <button
-                  onClick={fetchParticipants}
-                  disabled={fetchingParticipants}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50"
-                >
-                  {fetchingParticipants ? 'Loading...' : 'Fetch'}
-                </button>
+              <h2 className="text-2xl font-bold text-white mb-4">1. Add Participants</h2>
+              
+              {/* Input Method Toggle */}
+              <div className="flex gap-4 mb-4">
+                  <button 
+                    onClick={() => setInputMode('sheet')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${inputMode === 'sheet' ? 'bg-blue-600/80 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                  >
+                      <TableCellsIcon className="w-5 h-5" /> Google Sheets
+                  </button>
+                  <button 
+                    onClick={() => setInputMode('manual')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${inputMode === 'manual' ? 'bg-blue-600/80 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+                  >
+                      <UserGroupIcon className="w-5 h-5" /> Manual Entry
+                  </button>
               </div>
-              <p className="text-gray-400 text-sm mt-2">
-                Make sure your sheet is publicly accessible and has &quot;Name&quot; and &quot;Email&quot; columns
-              </p>
+
+              {inputMode === 'sheet' ? (
+                  <div className="flex gap-4 animate-fadeIn">
+                    <input
+                      type="url"
+                      value={googleSheetUrl}
+                      onChange={(e) => setGoogleSheetUrl(e.target.value)}
+                      placeholder="https://docs.google.com/spreadsheets/d/..."
+                      className="flex-1 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                    />
+                    <button
+                      onClick={fetchParticipants}
+                      disabled={fetchingParticipants}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg disabled:opacity-50 transition-colors"
+                    >
+                      {fetchingParticipants ? 'Loading...' : 'Fetch Sheet'}
+                    </button>
+                  </div>
+              ) : (
+                  <div className="animate-fadeIn">
+                      <p className="text-gray-400 text-sm mb-2">Paste emails or enter manually (Format: "Name, Email" or just "Email" per line)</p>
+                      <textarea 
+                          value={manualInput}
+                          onChange={(e) => setManualInput(e.target.value)}
+                          placeholder="John Doe, john@example.com&#10;Jane Smith, jane@test.com&#10;admin@vgs.com"
+                          className="w-full h-32 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 font-mono text-sm mb-3"
+                      />
+                      <button
+                        onClick={parseManualInput}
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
+                      >
+                          Add to List
+                      </button>
+                  </div>
+              )}
             </div>
 
             {/* Participants List */}
             {participants.length > 0 && (
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 animate-slideDown">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-white">
-                    👥 Participants ({selectedParticipants.size}/{participants.length})
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <UserGroupIcon className="w-6 h-6 text-purple-400" />
+                    Recipients ({selectedParticipants.size} / {participants.length})
                   </h2>
-                  <button
-                    onClick={toggleAll}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg"
-                  >
-                    {selectedParticipants.size === participants.length ? 'Deselect All' : 'Select All'}
-                  </button>
+                  <div className="flex gap-2"> 
+                    <button onClick={() => setParticipants([])} className="text-red-400 hover:text-red-300 text-sm px-3">Clear List</button>
+                    <button onClick={toggleAll} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg text-sm">
+                        {selectedParticipants.size === participants.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
                 </div>
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {participants.map((p) => (
-                    <label
-                      key={p.email}
-                      className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer"
-                    >
+                <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                  {participants.map((p, idx) => (
+                    <label key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30">
                       <input
                         type="checkbox"
                         checked={selectedParticipants.has(p.email)}
                         onChange={() => toggleParticipant(p.email)}
-                        className="w-5 h-5"
+                        className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700"
                       />
-                      <div>
-                        <p className="text-white font-medium">{p.name}</p>
-                        <p className="text-gray-400 text-sm">{p.email}</p>
+                      <div className="flex-1">
+                        <span className="text-white font-medium">{p.name || 'Participant'}</span>
+                        <span className="text-gray-400 text-sm ml-2">&lt;{p.email}&gt;</span>
                       </div>
                     </label>
                   ))}
@@ -470,91 +454,83 @@ export default function EmailManagementPage() {
               </div>
             )}
 
-            {/* Step 2: Compose Email */}
+            {/* Step 2: Content */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">✍️ Step 2: Compose Email</h2>
+                <h2 className="text-2xl font-bold text-white">2. Compose Content</h2>
                 <div className="flex gap-2">
-                  <button
-                    onClick={saveAsTemplate}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg"
-                  >
-                    💾 Save as Template
+                  <button onClick={saveAsTemplate} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg flex items-center gap-2 text-sm border border-gray-600">
+                    💾 Save Template
                   </button>
-                  <button
-                    onClick={() => setShowPreview(!showPreview)}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg"
-                  >
-                    {showPreview ? '📝 Edit' : '👁️ Preview'}
+                  <button onClick={() => setShowLivePreview(!showLivePreview)} className={`px-4 py-2 font-semibold rounded-lg flex items-center gap-2 text-sm border ${showLivePreview ? 'bg-purple-600 text-white border-purple-500' : 'bg-gray-700 text-white border-gray-600 hover:bg-gray-600'}`}>
+                    {showLivePreview ? <EyeIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />} {showLivePreview ? 'Edit Mode' : 'Preview'}
                   </button>
+                  {templates.length > 0 && (
+                     <select 
+                        onChange={(e) => {
+                            const t = templates.find(temp => temp.id === e.target.value);
+                            if(t) loadTemplate(t);
+                        }}
+                        className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none"
+                     >
+                         <option value="">Load saved template...</option>
+                         {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                     </select>
+                  )}
                 </div>
               </div>
 
-              {templates.length > 0 && (
-                <div className="mb-4">
-                  <label className="block text-white font-medium mb-2">Load Template</label>
-                  <select
-                    onChange={(e) => {
-                      const template = templates.find(t => t.id === e.target.value);
-                      if (template) loadTemplate(template);
-                    }}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white"
-                  >
-                    <option value="">-- Select a template --</option>
-                    {templates.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {!showPreview ? (
-                <>
-                  <div className="mb-4">
-                    <label className="block text-white font-medium mb-2">Subject</label>
-                    <input
-                      type="text"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="Email subject"
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white font-medium mb-2">
-                      HTML Content <span className="text-gray-400 text-sm">(Use {'{{name}}'} for participant name)</span>
-                    </label>
+              {!showLivePreview ? (
+                <div className="space-y-4 animate-fadeIn">
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Email Subject Line"
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors font-medium text-lg"
+                  />
+                  <div className="relative">
                     <textarea
                       value={htmlContent}
                       onChange={(e) => setHtmlContent(e.target.value)}
-                      placeholder="<h1>Hello {{name}},</h1><p>Your email content here...</p>"
-                      rows={15}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 font-mono text-sm"
+                      placeholder="<html>&#10;  <body>&#10;    <h1>Hello {{name}},</h1>&#10;    ...&#10;  </body>&#10;</html>"
+                      rows={12}
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 font-mono text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
                     />
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <label className="block text-white font-medium mb-2">Preview</label>
-                  <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <div className="border-b border-gray-600 pb-2 mb-4">
-                      <p className="text-gray-400 text-sm">Subject:</p>
-                      <p className="text-white font-semibold">{subject}</p>
+                    <div className="absolute bottom-3 right-3 text-xs text-gray-400 bg-gray-900/80 px-2 py-1 rounded">
+                        HTML Supported • Variables: {'{{name}}, {{email}}'}
                     </div>
-                    <div dangerouslySetInnerHTML={{ __html: getPreviewHtml() }} />
                   </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg overflow-hidden animate-fadeIn h-[400px] flex flex-col">
+                   <div className="bg-gray-100 border-b p-3 flex justify-between items-center">
+                       <div>
+                           <span className="text-gray-500 text-xs uppercase font-bold tracking-wider">Subject</span>
+                           <div className="text-gray-800 font-bold text-lg">{subject || '(No Subject)'}</div>
+                       </div>
+                       <div className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded border border-yellow-200">Preview Mode</div>
+                   </div>
+                   <div className="flex-1 p-6 overflow-y-auto bg-white text-black email-preview-content">
+                       <div dangerouslySetInnerHTML={{ __html: getPreviewHtml(htmlContent) }} />
+                   </div>
                 </div>
               )}
             </div>
 
             {/* Send Button */}
-            <div className="flex justify-end">
+            <div className="sticky bottom-6 flex justify-end">
               <button
                 onClick={sendEmails}
-                disabled={sending || selectedParticipants.size === 0}
-                className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={sending || selectedParticipants.size === 0 || !subject || !htmlContent}
+                className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed"
               >
-                {sending ? '📨 Sending...' : `🚀 Send to ${selectedParticipants.size} Participant${selectedParticipants.size !== 1 ? 's' : ''}`}
+                  <span className="flex items-center gap-2">
+                       🚀 Send Campaign
+                       <span className="bg-white/20 px-2 py-0.5 rounded-full text-sm">
+                           {selectedParticipants.size}
+                       </span>
+                  </span>
               </button>
             </div>
           </div>
@@ -563,450 +539,156 @@ export default function EmailManagementPage() {
         {/* Templates Tab */}
         {activeTab === 'templates' && (
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">📝 Email Templates</h2>
-            {templates.length === 0 ? (
-              <p className="text-gray-300">No templates yet. Create one from the Compose tab.</p>
-            ) : (
-              <div className="space-y-4">
-                {templates.map((template) => (
-                  <div key={template.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-white">{template.name}</h3>
-                        <p className="text-gray-400 text-sm mt-1">{template.subject}</p>
-                        {template.description && (
-                          <p className="text-gray-500 text-sm mt-2">{template.description}</p>
-                        )}
-                        <p className="text-gray-500 text-xs mt-2">
-                          Created: {new Date(template.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            setActiveTab('compose');
-                            loadTemplate(template);
-                          }}
-                          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
-                        >
-                          Use
-                        </button>
-                        <button
-                          onClick={() => deleteTemplate(template.id)}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                        >
-                          Delete
-                        </button>
-                      </div>
+            <h2 className="text-2xl font-bold text-white mb-6">Saved Templates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {templates.map(template => (
+                <div key={template.id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-5 hover:border-purple-500/50 transition-all flex flex-col group">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">{template.name}</h3>
+                    <div className="flex gap-1">
+                      <button onClick={() => setShowTemplatePreview(template)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg" title="Preview">
+                          <EyeIcon className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => copyTemplateContent(template)} className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg" title="Copy HTML">
+                          <ClipboardDocumentIcon className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => deleteTemplate(template.id)} className="p-2 text-gray-400 hover:text-red-400 hover:bg-gray-700 rounded-lg" title="Delete">
+                          <TrashIcon className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                  <p className="text-gray-400 text-sm mb-4 line-clamp-2">{template.description || 'No description'}</p>
+                  <div className="mt-auto pt-4 border-t border-gray-700 flex justify-between items-center">
+                      <span className="text-xs text-gray-500">{new Date(template.created_at).toLocaleDateString()}</span>
+                      <button 
+                        onClick={() => { loadTemplate(template); setActiveTab('compose'); }}
+                        className="px-4 py-2 bg-purple-600/20 text-purple-300 hover:bg-purple-600 hover:text-white rounded-lg text-sm font-semibold transition-colors"
+                      >
+                          Use Template
+                      </button>
+                  </div>
+                </div>
+              ))}
+              {templates.length === 0 && (
+                  <div className="col-span-2 text-center py-12 text-gray-500 border-2 border-dashed border-gray-700 rounded-xl">
+                      <DocumentTextIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No saved templates found.</p>
+                      <button onClick={() => setActiveTab('compose')} className="mt-2 text-purple-400 hover:text-purple-300 underline">Create one now</button>
+                  </div>
+              )}
+            </div>
           </div>
         )}
 
         {/* History Tab */}
         {activeTab === 'history' && (
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">📊 Email History</h2>
-            {emailLogs.length === 0 ? (
-              <p className="text-gray-300">No emails sent yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {emailLogs.map((log) => (
-                  <div key={log.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{log.subject}</h3>
-                        <p className="text-gray-400 text-sm mt-1">
-                          Sent to {log.recipients_count} recipients
-                        </p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        log.status === 'success' ? 'bg-green-500/20 text-green-300' :
-                        log.status === 'failed' ? 'bg-red-500/20 text-red-300' :
-                        'bg-yellow-500/20 text-yellow-300'
-                      }`}>
-                        {log.status}
-                      </span>
-                    </div>
-                    <p className="text-gray-500 text-xs">
-                      {new Date(log.sent_at).toLocaleString()}
-                    </p>
-                    {log.error_message && (
-                      <p className="text-red-400 text-sm mt-2">{log.error_message}</p>
-                    )}
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={() => deleteEmailLog(log.id)}
-                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-white">Campaign History</h2>
+                    <button onClick={fetchEmailLogs} className="text-sm text-purple-400 hover:text-purple-300">Refresh</button>
+                </div>
+                <div className="space-y-3">
+                    {emailLogs.map(log => (
+                        <div key={log.id} className="bg-gray-800/40 border border-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-800/60 transition-colors">
+                            <div className="flex items-center gap-4">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${log.status === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                    {log.status === 'success' ? <CheckCircleIcon className="w-6 h-6" /> : <XCircleIcon className="w-6 h-6" />}
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-medium">{log.subject}</h4>
+                                    <p className="text-xs text-gray-400">
+                                        {new Date(log.sent_at).toLocaleString()} • {log.recipients_count} Recipients
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <span className={`text-sm font-medium ${log.status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                                    {log.status.toUpperCase()}
+                                </span>
+                                {/* Add view details button later if needed */}
+                            </div>
+                        </div>
+                    ))}
+                    {emailLogs.length === 0 && <p className="text-center text-gray-500 py-8">No history available yet.</p>}
+                </div>
+            </div>
         )}
       </div>
 
-      {/* Help Button */}
+      {/* Template Preview Modal */}
+      {showTemplatePreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTemplatePreview(null)}>
+              <div className="bg-white rounded-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+                  <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                      <div>
+                          <h3 className="font-bold text-lg text-gray-800">{showTemplatePreview.name}</h3>
+                          <p className="text-sm text-gray-500">Subject: {showTemplatePreview.subject}</p>
+                      </div>
+                      <button onClick={() => setShowTemplatePreview(null)} className="text-gray-400 hover:text-gray-600">
+                          <XCircleIcon className="w-8 h-8" />
+                      </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-8 bg-white">
+                      <div dangerouslySetInnerHTML={{ __html: getPreviewHtml(showTemplatePreview.html_content) }} />
+                  </div>
+                  <div className="p-4 border-t bg-gray-50 flex justify-end gap-2">
+                       <button onClick={() => { loadTemplate(showTemplatePreview); setShowTemplatePreview(null); setActiveTab('compose'); }} className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                           Use This Template
+                       </button>
+                  </div>
+              </div>
+          </div>
+      )}
+      
       <AdminHelpButton
-        title="Email Management Instructions"
+        title="📖 Email Management Instructions"
         instructions={[
-          "Send personalized emails to participants from Google Sheets",
-          "Create and manage reusable email templates with HTML",
-          "Track email sending history and delivery status",
-          "Use variables like {{name}} for personalization"
+          "Send personalized emails manually or from Google Sheets",
+          "Create reusable HTML templates with variables",
+          "Track campaign delivery status in real-time"
         ]}
         tips={[
-          "Make sure your Google Sheet is publicly accessible (Share → Anyone with link → Viewer)",
-          "Sheet must have 'Name' and 'Email' columns (or similar like 'Participant', 'Leader', 'Mail')",
-          "For Gmail with 2FA: Use App Password (https://myaccount.google.com/apppasswords), not regular password",
-          "Test emails by sending to yourself first before bulk sending",
-          "Templates save time for recurring communications (registration confirmations, reminders, etc.)",
-          "Check History tab to see which emails failed and why"
+          "Use the Manual Entry tab for quick tests.",
+          "Templates allow you to save complex HTML layouts.",
+          "Use the Preview mode to check your design before sending."
         ]}
         actions={[
           {
-            title: "Step 1: Configure Email Settings",
-            description: `Set up your email credentials in .env.local file:
+            title: "📧 Configuration & Usage",
+            description: `Step 1: Configure Email Settings
 
+Set up your email credentials in .env.local file:
+\`\`\`
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-app-password
+\`\`\`
 
-For Gmail with 2FA:
-1. Go to https://myaccount.google.com/apppasswords
-2. Select app: Mail
-3. Select device: Other (Custom name)
-4. Enter name: VGS Email System
-5. Copy the 16-character password (remove spaces)
-6. Use this as EMAIL_PASSWORD
+Step 2: Prepare Google Sheet
+Create or open your Google Sheet with participant data. Required columns: Name, Email. Make it public (Viewer).
 
-After updating .env.local, restart the dev server:
-npm run dev`
+Step 3: Fetch Participants
+Paste your Google Sheet URL and click Fetch. System will detect columns and load participants.
+
+Step 4: Select Recipients
+Select all or individual participants.
+
+Step 5: Compose Email
+Use a saved template or write a custom email. Use \`{{name}}\` and \`{{email}}\` for personalization.
+Step 6: Send Emails
+Click Send. System will send personalized emails and show results.
+
+Step 7: Save as Template
+Save your email for future use.`
           },
           {
-            title: "Step 2: Prepare Google Sheet",
-            description: `Create or open your Google Sheet with participant data.
-
-Required columns:
-- Name (or "Participant Name", "Leader Name")
-- Email (or "Email Address", "Mail")
-
-Example sheet structure:
-| Name          | Email                | Student ID |
-|---------------|----------------------|------------|
-| John Doe      | john@example.com     | 2019001    |
-| Jane Smith    | jane@example.com     | 2019002    |
-
-Make it public:
-1. Click "Share" button
-2. Change to "Anyone with the link"
-3. Set permission to "Viewer"
-4. Copy the entire URL`
-          },
-          {
-            title: "Step 3: Fetch Participants",
-            description: `In the Compose tab:
-1. Paste your Google Sheet URL
-2. Click "Fetch" button
-3. System will automatically detect Name and Email columns
-4. All participants will be loaded with checkboxes
-5. By default, all participants are selected
-
-You'll see a message like:
-"✅ Found 25 participants"
-
-If error occurs:
-- Check if sheet is publicly accessible
-- Verify Name and Email columns exist
-- Ensure URL is complete`
-          },
-          {
-            title: "Step 4: Select Recipients",
-            description: `Choose who will receive the email:
-
-Select All/Deselect All:
-- Click the "Select All" button to choose everyone
-- Click "Deselect All" to uncheck everyone
-
-Individual Selection:
-- Check/uncheck individual participant checkboxes
-- Counter shows: "Selected (5/10)"
-
-Search/Filter (coming soon):
-- Use search box to find specific participants
-- Filter by domain, name, etc.`
-          },
-          {
-            title: "Step 5: Compose Email",
-            description: `Option A - Use Saved Template:
-1. Select template from dropdown
-2. Template content loads automatically
-3. Modify if needed
-
-Option B - Write Custom Email:
-1. Enter Subject line
-2. Write HTML content in the textarea
-3. Use {{name}} for participant's name
-4. Use {{email}} for participant's email
-
-Example template:
-<h1>Hello {{name}},</h1>
-<p>Thank you for registering!</p>
-<p>We will contact you at {{email}}</p>
-
-Preview:
-- Click "👁️ Preview" to see how email looks
-- Variables shown as highlighted: [Sample Name]
-- Switch back to "📝 Edit" to continue editing`
-          },
-          {
-            title: "Step 6: Send Emails",
-            description: `Click the "🚀 Send to X Participants" button.
-
-Sending Process:
-1. System validates email configuration
-2. Connects to SMTP server
-3. Sends personalized emails one by one
-4. Tracks success/failure for each recipient
-
-Success Modal:
-✅ All sent: Shows green modal with count
-⚠️ Partial: Shows sent vs failed breakdown
-❌ Failed: Shows error with troubleshooting hint
-
-After sending:
-- Check History tab for detailed logs
-- Failed emails show specific error messages
-- Form resets only on 100% success`
-          },
-          {
-            title: "Step 7: Save as Template",
-            description: `Save your email for future use:
-
-1. After composing email, click "💾 Save as Template"
-2. Enter a descriptive name (e.g., "Tournament Registration Confirmation")
-3. Template is saved to database
-4. Access from Templates tab anytime
-
-Template includes:
-- Subject line
-- HTML content
-- All variables ({{name}}, {{email}})
-
-Benefits:
-- Reuse for recurring communications
-- Maintain consistent branding
-- Save time on repetitive emails
-- Share templates with team (future feature)`
-          },
-          {
-            title: "Managing Templates",
-            description: `In the Templates tab:
-
-View Templates:
-- See all saved templates
-- Shows name, subject, description
-- Displays creation date
-
-Use Template:
-1. Click "Use" button on any template
-2. Switches to Compose tab
-3. Template content loaded and ready to send
-
-Delete Template:
-1. Click "Delete" button
-2. Confirm deletion
-3. Template removed permanently
-
-Template Categories (future):
-- Registration forms
-- Event reminders
-- Thank you emails
-- Announcements`
-          },
-          {
-            title: "Email History & Tracking",
-            description: `View all sent emails in History tab:
-
-Each log entry shows:
-- Email subject
-- Number of recipients
-- Send status: Success (green) / Failed (red) / Partial (yellow)
-- Timestamp
-- Error messages (if any)
-
-Status meanings:
-✅ Success: All emails delivered
-⚠️ Partial: Some sent, some failed
-❌ Failed: None delivered
-
-Click on an entry to see:
-- List of all recipients
-- Individual delivery status
-- Specific error for each failed email
-
-Common errors:
-- Invalid email address format
-- Recipient mailbox full
-- SMTP authentication failed
-- Network timeout`
-          },
-          {
-            title: "Email Variables & Personalization",
-            description: `Use these variables in your HTML content:
-
-{{name}} - Replaced with participant's name
-{{email}} - Replaced with participant's email
-
-Example usage:
-<h2>Dear {{name}},</h2>
-<p>This email is sent to {{email}}</p>
-
-Advanced personalization (future):
-{{student_id}}
-{{phone}}
-{{team_name}}
-{{registration_date}}
-
-Variable rules:
-- Case-sensitive: Use {{name}}, not {{Name}}
-- Double curly braces required
-- Space sensitive: {{name}} works, {{ name }} doesn't
-- Can use multiple times in same email`
-          },
-          {
-            title: "Troubleshooting Common Issues",
-            description: `Problem: "Failed to fetch participants"
-Solution:
-- Ensure Google Sheet is publicly accessible
-- Check if 'Name' and 'Email' columns exist
-- Verify URL is complete (starts with https://docs.google.com)
-
-Problem: "Email server connection failed"
-Solution:
-- Check EMAIL_HOST, EMAIL_PORT in .env.local
-- For Gmail: Use smtp.gmail.com and port 587
-- Verify EMAIL_USER is correct
-- For 2FA: Use App Password, not regular password
-
-Problem: "All emails failed to send"
-Solution:
-- Test SMTP connection: Check credentials
-- Ensure no typos in EMAIL_PASSWORD
-- Try sending to yourself first
-- Check if email service allows app connections
-
-Problem: "Some emails failed (partial send)"
-Solution:
-- Check History tab for specific errors
-- Invalid emails: Fix in Google Sheet
-- Rate limiting: Send in smaller batches
-- Retry failed recipients separately
-
-Problem: "Template won't save"
-Solution:
-- Run database migration: migrations/add_email_management.sql
-- Check Supabase connection
-- Verify email_templates table exists
-- Check browser console for errors`
-          },
-          {
-            title: "Email Best Practices",
-            description: `Content Guidelines:
-✅ Clear, concise subject lines (under 50 characters)
-✅ Use participant's name for personal touch
-✅ Include call-to-action (register, confirm, etc.)
-✅ Add unsubscribe option for marketing emails
-✅ Test on different devices (desktop, mobile)
-
-HTML Best Practices:
-✅ Use inline CSS (Gmail strips <style> tags)
-✅ Keep width under 600px
-✅ Use tables for layout (not divs)
-✅ Test with email testing tools
-✅ Include plain text version (future feature)
-
-Avoid Spam Filters:
-❌ Don't use ALL CAPS in subject
-❌ Avoid spam trigger words (FREE, CLICK NOW)
-❌ Don't use too many links
-❌ Keep image sizes small (<1MB)
-❌ Don't send from free email domains for business
-
-Sending Strategy:
-- Test with small group first (5-10 people)
-- Send during business hours (9 AM - 5 PM)
-- Avoid Mondays and Fridays
-- Space out large batches (prevent rate limiting)
-- Monitor bounce rates and adjust`
-          },
-          {
-            title: "Database Migration (Important!)",
-            description: `Before using Email Management, run the migration:
-
-Step 1 - Open Supabase Dashboard:
-- Go to your Supabase project
-- Navigate to SQL Editor
-
-Step 2 - Run Migration:
-- Open file: migrations/add_email_management.sql
-- Copy entire content
-- Paste into SQL Editor
-- Click "Run" button
-- Wait for "Success" message
-
-Migration creates:
-✅ email_templates table (for saved templates)
-✅ email_logs table (for history tracking)
-✅ Triggers for updated_at timestamps
-✅ RLS policies for admin access
-
-Verify migration:
-- Go to Table Editor
-- Check if email_templates exists
-- Check if email_logs exists
-- Try saving a template to confirm
-
-If migration fails:
-- Check if tables already exist
-- Look for error messages
-- Run DATABASE_COMPLETE_SETUP.sql for fresh setup`
-          },
-          {
-            title: "Security & Privacy",
-            description: `Email Credentials:
-✅ Stored in .env.local (server-side only)
-✅ Never exposed to client/browser
-✅ Not committed to git (.gitignore)
-✅ Use App Passwords, not main password
-
-Data Protection:
-✅ Email logs stored securely in database
-✅ RLS policies restrict access to admins
-✅ Participant emails encrypted in transit
-✅ SMTP connection uses TLS
-
-Best Security Practices:
-- Rotate email passwords regularly
-- Use separate email account for sending
-- Monitor email logs for unusual activity
-- Don't share .env.local file
-- Revoke App Passwords when not needed
-
-GDPR Compliance:
-- Get consent before sending emails
-- Provide unsubscribe option
-- Honor opt-out requests immediately
-- Delete old logs after retention period
-- Document data processing activities`
+            title: "🔍 Troubleshooting",
+            description: `- Failed to fetch participants: Check Google Sheet access and columns
+- Email server connection failed: Check .env.local settings
+- All emails failed: Test SMTP credentials
+- Some emails failed: Check History tab
+- Template won't save: Run migrations/add_email_management.sql`
           }
         ]}
       />

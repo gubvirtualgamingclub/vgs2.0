@@ -54,18 +54,26 @@ html {
     opacity: 0;
   }
 
-  /* Shimmer Animation */
+  /* Shimmer Animation (Element Movement) */
   @keyframes shimmer {
-    0% {
-      transform: translateX(-100%) skewX(-20deg);
-    }
-    100% {
-      transform: translateX(100%) skewX(-20deg);
-    }
+    0% { transform: translateX(-100%) skewX(-20deg); }
+    100% { transform: translateX(100%) skewX(-20deg); }
   }
 
   .animate-shimmer {
     animation: shimmer 2s infinite;
+  }
+  
+  /* Background Gradient Animation */
+  @keyframes gradient-x {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+  }
+  
+  .animate-gradient-x {
+      animation: gradient-x 3s ease infinite;
+      background-size: 200% auto;
   }
 
   .animate-fade-in.animate-in {
@@ -252,7 +260,8 @@ html {
 
   /* Floating Animation */
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0) rotate(0deg);
     }
     25% {
@@ -307,23 +316,20 @@ html {
     color: #00ffff;
     transform: translate(2px, 2px);
     z-index: 1;
-    text-shadow: 
-      0 0 10px currentColor,
-      0 0 20px currentColor,
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor,
       0 0 30px currentColor;
   }
 
   /* Pulse Glow Effect */
   @keyframes pulseGlow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 5px rgba(0, 255, 255, 0.5),
-                  0 0 10px rgba(0, 255, 255, 0.3),
-                  0 0 20px rgba(0, 255, 255, 0.2);
+        0 0 10px rgba(0, 255, 255, 0.3), 0 0 20px rgba(0, 255, 255, 0.2);
     }
     50% {
       box-shadow: 0 0 20px rgba(0, 255, 255, 0.8),
-                  0 0 30px rgba(0, 255, 255, 0.6),
-                  0 0 40px rgba(0, 255, 255, 0.4);
+        0 0 30px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4);
     }
   }
 
@@ -333,11 +339,15 @@ html {
 
   /* Gaming Cursor */
   body {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="%2300FFFF" opacity="0.6"/><circle cx="12" cy="12" r="6" fill="%2300FFFF" opacity="0.8"/><circle cx="12" cy="12" r="3" fill="%23fff"/><path d="M12 2 L12 6 M12 18 L12 22 M2 12 L6 12 M18 12 L22 12" stroke="%23fff" stroke-width="2"/></svg>'), auto;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="%2300FFFF" opacity="0.6"/><circle cx="12" cy="12" r="6" fill="%2300FFFF" opacity="0.8"/><circle cx="12" cy="12" r="3" fill="%23fff"/><path d="M12 2 L12 6 M12 18 L12 22 M2 12 L6 12 M18 12 L22 12" stroke="%23fff" stroke-width="2"/></svg>'),
+      auto;
   }
 
-  button, a, [role="button"] {
-    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="%2300FFFF" opacity="0.7"/><circle cx="12" cy="12" r="7" fill="%2300FFFF" opacity="0.9"/><circle cx="12" cy="12" r="4" fill="%23fff"/><rect x="10" y="2" width="4" height="4" fill="%23fff"/></svg>'), pointer;
+  button,
+  a,
+  [role="button"] {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="%2300FFFF" opacity="0.7"/><circle cx="12" cy="12" r="7" fill="%2300FFFF" opacity="0.9"/><circle cx="12" cy="12" r="4" fill="%23fff"/><rect x="10" y="2" width="4" height="4" fill="%23fff"/></svg>'),
+      pointer;
   }
 
   /* Parallax smooth */
@@ -374,20 +384,19 @@ html {
   }
 
   .crt-effect::before {
-    content: '';
+    content: "";
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
-      repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.05),
-        rgba(0, 0, 0, 0.05) 1px,
-        transparent 1px,
-        transparent 2px
-      );
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.05),
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 2px
+    );
     pointer-events: none;
     z-index: 9997;
     opacity: 0.3;
@@ -395,10 +404,19 @@ html {
 
   /* 8-bit Pixel Animation */
   @keyframes pixel8bit {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(2px, 0); }
-    50% { transform: translate(2px, 2px); }
-    75% { transform: translate(0, 2px); }
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(2px, 0);
+    }
+    50% {
+      transform: translate(2px, 2px);
+    }
+    75% {
+      transform: translate(0, 2px);
+    }
   }
 
   .animate-8bit {
@@ -426,9 +444,23 @@ html {
 
   /* Shake Effect */
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-5px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(5px);
+    }
   }
 
   .animate-shake {
@@ -438,15 +470,8 @@ html {
   /* Neon Glow Text */
   .neon-text {
     color: #fff;
-    text-shadow:
-      0 0 7px #fff,
-      0 0 10px #fff,
-      0 0 21px #fff,
-      0 0 42px #00FFFF,
-      0 0 82px #00FFFF,
-      0 0 92px #00FFFF,
-      0 0 102px #00FFFF,
-      0 0 151px #00FFFF;
+    text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #00ffff,
+      0 0 82px #00ffff, 0 0 92px #00ffff, 0 0 102px #00ffff, 0 0 151px #00ffff;
   }
 
   /* Power Up Collect Effect */
@@ -471,7 +496,8 @@ html {
 
   /* Guardian Grid Animation - Subtle shimmer effect for Faculty cards */
   @keyframes gridPulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0;
     }
     50% {
@@ -499,11 +525,13 @@ html {
 
   /* Hexagon Edge Pulse - Animated glow on hexagon borders */
   @keyframes hexPulse {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
     }
     50% {
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.8), inset 0 0 10px rgba(0, 255, 255, 0.4);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.8),
+        inset 0 0 10px rgba(0, 255, 255, 0.4);
     }
   }
 
@@ -545,9 +573,23 @@ html {
   }
 
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-5px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(5px);
+    }
   }
 
   .animate-shake {
@@ -580,5 +622,75 @@ html {
 
   .animate-checkmark {
     animation: checkmark 0.5s ease-out forwards;
+  }
+
+  /* Fade In animation for email participants */
+  @keyframes fadeInList {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeInList 0.4s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Smooth pulse for sending state */
+  @keyframes smoothPulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+    50% {
+      opacity: 0.8;
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+    }
+  }
+
+  .animate-pulse {
+    animation: smoothPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Spinning loader */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Countdown Flip Animation - Gaming Style */
+  @keyframes countFlip {
+    0% {
+      transform: perspective(500px) rotateX(0deg);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    }
+    50% {
+      transform: perspective(500px) rotateX(-10deg) scale(1.02);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.6),
+        0 0 40px rgba(6, 182, 212, 0.3);
+    }
+    100% {
+      transform: perspective(500px) rotateX(0deg);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    }
+  }
+
+  .animate-countFlip {
+    animation: countFlip 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .perspective-500 {
+    perspective: 500px;
   }
 }

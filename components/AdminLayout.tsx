@@ -4,6 +4,34 @@ import { useState } from 'react';
 import { useAdminAuth } from '@/lib/contexts/AdminAuthContext';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { 
+  ChartBarIcon, 
+  CalendarIcon, 
+  PuzzlePieceIcon, 
+  TrophyIcon, 
+  ClipboardDocumentCheckIcon, 
+  EnvelopeIcon, 
+  UserGroupIcon, 
+  CurrencyDollarIcon, 
+  Cog6ToothIcon,
+  Bars3Icon,
+  XMarkIcon,
+  ArrowRightOnRectangleIcon
+} from '@heroicons/react/24/outline';
+
+const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'admin';
+
+const navigation = [
+  { name: 'Dashboard', href: `/${adminPath}`, icon: ChartBarIcon },
+  { name: 'Activities', href: `/${adminPath}/activities`, icon: CalendarIcon },
+  { name: 'Games', href: `/${adminPath}/games`, icon: PuzzlePieceIcon },
+  { name: 'Tournaments', href: `/${adminPath}/tournaments`, icon: TrophyIcon },
+  { name: 'Registration', href: `/${adminPath}/registration-forms`, icon: ClipboardDocumentCheckIcon },
+  { name: 'Emails', href: `/${adminPath}/emails`, icon: EnvelopeIcon },
+  { name: 'Committee', href: `/${adminPath}/committee`, icon: UserGroupIcon },
+  { name: 'Sponsors', href: `/${adminPath}/sponsors`, icon: CurrencyDollarIcon },
+  { name: 'Settings', href: `/${adminPath}/settings`, icon: Cog6ToothIcon },
+];
 
 export default function AdminLayout({
   children,
@@ -15,130 +43,45 @@ export default function AdminLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Get the secret admin path from environment variable
-  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH;
-
   const handleLogout = () => {
     logout();
     router.push(`/${adminPath}/auth`);
   };
 
-  const navigation = [
-    { name: 'Dashboard', href: `/${adminPath}`, icon: '📊' },
-    { name: 'Updates', href: `/${adminPath}/updates`, icon: '📢' },
-    { name: 'Activities', href: `/${adminPath}/activities`, icon: '🎮' },
-    { name: 'Games', href: `/${adminPath}/games`, icon: '🎲' },
-    { name: 'Tournaments', href: `/${adminPath}/tournaments`, icon: '🏆' },
-    { name: 'Registration Forms', href: `/${adminPath}/registration-forms`, icon: '📋' },
-    { name: 'Email Management', href: `/${adminPath}/emails`, icon: '📧' },
-    { name: 'Committee', href: `/${adminPath}/committee`, icon: '👥' },
-    { name: 'Sponsors', href: `/${adminPath}/sponsors`, icon: '💼' },
-    { name: 'Settings', href: `/${adminPath}/settings`, icon: '⚙️' },
-  ];
-
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Admin Header */}
-      <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Mobile Menu Button & Logo */}
-            <div className="flex items-center space-x-4">
-              {/* Hamburger Menu - Mobile Only */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden text-gray-400 hover:text-white focus:outline-none focus:text-white"
-                aria-label="Toggle menu"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  {sidebarOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
-                </svg>
-              </button>
-
-              {/* Logo/Brand */}
-              <Link href={`/${adminPath}`} className="flex items-center space-x-2 sm:space-x-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg sm:text-xl">🛡️</span>
-                </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-white font-bold text-base sm:text-lg">VGS Secure Panel</h1>
-                  <p className="text-gray-400 text-xs hidden md:block">Protected Access</p>
-                </div>
-              </Link>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link
-                href="/"
-                target="_blank"
-                className="text-gray-400 hover:text-white transition-colors p-2"
-                title="View Site"
-              >
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-1 sm:space-x-2 bg-red-600 hover:bg-red-700 text-white px-2 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base"
-              >
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 font-sans text-white">
+      {/* Mobile Header */}
+      <header className="lg:hidden bg-gray-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+             <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              {sidebarOpen ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" />
+              )}
+            </button>
+            <span className="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">VGS Admin</span>
           </div>
+          <button
+            onClick={handleLogout}
+            className="p-2 text-red-400 hover:text-red-300 transition-colors"
+          >
+            <ArrowRightOnRectangleIcon className="h-6 w-6" />
+          </button>
         </div>
       </header>
 
-      <div className="flex relative">
+      <div className="flex relative items-start">
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
             onClick={closeSidebar}
           />
         )}
@@ -146,49 +89,74 @@ export default function AdminLayout({
         {/* Sidebar Navigation */}
         <aside
           className={`
-            fixed lg:static inset-y-0 left-0 z-50
-            w-64 bg-gray-800 border-r border-gray-700
+            fixed lg:sticky top-0 lg:h-screen z-50
+            w-72 bg-gray-900/60 backdrop-blur-xl border-r border-white/10
             transform transition-transform duration-300 ease-in-out
             lg:transform-none lg:translate-x-0
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            top-16 lg:top-0
             flex flex-col
-            h-[calc(100vh-4rem)] lg:h-screen
+            h-[calc(100vh-57px)] lg:h-screen
           `}
         >
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {/* Sidebar Header */}
+          <div className="p-6 flex items-center gap-3 border-b border-white/10">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-900/20">
+               <span className="font-bold text-lg">V</span>
+            </div>
+            <div>
+              <h1 className="font-bold text-xl tracking-tight">VGS Admin</h1>
+              <p className="text-xs text-gray-400 font-medium">Control Center</p>
+            </div>
+          </div>
+
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
             {navigation.map((item) => {
-              const isActive = pathname === item.href;
+              // Exact match for dashboard, startsWith for others to handle subpages
+              const isActive = item.href === `/${adminPath}` 
+                ? pathname === `/${adminPath}`
+                : pathname?.startsWith(item.href);
+              
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={closeSidebar}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                      : 'text-gray-400 hover:bg-gray-700 hover:text-white'
-                  }`}
+                  className={`
+                    group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    ${isActive
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-900/20'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    }
+                  `}
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <item.icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-white'}`} />
                   <span className="font-medium">{item.name}</span>
+                  {isActive && (
+                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-sm" />
+                  )}
                 </Link>
               );
             })}
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="flex-shrink-0 p-4 border-t border-gray-700 bg-gray-800">
-            <div className="text-xs text-gray-500 text-center">
-              <p>VGS Admin Panel</p>
-              <p className="mt-1">Version 2.0</p>
-            </div>
+          <div className="p-4 border-t border-white/10 bg-black/20">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl transition-all font-medium border border-red-500/20 group"
+            >
+              <ArrowRightOnRectangleIcon className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <span>Sign Out</span>
+            </button>
+            <p className="mt-4 text-center text-[10px] text-gray-600 uppercase tracking-widest font-bold">VGS System v2.0</p>
           </div>
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-gray-900 w-full overflow-x-hidden">
-          <div className="p-4 sm:p-6 lg:p-8 max-w-full">{children}</div>
+        <main className="flex-1 w-full min-h-screen overflow-x-hidden p-4 sm:p-6 lg:p-8">
+           <div className="max-w-7xl mx-auto space-y-8">
+              {children}
+           </div>
         </main>
       </div>
     </div>
