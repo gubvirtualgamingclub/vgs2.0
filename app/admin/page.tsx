@@ -297,26 +297,29 @@ export default function AdminDashboard() {
 
       {/* Built-in Instructions Menu (static) */}
       <AdminHelpButton
-        title="📊 Dashboard Overview Instructions"
+        title="📊 Admin Dashboard Guide"
         instructions={[
-          "View key statistics about updates, events, tournaments, and committee members at the top of the page",
-          "Check recent activity to see what's been happening on the website",
-          "Use quick actions to navigate to frequently used pages",
-          "Monitor system information including database status and storage usage",
-          "Click on any stat card or quick action button to navigate to that section",
+          "**Overview KPIs**: Monitor real-time statistics for Updates, Events, Tournaments, and Committee members.",
+          "**Recent Activity**: Track the latest 5 system actions (creations, updates, deletions).",
+          "**System Health**: Check database connection status and storage usage.",
+          "**Quick Actions**: One-click access to frequently used modules."
         ]}
         tips={[
-          "The dashboard refreshes automatically - no need to reload the page",
-          "Recent activity shows the 5 most recent changes across all sections",
-          "Quick actions provide shortcuts to the most commonly used features",
-          "System info helps you monitor the health and status of your website",
+          "KPI cards are interactive - click them to jump to their respective pages.",
+          "The dashboard auto-refreshes every 30 seconds to show the latest data.",
+          "System Health indicators will turn red if there are connection issues."
         ]}
         actions={[
           {
-            title: "🚀 Quick Navigation",
+            title: "🚀 Navigation Shortcuts",
             description:
-              "Create Update: Go to Updates page\nAdd Event: Go to Activities page\nManage Tournament: Go to Tournament management",
+              "**Events Management**:\n- Click `Add Event` to jump to Activities.\n\n**Tournament Ops**:\n- Click `Manage Tournament` for brackets & games.\n\n**System**:\n- Click `Registration Forms` to view user submissions."
           },
+          {
+            title: "⚡ Power User Tips",
+            description: 
+              "**Keyboard Shortcuts**:\n- Press `Ctrl + K` (Mac: `Cmd + K`) to open the global search bar (if available).\n- Use `Tab` to navigate through quick actions rapidly."
+          }
         ]}
       />
     </div>

@@ -182,7 +182,7 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
   
   return (
     <div 
-      className="group relative h-[500px] w-full rounded-2xl transition-all duration-500 hover:-translate-y-2 perspective-1000"
+      className="group relative h-[700px] w-full rounded-2xl transition-all duration-500 hover:-translate-y-2 perspective-1000"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* 3D Card Container */}
@@ -198,7 +198,7 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
         <div className="relative z-10 h-full flex flex-col p-8">
            
            {/* Logo Avatar - Large & Centered */}
-           <div className="flex flex-col items-center mb-8">
+           <div className="flex flex-col items-center mb-6">
               <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl group-hover:border-purple-500 group-hover:scale-110 transition-all duration-500 bg-[#1a1d29]">
                  {game.game_logo ? (
                     <Image 
@@ -225,13 +225,25 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
 
            {/* Stats Grid */}
            <div className="grid grid-cols-2 gap-3 mb-8 mt-auto">
-              <div className="bg-white/5 rounded-xl p-4 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Prize Pool</div>
-                 <div className="text-green-400 font-bold font-mono text-lg">{game.prize_pool}</div>
+                 <div className="text-green-400 font-bold font-mono text-sm">{game.prize_pool}</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Team Size</div>
-                 <div className="text-blue-400 font-bold font-mono text-lg">{game.team_size}</div>
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Fee</div>
+                 <div className="text-purple-400 font-bold font-mono text-sm">{game.registration_fee || 'Free'}</div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Format</div>
+                 <div className="text-blue-400 font-bold font-mono text-sm truncate">{game.format || 'Standard'}</div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Team</div>
+                 <div className="text-white font-bold font-mono text-sm">{game.team_size}</div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors col-span-2">
+                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Max Players</div>
+                 <div className="text-white font-bold font-mono text-sm">{game.max_participants || 'Unlimited'}</div>
               </div>
            </div>
 
@@ -253,10 +265,10 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
                  target="_blank" 
                  rel="noopener noreferrer"
                  download
-                 className="w-14 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 hover:text-white hover:border-purple-500/50 transition-all group-hover:translate-y-1"
-                 title="Download Rule Book"
+                 className="flex-1 py-4 flex items-center justify-center gap-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 hover:text-white hover:border-purple-500/50 transition-all font-bold uppercase tracking-widest text-xs group-hover:translate-y-1"
               >
-                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                 <span>Rule Book</span>
+                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               </a>
            </div>
 
@@ -269,29 +281,35 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
 // 2. Organization Logo with Glow
 function OrgLogo({ org, size = "medium" }: { org: Organization, size?: "small" | "medium" | "large" }) {
    const sizeClasses = {
-       small: "w-16 h-16",
-       medium: "w-24 h-24 md:w-32 md:h-32",
-       large: "w-32 h-32 md:w-48 md:h-48"
+       small: "w-20 h-20",
+       medium: "w-32 h-32 md:w-40 md:h-40",
+       large: "w-48 h-48 md:w-64 md:h-64"
    };
    
    return (
-     <div className={`relative group ${sizeClasses[size]}`}>
-       <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-       <div className="relative w-full h-full bg-[#13161f] rounded-full border border-white/10 flex items-center justify-center p-4 transition-all duration-300 group-hover:scale-105 group-hover:border-purple-500/30 overflow-hidden shadow-lg">
+     <div className={`relative group flex flex-col items-center justify-center ${sizeClasses[size]}`}>
+       {/* Glow Effect on Hover */}
+       <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+       
+       <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
            {org.logo ? (
                <Image 
                  src={org.logo} 
                  alt={org.name} 
                  fill 
-                 className="object-contain p-2"
+                 className="object-contain drop-shadow-lg"
                  title={org.name}
                />
            ) : (
-               <span className="text-xs text-center font-bold text-gray-500 group-hover:text-white">{org.name}</span>
+               <span className="text-sm font-bold text-gray-500 uppercase tracking-widest group-hover:text-purple-400 transition-colors">{org.name}</span>
            )}
        </div>
-       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs font-bold text-gray-400 tracking-wider uppercase bg-black/80 px-2 py-1 rounded">
-           {org.name}
+       
+       {/* Name Tooltip (visible on hover) */}
+       <div className="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+           <span className="text-white text-xs font-bold uppercase tracking-widest whitespace-nowrap bg-black/80 px-3 py-1 rounded-full border border-white/10">
+               {org.name}
+           </span>
        </div>
      </div>
    );
@@ -367,167 +385,145 @@ function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previo
     );
 }
 
-// 4. Games In The Event - 3D Card Deck Carousel
+// 4. Games In The Event - Premium Circular Carousel
 function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const totalGames = games.length;
 
-    // Auto-rotate carousel
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setActiveIndex((prev) => (prev + 1) % totalGames);
-        }, 4000);
-        return () => clearInterval(interval);
-    }, [totalGames]);
-
-    if (!games || games.length === 0) return null;
-
     const goToNext = () => setActiveIndex((prev) => (prev + 1) % totalGames);
     const goToPrev = () => setActiveIndex((prev) => (prev - 1 + totalGames) % totalGames);
 
+    if (!games || games.length === 0) return null;
+
     return (
-        <section className="py-24 px-6 relative overflow-hidden bg-[#0b0f19]">
-            {/* Animated Background */}
+        <section className="py-32 px-6 relative overflow-hidden bg-[#0a0d14]">
+            {/* Background Effects */}
             <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(88,28,135,0.15),transparent_70%)]"></div>
+                <div className="absolute bottom-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/20 to-transparent"></div>
             </div>
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <ScrollAnimation animation="slideUp">
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
-                            Games <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400">In The Event</span>
+                    <div className="text-center mb-24">
+                        <h2 className="text-4xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">
+                            Games <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 animate-gradient-x">In The Event</span>
                         </h2>
-                        <p className="text-gray-500 text-lg max-w-2xl mx-auto">Click or wait to explore all titles</p>
+                        <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-orange-500 mx-auto rounded-full"></div>
                     </div>
                 </ScrollAnimation>
 
-                {/* 3D Card Deck Container */}
-                <div className="relative h-[400px] md:h-[500px] w-full flex items-center justify-center" style={{ perspective: '1500px' }}>
+                {/* Circular Carousel Display */}
+                <div className="relative h-[600px] flex items-center justify-center">
                     
-                    {/* Cards */}
-                    {games.map((game, index) => {
-                        // Calculate position relative to active card
-                        let offset = index - activeIndex;
-                        if (offset > totalGames / 2) offset -= totalGames;
-                        if (offset < -totalGames / 2) offset += totalGames;
-                        
-                        const isActive = offset === 0;
-                        const absOffset = Math.abs(offset);
-                        
-                        // 3D transforms
-                        const translateX = offset * 180;
-                        const translateZ = isActive ? 100 : -absOffset * 150;
-                        const rotateY = offset * -15;
-                        const scale = isActive ? 1 : Math.max(0.6, 1 - absOffset * 0.15);
-                        const opacity = isActive ? 1 : Math.max(0.3, 1 - absOffset * 0.3);
-                        const zIndex = totalGames - absOffset;
-                        
-                        return (
-                            <div
-                                key={game.id}
-                                onClick={() => setActiveIndex(index)}
-                                className="absolute w-[280px] md:w-[350px] h-[350px] md:h-[450px] cursor-pointer"
-                                style={{
-                                    transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
-                                    opacity,
-                                    zIndex,
-                                    transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)',
-                                    transformStyle: 'preserve-3d',
-                                }}
-                            >
-                                {/* Card */}
-                                <div className={`relative w-full h-full rounded-3xl overflow-hidden border-2 transition-all duration-500 ${isActive ? 'border-purple-500 shadow-[0_0_60px_rgba(139,92,246,0.4)]' : 'border-white/10 shadow-2xl'}`}>
-                                    
-                                    {/* Card Background */}
-                                    <div className="absolute inset-0 bg-gradient-to-b from-[#1a1d29] via-[#13161f] to-[#0b0e15]"></div>
-                                    
-                                    {/* Decorative Pattern */}
-                                    <div className="absolute inset-0 opacity-30">
-                                        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_40%,rgba(139,92,246,0.05)_45%,rgba(139,92,246,0.05)_55%,transparent_60%)]"></div>
-                                        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.1)_0%,transparent_50%)]"></div>
-                                    </div>
-
-                                    {/* Game Logo - Large Centered */}
-                                    <div className="absolute inset-0 flex items-center justify-center p-8">
-                                        {game.game_logo ? (
-                                            <div className={`relative w-full h-3/5 transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                                                <Image 
-                                                    src={game.game_logo} 
-                                                    alt={game.game_name} 
-                                                    fill 
-                                                    className={`object-contain drop-shadow-2xl transition-all duration-500 ${isActive ? 'drop-shadow-[0_0_40px_rgba(139,92,246,0.5)]' : ''}`}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center text-6xl font-black text-white shadow-2xl transition-all duration-500 ${isActive ? 'bg-gradient-to-br from-purple-600 to-cyan-600 scale-110' : 'bg-gradient-to-br from-gray-700 to-gray-800'}`}>
-                                                {game.game_name.charAt(0)}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Game Name - Bottom */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
-                                        <h3 className={`font-black text-white uppercase text-center transition-all duration-500 ${isActive ? 'text-2xl md:text-3xl tracking-tight' : 'text-lg md:text-xl tracking-wide text-white/70'}`}>
-                                            {game.game_name}
-                                        </h3>
-                                    </div>
-
-                                    {/* Active Card Glow Ring */}
-                                    {isActive && (
-                                        <div className="absolute inset-0 rounded-3xl ring-2 ring-purple-500/50 ring-offset-2 ring-offset-transparent animate-pulse pointer-events-none"></div>
-                                    )}
-
-                                    {/* Corner Accents */}
-                                    <div className={`absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 rounded-tl-lg transition-colors duration-500 ${isActive ? 'border-purple-500' : 'border-white/20'}`}></div>
-                                    <div className={`absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 rounded-tr-lg transition-colors duration-500 ${isActive ? 'border-cyan-500' : 'border-white/20'}`}></div>
-                                    <div className={`absolute bottom-3 left-3 w-8 h-8 border-l-2 border-b-2 rounded-bl-lg transition-colors duration-500 ${isActive ? 'border-cyan-500' : 'border-white/20'}`}></div>
-                                    <div className={`absolute bottom-3 right-3 w-8 h-8 border-r-2 border-b-2 rounded-br-lg transition-colors duration-500 ${isActive ? 'border-purple-500' : 'border-white/20'}`}></div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Navigation Controls */}
-                <div className="flex items-center justify-center gap-6 mt-12">
+                    {/* Navigation Buttons - Absolute */}
                     <button 
                         onClick={goToPrev}
-                        className="w-14 h-14 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-purple-500/20 hover:border-purple-500/50 hover:text-white transition-all flex items-center justify-center group"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 hover:scale-110 hover:border-purple-500/50 transition-all flex items-center justify-center group"
                     >
-                        <svg className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-8 h-8 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
 
-                    {/* Dots Indicator */}
-                    <div className="flex gap-2">
-                        {games.map((_, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => setActiveIndex(idx)}
-                                className={`h-2 rounded-full transition-all duration-300 ${idx === activeIndex ? 'w-8 bg-gradient-to-r from-purple-500 to-cyan-500' : 'w-2 bg-white/20 hover:bg-white/40'}`}
-                            />
-                        ))}
-                    </div>
-
                     <button 
                         onClick={goToNext}
-                        className="w-14 h-14 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-purple-500/20 hover:border-purple-500/50 hover:text-white transition-all flex items-center justify-center group"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 hover:scale-110 hover:border-purple-500/50 transition-all flex items-center justify-center group"
                     >
-                        <svg className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                     </button>
+
+                    {/* Games Track */}
+                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center perspective-[1000px]">
+                        {games.map((game, index) => {
+                             // Calculate circular position
+                             let offset = index - activeIndex;
+                             if (offset > totalGames / 2) offset -= totalGames;
+                             if (offset < -totalGames / 2) offset += totalGames;
+                             
+                             const isActive = offset === 0;
+                             const isPrev = offset === -1 || (activeIndex === 0 && index === totalGames - 1);
+                             const isNext = offset === 1 || (activeIndex === totalGames - 1 && index === 0);
+                             
+                             // Only render active, prev, and next for better performance and look
+                             const isVisible = isActive || Math.abs(offset) <= 2; 
+
+                             if (!isVisible) return null;
+
+                             const xTrans = offset * 320; // Distance between items
+                             const scale = isActive ? 1.2 : Math.max(0.6, 1 - Math.abs(offset) * 0.3);
+                             const opacity = isActive ? 1 : Math.max(0.2, 0.6 - Math.abs(offset) * 0.3);
+                             const zIndex = 50 - Math.abs(offset);
+                             const blur = isActive ? 0 : Math.abs(offset) * 4;
+
+                             return (
+                                 <div
+                                     key={game.id}
+                                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                                     style={{
+                                         transform: `translateX(calc(-50% + ${xTrans}px)) scale(${scale})`,
+                                         opacity,
+                                         zIndex,
+                                         filter: `blur(${blur}px)`
+                                     }}
+                                 >
+                                     <div 
+                                        className="relative flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-[300px] md:w-[900px] h-[500px]"
+                                        onClick={() => setActiveIndex(index)}
+                                    >
+                                         {/* Large Logo - Left Side */}
+                                         <div className={`relative z-20 w-56 h-56 md:w-[400px] md:h-[400px] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isActive ? 'drop-shadow-[0_0_60px_rgba(168,85,247,0.5)] scale-100' : 'grayscale brightness-50 scale-75 opacity-50'}`}>
+                                             {game.game_logo ? (
+                                                 <Image 
+                                                     src={game.game_logo} 
+                                                     alt={game.game_name} 
+                                                     fill 
+                                                     className="object-contain"
+                                                 />
+                                             ) : (
+                                                 <div className="w-full h-full rounded-full bg-white/5 flex items-center justify-center text-6xl font-black text-white/20">
+                                                     {game.game_name.charAt(0)}
+                                                 </div>
+                                             )}
+                                         </div>
+
+                                         {/* Game Name - Right Side (Foreground) */}
+                                         <div className={`relative z-30 transition-all duration-700 delay-100 ease-out flex flex-col items-center md:items-start text-center md:text-left ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
+                                             <h3 
+                                                className="text-[3rem] md:text-[6rem] lg:text-[7rem] leading-none font-black text-white uppercase tracking-tighter"
+                                                style={{ 
+                                                    textShadow: '0 0 30px rgba(168,85,247,0.5)',
+                                                    WebkitTextStroke: '1px rgba(255,255,255,0.1)'
+                                                }}
+                                             >
+                                                 {game.game_name}
+                                             </h3>
+                                             
+                                             {/* Decorative Line (Only Active) */}
+                                             <div className={`h-1 bg-gradient-to-r from-purple-500 to-transparent mt-4 transition-all duration-1000 ${isActive ? 'w-24 opacity-100' : 'w-0 opacity-0'}`}></div>
+                                             
+                                             <div className={`mt-4 text-purple-400 font-mono text-sm md:text-xl tracking-widest uppercase transition-all duration-1000 delay-200 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                                 {game.category} Edition
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             );
+                        })}
+                    </div>
                 </div>
 
-                {/* Current Game Counter */}
-                <div className="text-center mt-6">
-                    <span className="text-gray-600 font-mono text-sm tracking-widest">
-                        {String(activeIndex + 1).padStart(2, '0')} / {String(totalGames).padStart(2, '0')}
-                    </span>
+                {/* Progress Indicators */}
+                <div className="flex justify-center gap-3 mt-12">
+                    {games.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setActiveIndex(idx)}
+                            className={`h-1 transition-all duration-500 rounded-full ${idx === activeIndex ? 'w-12 bg-purple-500' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+                        />
+                    ))}
                 </div>
             </div>
         </section>
@@ -814,26 +810,25 @@ export default function TournamentsPage() {
       <section className="py-20 px-6 bg-[#0b0f19]">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
               {/* About Event */}
+              {/* About Event */}
               <ScrollAnimation animation="slideRight">
-                  <div className="relative group">
-                      <div className="absolute -left-10 -top-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl opacity-50"></div>
-                      <h2 className="text-4xl font-black text-white mb-8 uppercase tracking-tight flex items-center gap-4">
-                          <span className="text-6xl text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-blue-400 opacity-50">01.</span>
-                          The Event
+                  <div className="relative group p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+                      <div className="absolute -left-10 -top-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                      <h2 className="text-4xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter cursor-default">
+                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 group-hover:from-pink-400 group-hover:to-purple-400 transition-all duration-500">About The Event</span>
                       </h2>
-                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-l-2 border-purple-500/30 pl-6 h-full" dangerouslySetInnerHTML={{ __html: tournament.about_event || tournament.description || '' }}></div>
+                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-l-2 border-purple-500/30 pl-6 h-full group-hover:border-purple-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_event || tournament.description || '' }}></div>
                   </div>
               </ScrollAnimation>
 
               {/* About Organizer */}
               <ScrollAnimation animation="slideLeft">
-                   <div className="relative group">
-                       <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl opacity-50"></div>
-                       <h2 className="text-4xl font-black text-white mb-8 uppercase tracking-tight flex items-center gap-4 justify-end">
-                          The Organizer
-                          <span className="text-6xl text-transparent bg-clip-text bg-gradient-to-br from-blue-400 to-cyan-400 opacity-50">02.</span>
+                   <div className="relative group p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+                       <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                       <h2 className="text-4xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter text-right cursor-default">
+                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:from-cyan-400 group-hover:to-blue-400 transition-all duration-500">About The Organizer</span>
                       </h2>
-                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-r-2 border-blue-500/30 pr-6 text-right h-full" dangerouslySetInnerHTML={{ __html: tournament.about_organizer || 'Proudly organized by VGS.' }}></div>
+                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-r-2 border-blue-500/30 pr-6 text-right h-full group-hover:border-blue-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_organizer || 'Proudly organized by VGS.' }}></div>
                    </div>
               </ScrollAnimation>
           </div>
@@ -895,32 +890,84 @@ export default function TournamentsPage() {
       </section>
 
       {/* --- COLLABORATORS & SPONSORS --- */}
-      <section className="py-32 px-6 bg-[#0a0d14] relative border-t border-white/5">
-         <div className="max-w-7xl mx-auto text-center space-y-24">
+      {/* --- COLLABORATORS & SPONSORS --- */}
+      {/* --- COLLABORATORS & SPONSORS --- */}
+      <section className="py-32 px-6 bg-[#0a0d14] relative border-t border-white/5 overflow-hidden">
+         {/* Background Glow */}
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+         <div className="max-w-7xl mx-auto space-y-32 relative z-10">
              
-             {/* Organizers */}
+             {/* 1. Main Organizers (Tier 1 - Largest) */}
              {tournament.organizers && tournament.organizers.length > 0 && (
-                 <div>
-                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-10 w-full flex items-center justify-center gap-4">
-                         <span className="w-12 h-[1px] bg-gray-800"></span>
-                         Organized By
-                         <span className="w-12 h-[1px] bg-gray-800"></span>
-                     </h3>
-                     <div className="flex flex-wrap justify-center gap-12">
+                 <div className="text-center">
+                     <ScrollAnimation animation="slideUp">
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-12 flex items-center justify-center gap-6 opacity-80">
+                            <span className="w-16 h-[1px] bg-gradient-to-r from-transparent to-purple-500"></span>
+                            Presented By
+                            <span className="w-16 h-[1px] bg-gradient-to-l from-transparent to-purple-500"></span>
+                        </h3>
+                     </ScrollAnimation>
+                     <div className="flex flex-wrap justify-center gap-16 md:gap-24">
                         {tournament.organizers.map((org, index) => <OrgLogo key={index} org={org} size="large" />)}
                      </div>
                  </div>
              )}
 
-             {/* Sponsors */}
+             {/* 2. Co-Organizers & In Association With (Tier 2 - Medium) */}
+             {(
+                 (tournament.co_organizers && tournament.co_organizers.length > 0) || 
+                 (tournament.associated_with && tournament.associated_with.length > 0)
+             ) && (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-32 items-start justify-items-center">
+                     
+                     {/* Co-Organizers */}
+                     {tournament.co_organizers && tournament.co_organizers.length > 0 && (
+                         <div className="w-full flex flex-col items-center">
+                             <ScrollAnimation animation="slideRight">
+                                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-10 border-b border-blue-500/20 pb-2 inline-block">
+                                    Co-Organized By
+                                </h3>
+                             </ScrollAnimation>
+                             <div className="flex flex-wrap justify-center gap-10">
+                                 {tournament.co_organizers.map((org, index) => <OrgLogo key={index} org={org} size="medium" />)}
+                             </div>
+                         </div>
+                     )}
+
+                     {/* Associated With */}
+                     {tournament.associated_with && tournament.associated_with.length > 0 && (
+                         <div className="w-full flex flex-col items-center">
+                            <ScrollAnimation animation="slideLeft">
+                                <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-10 border-b border-cyan-500/20 pb-2 inline-block">
+                                    In Association With
+                                </h3>
+                            </ScrollAnimation>
+                             <div className="flex flex-wrap justify-center gap-10">
+                                 {tournament.associated_with.map((org, index) => <OrgLogo key={index} org={org} size="medium" />)}
+                             </div>
+                         </div>
+                     )}
+                 </div>
+             )}
+
+             {/* 3. Global Sponsors (Tier 3 - Grid) */}
              {tournament.sponsors && tournament.sponsors.length > 0 && (
-                 <div>
-                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-10 flex items-center justify-center gap-4">
-                        <span className="w-8 h-[1px] bg-gray-800"></span> Official Sponsors <span className="w-8 h-[1px] bg-gray-800"></span>
-                    </h3>
-                    <div className="flex flex-wrap justify-center gap-8">
+                 <div className="relative pt-20 border-t border-white/5">
+                    <ScrollAnimation animation="fadeIn">
+                        <div className="text-center mb-16">
+                            <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2">
+                                Official <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Partners</span>
+                            </h3>
+                            <p className="text-gray-500 text-sm">Powering the next generation of esports</p>
+                        </div>
+                    </ScrollAnimation>
+                    
+                    <div className="flex flex-wrap justify-center gap-10 md:gap-16 px-4">
                         {tournament.sponsors.map((org, index) => (
-                            <OrgLogo key={index} org={org} size="medium" />
+                            <div key={index} className="transform hover:scale-110 transition-transform duration-300">
+                                <OrgLogo org={org} size="medium" />
+                            </div>
                         ))}
                     </div>
                  </div>

@@ -61,7 +61,7 @@ export default function RegistrationFormsAdmin() {
     description: '',
     google_sheet_url: '',
     is_active: false,
-    max_registrations: '',
+    registration_fee: '',
     registration_deadline: '',
     club_logo_url: '',
     tournament_logo_url: '',
@@ -175,7 +175,7 @@ export default function RegistrationFormsAdmin() {
         description: form.description || '',
         google_sheet_url: form.google_sheet_url,
         is_active: form.is_active,
-        max_registrations: form.max_registrations?.toString() || '',
+        registration_fee: form.registration_fee || '',
         registration_deadline: form.registration_deadline ? new Date(form.registration_deadline).toISOString().slice(0, 16) : '',
         club_logo_url: form.club_logo_url || '',
         tournament_logo_url: form.tournament_logo_url || '',
@@ -205,7 +205,7 @@ export default function RegistrationFormsAdmin() {
         description: '',
         google_sheet_url: '',
         is_active: false,
-        max_registrations: '',
+        registration_fee: '',
         registration_deadline: '',
         club_logo_url: '',
         tournament_logo_url: '',
@@ -253,7 +253,6 @@ export default function RegistrationFormsAdmin() {
         ...formData,
         game_slug: formData.game_slug || generateSlug(formData.game_name),
         form_fields: formFields,
-        max_registrations: formData.max_registrations ? parseInt(formData.max_registrations) : null,
         registration_deadline: formData.registration_deadline || null,
       };
 
@@ -524,25 +523,23 @@ export default function RegistrationFormsAdmin() {
       )}
 
       <AdminHelpButton
-        title="📝 Registration Forms - Complete Guide"
+        title="📝 Registration Form Builder"
         instructions={[
-          "Click 'Create Form' to start a new registration page",
-          "Setup a Google Sheet to collect responses (Code provided)",
-          "Deploy the Google Apps Script as a Web App",
-          "Link the Web App URL to your form",
-          "Customize form fields (Text, Email, Dropdowns, etc.)",
-          "Share the generated registration link"
+          "**Create Form**: Build dynamic forms for tournaments. Each form generates a unique public URL.",
+          "**Google Sheets Integration**: Responses are saved directly to your Google Sheet.",
+          "**Payment Methods**: Configure Bkash/Nagad numbers that users will see during checkout.",
+          "**Fields**: Add custom inputs like `Text`, `Dropdown`, `Checkbox`, etc."
         ]}
         tips={[
-          "Use the exact Apps Script code provided below",
-          "Deploy as 'Me' with 'Anyone' access",
-          "Test the form before sharing with users",
-          "Check the Google Sheet for live submissions"
+          "**Apps Script**: You MUST deploy the provided Google Apps Script code as a Web App for the integration to work.",
+          "**Slug**: The 'Game Slug' determines the URL (e.g., `/register/valorant`).",
+          "**Testing**: Always toggle `Active` status to testing before going live."
         ]}
         actions={[
           {
-            title: "💻 CRITICAL: Apps Script Code",
-            description: `function doPost(e) { try { var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet(); var data = JSON.parse(e.postData.contents); var rowData = [new Date()]; for (var key in data) { rowData.push(data[key]); } sheet.appendRow(rowData); return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON); } catch(error) { return ContentService.createTextOutput(JSON.stringify({success: false, error: error.toString()})).setMimeType(ContentService.MimeType.JSON); } }`
+            title: "💻 Google Apps Script Setup",
+            description: 
+              "1. Open your Google Sheet → Extensions → Apps Script.\n2. Paste the code below.\n3. Deploy → New Deployment → Type: Web App → Access: Anyone.\n4. Copy the `Web App URL` and paste it in the form settings.\n\n```javascript\nfunction doPost(e){try{var doc=SpreadsheetApp.getActiveSpreadsheet();var sheet=doc.getActiveSheet();var data=JSON.parse(e.postData.contents);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var nextRow=sheet.getLastRow()+1;var newRow=[];headers.forEach(function(header){newRow.push(data[header]||'')});sheet.getRange(nextRow,1,1,newRow.length).setValues([newRow]);return ContentService.createTextOutput(JSON.stringify({'result':'success','row':nextRow})).setMimeType(ContentService.MimeType.JSON)}catch(e){return ContentService.createTextOutput(JSON.stringify({'result':'error','error':e})).setMimeType(ContentService.MimeType.JSON)}}```"
           }
         ]}
       />

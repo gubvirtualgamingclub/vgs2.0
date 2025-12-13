@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/lib/contexts/AdminAuthContext';
+import AdminHelpButton from '@/components/AdminHelpButton';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -222,6 +223,19 @@ export default function AdminLoginPage() {
           </div>
         </div>
       </div>
+      <AdminHelpButton
+        title="🔐 Admin Access Guide"
+        instructions={[
+          "**credentials**: Use your assigned admin email and password.",
+          "**Trouble Logging In?**: Contact the system administrator if you've forgotten your password.",
+          "**Security**: This area is monitored. Unauthorized access is prohibited."
+        ]}
+        tips={[
+            "**Session**: You will be automatically logged out after inactivity.",
+            "**Browser**: For best performance, use Chrome or Firefox."
+        ]}
+        actions={[]}
+      />
     </div>
   );
 }

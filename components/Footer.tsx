@@ -4,32 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 
-const externalLinks = [
-  { 
-    name: 'Green University', 
-    href: 'https://green.edu.bd',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
-    ),
-    color: 'text-green-400 group-hover:text-green-300',
-    bg: 'bg-green-500/10 group-hover:bg-green-500/20',
-    border: 'border-green-500/20 group-hover:border-green-500/50'
-  },
-  { 
-    name: 'CSE Department', 
-    href: 'https://archive-cse.green.edu.bd/',
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    color: 'text-blue-400 group-hover:text-blue-300',
-    bg: 'bg-blue-500/10 group-hover:bg-blue-500/20',
-    border: 'border-blue-500/20 group-hover:border-blue-500/50'
-  },
-];
+// External links data removed as we now display logos explicitly in the layout
 
 const contactInfo = {
   email: 'vgs.green.edu.bd@gmail.com',
@@ -59,9 +34,9 @@ export default function Footer() {
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-900/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          {/* Brand Column */}
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-16">
+          {/* Brand Column (Left - 4 cols) */}
+          <div className="lg:col-span-4 space-y-6">
             <Link href="/" className="inline-flex items-center gap-3 group">
               <div className="relative w-12 h-12">
                 <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full group-hover:bg-purple-500/40 transition-all duration-500" />
@@ -80,117 +55,136 @@ export default function Footer() {
                 <p className="text-xs text-purple-400 font-mono tracking-widest uppercase">Est. 2024</p>
               </div>
             </Link>
-            <p className="text-gray-400 leading-relaxed text-sm">
+            <p className="text-gray-400 leading-relaxed text-sm max-w-sm">
               The official esports hub of Green University. organizing competitive tournaments, fostering community, and celebrating gaming culture.
             </p>
-            {/* University Logo */}
+
+            {/* ORGANIZERS & AFFILIATIONS LOGOS */}
             <div className="pt-6 border-t border-white/5">
-              <Image
-                src="/logos/GUB-New.png"
-                alt="Green University"
-                width={180}
-                height={50}
-                className="opacity-60 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0"
-              />
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Supported By</p>
+                <div className="flex flex-wrap items-center gap-6">
+                    {/* Green University */}
+                    <a href="https://green.edu.bd" target="_blank" rel="noopener noreferrer" className="group block">
+                        <div className="relative h-10 w-auto transition-transform duration-300 group-hover:scale-105">
+                             <Image
+                                src="/logos/GUB-New.png"
+                                alt="Green University"
+                                width={120}
+                                height={40}
+                                className="h-full w-auto object-contain"
+                            />
+                        </div>
+                    </a>
+
+                    {/* Dept of CSE */}
+                    <a href="https://archive-cse.green.edu.bd/" target="_blank" rel="noopener noreferrer" className="group block">
+                         <div className="relative h-12 w-auto transition-transform duration-300 group-hover:scale-105">
+                            <Image
+                                src="/logos/DeptOfCSE.png"
+                                alt="Department of CSE"
+                                width={100}
+                                height={45}
+                                className="h-full w-auto object-contain"
+                            />
+                        </div>
+                    </a>
+
+                    {/* GUCC */}
+                    <a href="#" className="group block">
+                        <div className="relative h-14 w-auto transition-transform duration-300 group-hover:scale-105">
+                            <Image
+                                src="/logos/GUCC-LOGO.png"
+                                alt="Green University Computer Club"
+                                width={180}
+                                height={60}
+                                className="h-full w-auto object-contain"
+                            />
+                        </div>
+                    </a>
+                </div>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
+          {/* Spacer (1 col) */}
+          <div className="hidden lg:block lg:col-span-1"></div>
+
+          {/* Affiliations (Center - 2 cols) */}
+          <div className="lg:col-span-2">
             <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
               <span className="w-1 h-4 bg-cyan-500 rounded-full" />
               Affiliations
             </h4>
-            <ul className="space-y-4">
-              {externalLinks.map((link, i) => (
-                <li key={i}>
-                  <a 
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`group flex items-center gap-4 p-3 rounded-xl bg-[#0f0f10] border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
-                  >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${link.bg} ${link.color} ${link.border} border`}>
-                      {link.icon}
-                    </div>
-                    <div>
-                      <h5 className={`font-bold text-sm text-gray-300 group-hover:text-white transition-colors`}>{link.name}</h5>
-                      <span className="text-[10px] text-gray-500 uppercase tracking-wider group-hover:text-gray-400">External Link</span>
-                    </div>
-                  </a>
-                </li>
-              ))}
+            <ul className="space-y-3 text-sm">
+                <li><a href="https://green.edu.bd" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition-colors">Green University</a></li>
+                <li><a href="https://archive-cse.green.edu.bd/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-cyan-400 transition-colors">Department of CSE</a></li>
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
+          {/* Contact (Right - 5 cols) */}
+          <div className="lg:col-span-5">
              <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
               <span className="w-1 h-4 bg-purple-500 rounded-full" />
-              Connect
+              Get in Touch
             </h4>
-            <ul className="space-y-4">
-               {/* Email */}
-               <li>
-                  <a href={`mailto:${contactInfo.email}`} className="group flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-purple-500/20 group-hover:text-purple-400 transition-all text-gray-500">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            <div className="grid grid-cols-1 gap-4">
+                {/* Email */}
+                <a href={`mailto:${contactInfo.email}`} className="group flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-purple-500/30">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     </div>
-                    <span className="text-sm font-medium">{contactInfo.email}</span>
-                  </a>
-               </li>
-               {/* Phone */}
-               <li>
-                  <a href={`tel:${contactInfo.phone}`} className="group flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-all text-gray-500">
-                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    <div>
+                         <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Email Us</span>
+                         <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors break-all">{contactInfo.email}</span>
                     </div>
-                    <span className="text-sm font-medium">{contactInfo.phone}</span>
-                  </a>
-               </li>
-                {/* Address */}
-               <li className="flex items-start gap-3 text-gray-400">
-                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mt-1 bg-orange-500/10 text-orange-500 flex-shrink-0">
-                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <span className="text-sm font-medium leading-relaxed">{contactInfo.address}</span>
-               </li>
-            </ul>
-          </div>
+                </a>
+                
+                {/* Phone */}
+                <a href={`tel:${contactInfo.phone}`} className="group flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-cyan-500/30">
+                     <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                     </div>
+                    <div>
+                         <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Call Us</span>
+                         <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{contactInfo.phone}</span>
+                    </div>
+                </a>
 
-          {/* Socials & Newsletter */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-              <span className="w-1 h-4 bg-pink-500 rounded-full" />
-              Follow Us
-            </h4>
-            <div className="flex gap-4 mb-8">
-               {[
-                 { icon: <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />, name: 'Facebook', color: 'hover:bg-[#1877F2]' },
-                 { icon: <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />, name: 'Twitter', color: 'hover:bg-[#1DA1F2]' },
-                 { icon: <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />, circle: <circle cx="4" cy="4" r="2" />, name: 'LinkedIn', color: 'hover:bg-[#0A66C2]' },
-                 { icon: <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.33 29 29 0 00-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27z" />, name: 'YouTube', color: 'hover:bg-[#FF0000]' },
-               ].map((social, i) => (
-                 <a 
-                   key={i}
-                    href="#"
-                    className={`w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 transition-all duration-300 hover:scale-110 hover:text-white ${social.color}`}
-                    title={social.name}
-                 >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        {social.icon}
-                        {social.circle}
-                    </svg>
-                 </a>
-               ))}
+                {/* Address */}
+                <div className="group flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 hover:border-orange-500/30">
+                     <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400 flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                     </div>
+                    <div>
+                         <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Visit Us</span>
+                         <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors leading-relaxed">{contactInfo.address}</span>
+                    </div>
+                </div>
             </div>
             
-             <a 
-               href="/contributors" 
-               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-500/20 hover:border-purple-500/50 transition-all text-sm font-medium text-purple-200 group"
-             >
-                <span>✨ Community Heroes</span>
-             </a>
+            <div className="mt-8 flex items-center gap-6">
+                 <h5 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Follow Us</h5>
+                 <div className="h-px bg-white/10 flex-1"></div>
+                 <div className="flex gap-4">
+                    {[
+                        { icon: <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />, name: 'Facebook', color: 'hover:bg-[#1877F2]' },
+                        { icon: <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />, name: 'Twitter', color: 'hover:bg-[#1DA1F2]' },
+                        { icon: <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />, circle: <circle cx="4" cy="4" r="2" />, name: 'LinkedIn', color: 'hover:bg-[#0A66C2]' },
+                        { icon: <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.33 29 29 0 00-.46-5.33zM9.75 15.02l5.75-3.27-5.75-3.27z" />, name: 'YouTube', color: 'hover:bg-[#FF0000]' },
+                    ].map((social, i) => (
+                        <a 
+                        key={i}
+                        href="#"
+                        className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 transition-all duration-300 hover:scale-110 hover:text-white ${social.color}`}
+                        title={social.name}
+                        >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            {social.icon}
+                            {social.circle}
+                        </svg>
+                        </a>
+                    ))}
+                 </div>
+            </div>
           </div>
         </div>
 

@@ -643,20 +643,34 @@ export default function AdminActivitiesPage() {
       )}
 
       <AdminHelpButton
-        title="📅 Activities & Events"
+        title="📅 Activities & Events Manager"
         instructions={[
-          "Manage all gaming events, workshops, and social gatherings",
-          "Use tags to categorize events for easier filtering",
-          "Associate sponsors with specific events",
-          "Add guest speakers or special attendees"
+          "**Create Activity**: Click the `+ Add Activity` button to open the creation drawer.",
+          "**Edit Mode**: Click the pencil icon on any activity card to modify details.",
+          "**Publishing**: Use the 'Published/Draft' toggle on the card to control visibility immediately.",
+          "**Filtering**: Use the search bar for titles and the dropdown for categories (Workshop, Tournament, etc.)."
         ]}
         tips={[
-          "Featured events appear prominently on the home page",
-          "Use high-quality banner images (16:9 aspect ratio recommended)",
-          "Keep the 'Slug' clean and descriptive for SEO"
+          "**Featured Events** appear on the homepage hero section.",
+          "**Slug Generation**: Slugs are auto-generated from the title but can be manually edited for SEO.",
+          "**Sponsors**: You can link multiple sponsors to a single event for automated logo display."
         ]}
         actions={[
-          { title: "Status Management", description: "Toggle between 'Upcoming', 'Ongoing', and 'Past' to control visibility" }
+          {
+            title: "📝 content Formatting",
+            description: 
+              "The description field supports **Markdown**-like formatting:\n- Use `**bold**` for strong text.\n- Use `-` for bullet points.\n- Use `[Link Text](url)` for hyperlinks."
+          },
+          {
+            title: "🖼️ Image Guidelines",
+            description:
+              "**Banner Size**:\n- Recommended: `1920x1080` or `16:9` aspect ratio.\n- Max file size: 2MB for optimal loading.\n\n**External Hosting**:\n- Use Imgur or specific S3 bucket URLs for banners."
+          },
+          {
+            title: "⚙️ Advanced Status",
+            description:
+              "**Status Meanings**:\n- `Upcoming`: Visible in 'Upcoming Events' list.\n- `Ongoing`: Highlighted with a 'Live' badge.\n- `Past`: Moved to archive/history section."
+          }
         ]}
       />
 

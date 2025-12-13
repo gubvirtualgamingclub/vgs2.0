@@ -954,20 +954,27 @@ export default function AdminCommitteePage() {
       )}
 
       <AdminHelpButton
-        title="👥 Committee Management"
+        title="👥 Committee Manager"
         instructions={[
-          "Manage executive committees, faculty advisors, and members",
-          "Create new committee terms (e.g. 2024-2025)",
-          "Add members manually or import from previous years",
-          "Drag and drop members to reorder them in the list"
+          "**Committee Management**: Create and manage executive committees for different terms (e.g., 2024-2025).",
+          "**Member Directory**: Store data for Faculty Advisors, Executives, and General Members.",
+          "**Import Flow**: Use the search bar to import a member from a previous year to the current committee.",
+          "**Ordering**: Drag and drop member cards to arrange the public 'Our Team' page hierarchy."
         ]}
         tips={[
-          "Use the import feature to quickly promote members from previous years",
-          "Ensure photo paths are correct (upload to public/members first)",
-          "Published committees will appear on the 'Our Team' page"
+          "**Photo Paths**: Ensure images are uploaded to `/public/members/` before referencing them.",
+          "**Social Links**: Only `LinkedIn` and `Facebook` icons appear on the card if provided.",
+          "**Previous Roles**: You can tag a member's history (e.g., '2023 - Volunteer') to build their profile."
         ]}
         actions={[
-           { title: "Drag to Reorder", description: "Click and drag member cards to change their display order" }
+          { 
+            title: "🔃 Drag & Drop Reordering", 
+            description: "Click and hold any member card to drag it into a new position. The order saves automatically." 
+          },
+          {
+            title: "🎓 Importing Members",
+            description: "1. Click `Add Member`.\n2. Use the **Import Existing Member** search bar.\n3. Keep their profile but assign a new designation for this year."
+          }
         ]}
       />
 

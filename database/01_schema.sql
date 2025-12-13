@@ -274,8 +274,8 @@ CREATE TABLE IF NOT EXISTS registration_forms (
     google_sheet_url TEXT,
     form_fields JSONB NOT NULL DEFAULT '[]'::jsonb,
     is_active BOOLEAN DEFAULT TRUE,
-    max_registrations INTEGER,
     registration_deadline TIMESTAMPTZ,
+    registration_fee VARCHAR(50), -- BDT Amount
     
     -- Design assets
     club_logo_url TEXT,

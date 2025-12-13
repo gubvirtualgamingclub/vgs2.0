@@ -641,54 +641,27 @@ export default function EmailManagementPage() {
       )}
       
       <AdminHelpButton
-        title="📖 Email Management Instructions"
+        title="📧 Email Campaign Manager"
         instructions={[
-          "Send personalized emails manually or from Google Sheets",
-          "Create reusable HTML templates with variables",
-          "Track campaign delivery status in real-time"
+          "**Compose**: Send one-off emails manually or bulk campaigns via Google Sheets.",
+          "**Templates**: Create reusable HTML layouts with dynamic variables like `{{name}}`.",
+          "**Variables**: Use `{{name}}` and `{{email}}` to personalize content for each recipient.",
+          "**History**: Track delivered, failed, and bounced emails in the logs."
         ]}
         tips={[
-          "Use the Manual Entry tab for quick tests.",
-          "Templates allow you to save complex HTML layouts.",
-          "Use the Preview mode to check your design before sending."
+          "**Google Sheets**: Your sheet must be `Public` (Viewer) and have column headers `Name` and `Email`.",
+          "**Preview**: Always use the 'Eye' icon to check your HTML rendering before sending.",
+          "**Rate Limits**: The system queues emails to avoid hitting SMTP limits (max 50/minute)."
         ]}
         actions={[
           {
-            title: "📧 Configuration & Usage",
-            description: `Step 1: Configure Email Settings
-
-Set up your email credentials in .env.local file:
-\`\`\`
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
-\`\`\`
-
-Step 2: Prepare Google Sheet
-Create or open your Google Sheet with participant data. Required columns: Name, Email. Make it public (Viewer).
-
-Step 3: Fetch Participants
-Paste your Google Sheet URL and click Fetch. System will detect columns and load participants.
-
-Step 4: Select Recipients
-Select all or individual participants.
-
-Step 5: Compose Email
-Use a saved template or write a custom email. Use \`{{name}}\` and \`{{email}}\` for personalization.
-Step 6: Send Emails
-Click Send. System will send personalized emails and show results.
-
-Step 7: Save as Template
-Save your email for future use.`
+            title: "📊 Bulk Sending Guide",
+            description: 
+              "1. **Prepare Sheet**: Create a Google Sheet with `Name` and `Email` columns.\n2. **Fetch**: Paste the URL in the 'Google Sheets' tab.\n3. **Select**: Choose recipients from the loaded list.\n4. **Send**: content is sent individually to each selected person."
           },
           {
-            title: "🔍 Troubleshooting",
-            description: `- Failed to fetch participants: Check Google Sheet access and columns
-- Email server connection failed: Check .env.local settings
-- All emails failed: Test SMTP credentials
-- Some emails failed: Check History tab
-- Template won't save: Run migrations/add_email_management.sql`
+            title: "🎨 Template Variables",
+            description: "Write: `Hello {{name}}, welcome!`\nResult: `Hello John Doe, welcome!`\n\n*Note: Variables are case-sensitive.*"
           }
         ]}
       />

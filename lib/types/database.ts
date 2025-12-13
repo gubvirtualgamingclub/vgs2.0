@@ -100,6 +100,7 @@ export interface TournamentGame {
   registration_link: string;
   rulebook_link: string;
   registration_status?: 'open' | 'closed';
+  registration_fee?: string; // New field for BDT fee
   order_index?: number;
   created_at: string;
   updated_at: string;
@@ -204,8 +205,8 @@ export interface RegistrationForm {
   google_sheet_url: string;
   form_fields: FormField[];
   is_active: boolean;
-  max_registrations?: number;
   registration_deadline?: string;
+  registration_fee?: string;
   club_logo_url?: string;
   tournament_logo_url?: string;
   game_logo_url?: string;

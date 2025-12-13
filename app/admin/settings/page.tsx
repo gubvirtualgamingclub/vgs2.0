@@ -327,21 +327,21 @@ export default function SettingsPage() {
        </div>
 
       <AdminHelpButton
-        title="⚙️ Settings Instructions"
+        title="⚙️ System Settings Guide"
         instructions={[
-            "Paste your Google Drive link for the brochure; it auto-converts to a download link.",
-            "Update contact email and phone displayed on the site.",
-            "Click 'Save All Settings' to apply changes instantly."
+          "**Partnership Brochure**: Upload your PDF to Google Drive and paste the link here. The system auto-converts it to a direct download link.",
+          "**Contact Info**: These details appear on the 'Contact Us' page and footer.",
+          "**Save**: Changes are applied immediately across the site."
         ]}
         tips={[
-            "Test the brochure link after saving to ensure it downloads.",
-            "Use international format for phone numbers (e.g., +1...)"
+          "**Google Drive**: Ensure the file permission is set to 'Anyone with the link' can view.",
+          "**WhatsApp**: Enter the number without `+` or spaces (e.g., `8801711223344`)."
         ]}
         actions={[
-            {
-               title: "About the Brochure",
-               description: "We use a direct download link trick for Google Drive files. You just need the shareable link set to 'Anyone with the link'."
-            }
+          {
+             title: "🔗 Brochure Link Trick",
+             description: "We use a smart converter. You paste: `drive.google.com/file/d/XYZ/view`\nWe convert to: `drive.google.com/uc?export=download&id=XYZ`"
+          }
         ]}
       />
     </div>

@@ -57,6 +57,14 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
         initialData[field.id] = field.type === 'checkbox' ? [] : '';
       });
       setFormData(initialData);
+
+      // Restore from session storage if exists
+      const saved = sessionStorage.getItem(`reg_form_${slug}`);
+      if (saved) {
+          const parsed = JSON.parse(saved);
+          setFormData(parsed.formData);
+          if (parsed.step > 1) setCurrentStep(parsed.step);
+      }
     } catch (error) {
       console.error('Error fetching form:', error);
     } finally {
@@ -121,6 +129,8 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
       await submitRegistration(form.id, formData, transactionId, selectedPaymentMethod.id);
       await sendToGoogleSheets(form.google_sheet_url, submissionPayload, form.form_fields);
       setSubmitted(true);
+      // Clear session storage on success
+      if (form) sessionStorage.removeItem(`reg_form_${form.game_slug}`);
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to submit registration. Please try again.');
@@ -152,9 +162,18 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
   }
 
   function handleFieldChange(fieldId: string, value: any, field: FormField) {
-    setFormData({ ...formData, [fieldId]: value });
+    const newData = { ...formData, [fieldId]: value };
+    setFormData(newData);
     const error = validateField(field, value);
     setErrors({ ...errors, [fieldId]: error || '' });
+
+    // Persist to session
+    if (form) {
+        sessionStorage.setItem(`reg_form_${form.game_slug}`, JSON.stringify({
+            formData: newData,
+            step: currentStep
+        }));
+    }
   }
 
   function renderField(field: FormField) {
@@ -221,11 +240,11 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                 />
             )}
             
-            {/* Floating Label */}
+            {/* Floating Label - Highlighted */}
             {field.type !== 'radio' && field.type !== 'checkbox' && (
-                <label className={`absolute left-5 transition-all duration-300 pointer-events-none text-gray-400 font-medium text-sm
-                    ${value ? 'top-2 text-xs text-purple-400' : 'top-4 group-focus-within:top-2 group-focus-within:text-xs group-focus-within:text-purple-400'}`}>
-                    {field.label} {field.required && <span className="text-red-400">*</span>}
+                <label className={`absolute left-5 transition-all duration-300 pointer-events-none font-bold text-sm uppercase tracking-wide
+                    ${value ? 'top-2 text-[10px] text-purple-300 shadow-sm' : 'top-4 text-white/70 group-focus-within:top-2 group-focus-within:text-[10px] group-focus-within:text-purple-300'}`}>
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
                 </label>
             )}
             
@@ -234,8 +253,15 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                 <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 group-focus-within:w-full rounded-b-xl" />
              )}
 
+            {/* Help Text */}
+            {field.helpText && (
+                <p className="text-gray-400 text-xs mt-1 ml-4 italic flex items-center gap-1">
+                    <span className="text-purple-400">ℹ️</span> {field.helpText}
+                </p>
+            )}
+
             {hasError && (
-                <div className="flex items-center gap-2 mt-2 text-red-400 text-xs animate-slideDown">
+                <div className="flex items-center gap-2 mt-2 text-red-400 text-xs animate-slideDown ml-1">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     {error}
                 </div>
@@ -296,6 +322,16 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                     <p className="text-purple-400 font-mono text-sm tracking-[0.3em] uppercase">Official Registration</p>
                     <span className="h-[1px] w-12 bg-purple-500/50"></span>
                 </div>
+
+                {/* Form Description */}
+                {form.description && (
+                     <div className="mt-8 mx-auto max-w-2xl">
+                         <div 
+                            className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left shadow-lg backdrop-blur-sm prose prose-invert prose-p:text-gray-300 prose-headings:text-white prose-strong:text-purple-400 prose-a:text-pink-400 hover:prose-a:text-pink-300 transition-colors"
+                            dangerouslySetInnerHTML={{ __html: form.description }}
+                         />
+                     </div>
+                )}
             </div>
 
             {/* Steps Indicator */}
@@ -332,7 +368,16 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                         </div>
                         <button 
                             onClick={() => {
-                                if(validateStep1()) setCurrentStep(2);
+                                if(validateStep1()) {
+                                    setCurrentStep(2);
+                                    // Save step
+                                    if (form) {
+                                        sessionStorage.setItem(`reg_form_${form.game_slug}`, JSON.stringify({
+                                            formData,
+                                            step: 2
+                                        }));
+                                    }
+                                }
                                 else alert("Please fill all required fields correctly.");
                             }}
                             className="w-full py-5 bg-gradient-to-r from-white to-gray-200 text-black font-black text-xl tracking-wide uppercase rounded-xl hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all active:scale-[0.99]"
@@ -346,32 +391,47 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                             <h3 className="text-2xl font-bold text-white italic">Select Payment Method</h3>
                             <span className="text-xs text-purple-400 font-mono border border-purple-500/30 px-3 py-1 rounded-full bg-purple-500/10">SECURE TRANSACTION</span>
                         </div>
+
+                        {/* Registration Fee Display */}
+                        {form.registration_fee && (
+                             <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-500/30 p-6 rounded-2xl flex items-center justify-between shadow-[0_0_30px_rgba(168,85,247,0.1)]">
+                                 <div>
+                                     <p className="text-purple-300 text-xs font-bold uppercase tracking-wider mb-1">Total Fee Amount</p>
+                                     <p className="text-white text-3xl font-black italic tracking-tighter shadow-black drop-shadow-lg">{form.registration_fee} BDT</p>
+                                 </div>
+                                 <div className="h-12 w-12 bg-purple-500/20 rounded-full flex items-center justify-center border border-purple-500/40">
+                                     <span className="text-2xl">💰</span>
+                                 </div>
+                             </div>
+                        )}
                         
                         {/* Payment Method Tabs */ }
                         {paymentMethods.length > 0 ? (
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                                 {paymentMethods.map(method => (
                                     <button
                                         key={method.id}
                                         onClick={() => setSelectedPaymentMethod(method)}
-                                        className={`relative p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 overflow-hidden group ${selectedPaymentMethod?.id === method.id
-                                                ? 'bg-purple-900/20 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.2)]'
+                                        className={`relative p-6 rounded-2xl border transition-all flex flex-col items-center gap-4 overflow-hidden group ${selectedPaymentMethod?.id === method.id
+                                                ? 'bg-purple-900/30 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] scale-[1.02]'
                                                 : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10 hover:border-white/20'
                                             }`}
                                     >
-                                        {method.logo_url ? (
-                                            <img src={method.logo_url} alt={method.name} className="h-10 object-contain mb-1" />
-                                        ) : (
-                                            <span className="text-2xl mb-1">💳</span>
-                                        )}
-                                        <div className="text-center">
-                                            <span className="block font-bold text-sm tracking-wide">{method.name}</span>
-                                            <span className="block text-[10px] font-mono opacity-60 uppercase mt-1">{method.account_type}</span>
+                                        <div className="bg-white p-2 rounded-lg w-full h-20 flex items-center justify-center">
+                                            {method.logo_url ? (
+                                                <img src={method.logo_url} alt={method.name} className="h-full w-auto object-contain" />
+                                            ) : (
+                                                <span className="text-4xl text-black">💳</span>
+                                            )}
+                                        </div>
+                                        <div className="text-center w-full">
+                                            <span className="block font-bold text-lg tracking-wide">{method.name}</span>
+                                            <span className="block text-[10px] font-mono opacity-60 uppercase mt-1 border border-white/10 rounded px-2 py-0.5 inline-block">{method.account_type}</span>
                                         </div>
 
                                         {/* Selected Glow */}
                                         {selectedPaymentMethod?.id === method.id && (
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-transparent pointer-events-none"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent pointer-events-none"></div>
                                         )}
                                     </button>
                                 ))}
@@ -408,9 +468,12 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
 
                                     <div className="mb-8 p-4 bg-purple-900/10 border border-purple-500/20 rounded-xl">
                                         <p className="text-purple-400 text-xs uppercase tracking-wider mb-2 font-bold">Instructions & Rules</p>
-                                        <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed font-mono">
-                                            {selectedPaymentMethod.instructions || "1. Send specified amount to the number above.\n2. Copy the Transaction ID (TrxID).\n3. Paste it in the box below."}
-                                        </div>
+                                        <div 
+                                            className="text-gray-300 text-sm leading-relaxed prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0"
+                                            dangerouslySetInnerHTML={{ 
+                                                __html: selectedPaymentMethod.instructions || "1. Send specified amount to the number above.<br/>2. Copy the Transaction ID (TrxID).<br/>3. Paste it in the box below." 
+                                            }}
+                                        />
                                     </div>
 
                                     <div>

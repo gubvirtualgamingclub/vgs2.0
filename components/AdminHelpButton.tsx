@@ -131,8 +131,7 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
         title="Page Instructions"
         aria-label="Open Help Instructions"
       >
-        <QuestionMarkCircleIcon className="w-6 h-6" />
-        {/* Removed animate-ping for performance stability */}
+        <QuestionMarkCircleIcon className="w-6 h-6" /> 
       </button>
 
       {isOpen && (

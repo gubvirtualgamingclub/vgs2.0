@@ -693,21 +693,26 @@ export default function AdminSponsorsPage() {
       <AdminHelpButton
         title="🤝 Sponsors & Collaborators Manager"
         instructions={[
-          "Manage your organization's sponsors and collaborative partners",
-          "Categorize partners by type (Sponsor vs. Collaborator) and specific roles",
-          "Track partnership status and featured partners",
-          "Add diverse partner types including academic, industry, and technical collaborators"
+          "**Role**: Manage the ecosystem of partners (Sponsors, Co-Organizers, Academic Partners).",
+          "**Classification**: Use `Sponsor` for financial backers and `Collaborator` for strategic partners.",
+          "**Event Linking**: Tag partners to specific events (e.g., 'Winter 2024') to auto-generate reports.",
+          "**Logos**: Use high-res transparent PNGs for optimal dark-mode display."
         ]}
         tips={[
-          "Use high-quality transparent PNG logos for best display",
-          "Use 'Featured' status to highlight key partners on the homepage",
-          "Add website links to drive traffic to partner sites"
+          "**Featured Status**: Highlights key partners in the scrolling marquee on the homepage.",
+          "**Ordering**: Use `Display Order` to control the hierarchy (e.g., Title Sponsor = 1).",
+          "**Custom Types**: Create niche categories like 'Venue Partner' if standard options don't fit."
         ]}
         actions={[
-            {
-               title: "✨ Pro Tip",
-               description: "Group similar partners using the 'Display Order' field to control how they appear on the public site."
-            }
+          {
+            title: "🏷️ Categorization Guide",
+            description: 
+              "**Sponsors**:\n- *Title*: Top tier, max visibility.\n- *Gold/Silver*: standard tiers.\n\n**Collaborators**:\n- *Academic*: Universities.\n- *Technical*: Tech providers."
+          },
+          {
+            title: "🌐 Website Linking",
+            description: "Always include a `Website URL` so visitors can click through to the partner's page. This adds value to the sponsorship package."
+          }
         ]}
       />
 

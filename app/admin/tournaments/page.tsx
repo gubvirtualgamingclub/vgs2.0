@@ -80,6 +80,7 @@ export default function TournamentManagementPage() {
     max_participants: '',
     registration_link: '',
     rulebook_link: '',
+    registration_fee: '',
     order_index: 0
   });
 
@@ -217,6 +218,7 @@ export default function TournamentManagementPage() {
         max_participants: game.max_participants || '',
         registration_link: game.registration_link,
         rulebook_link: game.rulebook_link,
+        registration_fee: game.registration_fee || '',
         order_index: game.order_index || 0
       });
     } else {
@@ -234,6 +236,7 @@ export default function TournamentManagementPage() {
         max_participants: '',
         registration_link: '',
         rulebook_link: '',
+        registration_fee: '',
         order_index: games.length
       });
     }
@@ -792,12 +795,16 @@ export default function TournamentManagementPage() {
                           <label className={labelClassName}>Prize Pool</label>
                           <input type="text" value={gameFormData.prize_pool} onChange={e => setGameFormData({...gameFormData, prize_pool: e.target.value})} className={inputClassName} placeholder="10,000 BDT" />
                        </div>
-                       <div>
-                          <label className={labelClassName}>Team Size</label>
-                          <input type="text" value={gameFormData.team_size} onChange={e => setGameFormData({...gameFormData, team_size: e.target.value})} className={inputClassName} placeholder="5v5" />
-                       </div>
-                       <div>
-                          <label className={labelClassName}>Format</label>
+                        <div>
+                           <label className={labelClassName}>Team Size</label>
+                           <input type="text" value={gameFormData.team_size} onChange={e => setGameFormData({...gameFormData, team_size: e.target.value})} className={inputClassName} placeholder="5v5" />
+                        </div>
+                        <div>
+                           <label className={labelClassName}>Registration Fee (BDT)</label>
+                           <input type="text" value={gameFormData.registration_fee} onChange={e => setGameFormData({...gameFormData, registration_fee: e.target.value})} className={inputClassName} placeholder="500 BDT" />
+                        </div>
+                        <div>
+                           <label className={labelClassName}>Format</label>
                           <input type="text" value={gameFormData.format} onChange={e => setGameFormData({...gameFormData, format: e.target.value})} className={inputClassName} placeholder="Single Elimination" />
                        </div>
                         <div>
@@ -831,18 +838,35 @@ export default function TournamentManagementPage() {
       )}
 
       <AdminHelpButton
-         title="🏆 Tournament Management"
+         title="🏆 Tournament Manager"
          instructions={[
-            "Configure the latest tournament details in the 'Tournament Info' tab.",
-            "Use 'Previous Glimpses' to add galleries of past events.",
-            "Add sponsor, video teasers, and organizer details.",
-            "Manage competitive titles in the 'Games' tab."
+            "**Tournament Lifecycle**: Manage the entire flow from `Setup` → `Registration` → `Live` → `Conclusion`.",
+            "**Featured Games**: Select which games are part of this specific tournament season.",
+            "**Partner Showcase**: Highlights Organizers, Sponsors, and Collaborators.",
+            "**Glimpses**: Upload photo galleries from previous iterations to build hype."
          ]}
          tips={[
-            "Video Teasers loop automatically on the public site.",
-            "Adding 'Collaborators' uses the same system as sponsors."
+            "**Status Toggle**: Switching to `OPEN` immediately enables public registration.",
+            "**Teaser Video**: A background video loop creates a high-impact landing page experience.",
+            "**Logistics**: Ensure 'Venue' and 'Deadline' are accurate as they trigger countdown timers."
          ]}
-         actions={[]}
+         actions={[
+            {
+               title: "🤝 Partner Management",
+               description:
+                  "**Tiers**:\n- **Organizers**: Main hosts.\n- **Co-Organizers**: Strategic partners.\n- **Sponsors**: Financial backers.\n\n*Tip: Drag and drop support is not available yet, so add them in order.*"
+            },
+            {
+               title: "🎮 Game Specifics",
+               description:
+                  "Each game in the tournament can have its own:\n- **Registration Fee**: e.g., '500 BDT'.\n- **Rulebook Link**: External PDF/Doc.\n- **Prize Pool**: Specific to that game title."
+            },
+            {
+               title: "📸 Gallery (Glimpses)",
+               description:
+                  "**Add Event**: Create a group like 'Winter 2023'.\n**Add Images**: Paste direct URLs (limit 5 per group).\n**Deletion**: One-click remove for outdated content."
+            }
+         ]}
       />
     </div>
   );

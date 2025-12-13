@@ -795,23 +795,28 @@ export default function GamesAdminPage() {
 
       {/* Built-in Instructions Menu (static) */}
       <AdminHelpButton
-        title="🎮 Games Library Management Instructions"
+        title="🎮 Games Library Manager"
         instructions={[
-          "Add games to the VGS library",
-          "Upload game cover images",
-          "Write game descriptions",
-          "Categorize games by type",
-          "Set game popularity/featured status"
+          "**Add Game**: Curate the list of supported games (e.g., Valorant, FIFA).",
+          "**Game Categories**: Classify as `PC`, `Mobile`, or `Casual`.",
+          "**Event History**: Log past tournaments for this game to track community growth.",
+          "**Logos**: Use direct URLs for high-quality game art."
         ]}
         tips={[
-          "Use official game artwork when possible",
-          "Write engaging descriptions",
-          "Tag games accurately for filtering"
+          "**Display Order**: Set lower numbers (e.g., 1, 2) to show popular games first.",
+          "**Publishing**: 'Draft' games are hidden from the public 'Games' page.",
+          "**Team Size**: Define formats like 5v5 to help auto-configure registration forms."
         ]}
         actions={[
           {
-            title: "🕹️ Usage Guide",
-            description: "Add Game: Create new game entry\nEdit Game: Modify game details\nDelete Game: Remove game"
+            title: "📜 Event History Logging",
+            description: 
+              "Keep a record of past glory:\n1. Click the `Calendar` icon on a game card.\n2. Add details: `Year`, `Prize Pool`, `Participants`.\n3. This data builds the 'Legacy' section on public pages."
+          },
+          {
+            title: "🎨 Logo Best Practices",
+            description:
+              "**Transparent PNGs** work best for game logos.\n**Aspect Ratio**: Square (1:1) is recommended for grid consistency.\n**Source**: SteamGridDB or official press kits."
           }
         ]}
       />

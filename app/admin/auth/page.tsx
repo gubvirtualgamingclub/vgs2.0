@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/lib/contexts/AdminAuthContext';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import AdminHelpButton from '@/components/AdminHelpButton';
 
 // Add shake animation styles
 const shakeKeyframes = `
@@ -431,6 +432,19 @@ export default function SecureAdminLoginPage() {
         }
       `}</style>
     </div>
+      <AdminHelpButton
+        title="🔐 Security Policy"
+        instructions={[
+          "**Access Control**: Only authorized personnel are allowed.",
+          "**Lockout Policy**: Account locks for 5 minutes after 5 failed attempts.",
+          "**Monitoring**: IP addresses and session data are logged."
+        ]}
+        tips={[
+            "**Credentials**: Contact the Lead Developer if you lost access.",
+            "**Security**: Ensure you are on a secure network (HTTPS)."
+        ]}
+        actions={[]}
+      />
     </>
   );
 }
