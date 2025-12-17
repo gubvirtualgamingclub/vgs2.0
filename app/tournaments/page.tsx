@@ -349,7 +349,7 @@ function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previo
                     {/* Right Side: Content & Navigation */}
                     <div className="order-1 lg:order-2 text-left">
                         <ScrollAnimation animation="slideLeft">
-                            <span className="text-purple-600 dark:text-purple-400 font-mono text-sm tracking-widest uppercase mb-4 block">/// Legacy Archives</span>
+                            <span className="text-purple-600 dark:text-purple-400 font-mono text-sm tracking-widest uppercase mb-4 block">{'/// Legacy Archives'}</span>
                             <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tighter leading-none">
                                 {activeEvent.title}
                             </h2>
@@ -880,7 +880,7 @@ export default function TournamentsPage() {
              <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20 border-b border-gray-200 dark:border-white/5 pb-8">
                  <div>
                     <ScrollAnimation animation="slideRight">
-                       <span className="text-purple-600 dark:text-purple-500 font-mono text-sm tracking-widest uppercase mb-2 block">/// Select Your Arena</span>
+                       <span className="text-purple-600 dark:text-purple-500 font-mono text-sm tracking-widest uppercase mb-2 block">{'/// Select Your Arena'}</span>
                        <h2 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">
                           Game <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-500">Roster</span>
                        </h2>
