@@ -84,85 +84,136 @@ export default function CommitteePage() {
       onClick={() => handleMemberClick(member.id)}
       className="group relative cursor-pointer"
     >
-       {/* Card Background with Glassmorphism */}
-       <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/10 to-blue-900/10 backdrop-blur-xl rounded-2xl border border-white/5 transition-all duration-500 group-hover:border-cyan-500/30 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] group-hover:-translate-y-2"></div>
+      {/* Card Background */}
+      <div className="absolute inset-0 bg-white dark:bg-[#0b0f19] rounded-3xl border border-gray-200 dark:border-white/10 transition-all duration-500 group-hover:border-cyan-500/30 group-hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:group-hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] group-hover:-translate-y-2 overflow-hidden">
+        {/* Decorative Gradients */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-gray-50 to-transparent dark:from-cyan-500/5 dark:to-transparent opacity-50"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 to-transparent dark:from-blue-600/5 dark:to-transparent opacity-50"></div>
+        
+        {/* Glass Effect Overlay */}
+        <div className="absolute inset-0 bg-white/40 dark:bg-transparent backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </div>
        
-       {/* Content */}
-       <div className="relative p-8 flex flex-col items-center">
-          {/* Avatar */}
-          <div className="relative mb-6">
-             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
-             {member.photo ? (
-                <img src={member.photo} alt={member.name} className="relative w-40 h-40 rounded-full object-cover border-2 border-white/10 group-hover:border-cyan-400/50 transition-colors shadow-2xl" />
-             ) : (
-                <div className="relative w-40 h-40 rounded-full bg-white/5 flex items-center justify-center text-3xl font-bold text-cyan-400 border-2 border-white/10">
-                   {member.name.charAt(0)}
-                </div>
-             )}
+      {/* Content */}
+      <div className="relative p-8 flex flex-col items-center z-10">
+        {/* Avatar Container */}
+        <div className="relative mb-6 group-hover:scale-105 transition-transform duration-500">
+          {/* Animated Glow Ring */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full blur opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
+          
+          {/* Image Wrapper */}
+          <div className="relative w-44 h-44 rounded-full p-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 shadow-xl dark:shadow-2xl overflow-hidden">
+            {member.photo ? (
+              <img 
+                src={member.photo} 
+                alt={member.name} 
+                className="w-full h-full rounded-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-gray-50 dark:bg-[#111] flex items-center justify-center text-4xl font-bold text-gray-300 dark:text-white/20">
+                {member.name.charAt(0)}
+              </div>
+            )}
           </div>
 
-          <h3 className="text-2xl font-bold text-white mb-2 text-center group-hover:text-cyan-400 transition-colors">{member.name}</h3>
-          <p className="text-blue-200/80 text-sm font-medium tracking-wide text-center uppercase mb-6">{member.designation}</p>
-
-          <div className="w-full pt-6 border-t border-white/5 flex gap-4 justify-center">
-             {/* Socials logic remains same but styled */}
-             {member.facebook && <SocialIcon href={member.facebook} type="facebook" />}
-             {member.linkedin && <SocialIcon href={member.linkedin} type="linkedin" />}
-             {member.github && <SocialIcon href={member.github} type="github" />}
-             {member.email && <SocialIcon href={`mailto:${member.email}`} type="email" />}
+          {/* Verification Badge (Optional fun detail) */}
+          <div className="absolute bottom-2 right-2 bg-white dark:bg-[#0b0f19] text-cyan-500 p-1.5 rounded-full border border-gray-100 dark:border-white/10 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
           </div>
-       </div>
+        </div>
+
+        {/* Text Content */}
+        <div className="text-center space-y-3 mb-8">
+           <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+             {member.name}
+           </h3>
+           <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-300 text-xs font-bold tracking-wider uppercase">
+             {member.designation}
+           </div>
+        </div>
+
+        {/* Social Actions */}
+        <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-white/5 w-full justify-center">
+           {member.facebook && <SocialIcon href={member.facebook} type="facebook" />}
+           {member.linkedin && <SocialIcon href={member.linkedin} type="linkedin" />}
+           {member.github && <SocialIcon href={member.github} type="github" />}
+           {member.email && <SocialIcon href={`mailto:${member.email}`} type="email" />}
+        </div>
+      </div>
     </div>
   );
+
+  const getRoleIcon = (designation: string) => {
+    const d = designation.toLowerCase();
+    if (d.includes('president') || d.includes('vp')) {
+      return (
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ); // Keep verifed badge for top leadership or switch to Crown if preferred. Sticking to verify for "Official" feel as per request "Icon based on role" but maybe different shapes.
+         // Let's actually use distinct icons.
+    }
+    
+    if (d.includes('president')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>; // Star/Crown-ish
+    if (d.includes('secretary')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>; // Clipboard
+    if (d.includes('treasurer') || d.includes('finance')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+    if (d.includes('technical') || d.includes('developer') || d.includes('web')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>;
+    if (d.includes('design') || d.includes('creative') || d.includes('media')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>;
+    if (d.includes('event') || d.includes('organizer')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
+    if (d.includes('content') || d.includes('writer')) return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>;
+    
+    // Default / Executive
+    return <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+  };
 
   const renderExecutiveCard = (member: CommitteeMember) => (
     <div
       key={member.id}
       onClick={() => handleMemberClick(member.id)}
-      className="group relative h-48 w-full cursor-pointer perspective-1000"
+      className="group relative h-52 w-full cursor-pointer"
     >
        {/* Card Container */}
-       <div className="absolute inset-0 bg-[#0b0f19] rounded-2xl border border-white/10 shadow-lg transition-all duration-500 group-hover:border-cyan-500/30 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.1)] group-hover:-translate-y-1 overflow-hidden flex flex-row">
+       <div className="absolute inset-0 bg-white dark:bg-[#0b0f19] rounded-2xl border border-gray-200 dark:border-white/10 shadow-lg transition-all duration-500 group-hover:border-cyan-500/30 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] group-hover:-translate-y-1 overflow-hidden flex flex-row">
           
           {/* Inner Glow/Highlight */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"></div>
 
-          {/* Left Side: Details */}
+          {/* Details */}
           <div className="flex-1 p-6 flex flex-col justify-center relative z-10">
-             <div className="flex items-center gap-2 mb-1">
-                <span className="p-1 rounded bg-green-500/10 border border-green-500/30 text-green-400">
-                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                   </svg>
+             <div className="flex items-center gap-2 mb-2">
+                <span className="p-1 rounded bg-green-500/10 border border-green-500/30 text-green-500 dark:text-green-400">
+                   {getRoleIcon(member.designation)}
                 </span>
-                <span className="text-xs font-mono text-green-400/80 tracking-wider uppercase">Executive</span>
+                <span className="text-xs font-mono text-green-500 dark:text-green-400/80 tracking-wider uppercase">Executive</span>
              </div>
              
-             <h3 className="text-xl md:text-2xl font-bold text-white leading-tight mb-2 group-hover:text-cyan-400 transition-colors">
+             <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                 {member.name}
              </h3>
-             <p className="text-gray-400 text-sm font-medium">{member.designation}</p>
+             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{member.designation}</p>
 
-             {/* Hover Socials - Slide Up from Bottom Center */}
-             <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-start translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
-                <div className="flex gap-2 bg-[#0b0f19]/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/10 shadow-xl">
-                   {member.linkedin && <SocialIconSmall href={member.linkedin} type="linkedin" />}
-                   {member.github && <SocialIconSmall href={member.github} type="github" />}
-                   {member.email && <SocialIconSmall href={`mailto:${member.email}`} type="email" />}
-                </div>
+             {/* Hover Socials */}
+             <div className="mt-4 flex gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                {member.linkedin && <SocialIconSmall href={member.linkedin} type="linkedin" />}
+                {member.github && <SocialIconSmall href={member.github} type="github" />}
+                {member.email && <SocialIconSmall href={`mailto:${member.email}`} type="email" />}
              </div>
           </div>
 
-          {/* Right Side: Portrait Image */}
-          <div className="w-32 md:w-40 relative h-full shrink-0 overflow-hidden">
+          {/* Floating Portrait Image - clean transparent cutout, no shapes */}
+          <div className="w-36 md:w-44 relative h-full shrink-0 flex items-center justify-center">
+             {/* Soft shadow underneath for floating effect */}
+             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-black/15 dark:bg-black/30 blur-xl rounded-full transition-all duration-500 group-hover:w-24 group-hover:blur-2xl group-hover:bg-cyan-500/20"></div>
+             
+             {/* Image - no container, no border, just the transparent PNG */}
              {member.photo ? (
                 <img 
                    src={member.photo} 
                    alt={member.name} 
-                   className="w-full h-full object-cover object-center transform transition-all duration-700 group-hover:scale-110 group-hover:-translate-y-1 group-hover:brightness-110"
+                   className="relative z-10 h-full w-auto max-w-full object-contain object-bottom drop-shadow-2xl transition-all duration-500 ease-out origin-bottom group-hover:scale-110 group-hover:drop-shadow-[0_25px_35px_rgba(0,0,0,0.3)] dark:group-hover:drop-shadow-[0_25px_35px_rgba(6,182,212,0.2)]"
                 />
              ) : (
-                <div className="w-full h-full bg-white/5 flex items-center justify-center text-4xl font-bold text-gray-700">
+                <div className="relative z-10 h-32 w-32 flex items-center justify-center text-5xl font-bold text-cyan-500/50 dark:text-cyan-400/30 drop-shadow-lg transition-all duration-500 group-hover:-translate-y-4 group-hover:scale-110">
                    {member.name.charAt(0)}
                 </div>
              )}
@@ -172,9 +223,15 @@ export default function CommitteePage() {
   );
 
   const SocialIcon = ({ href, type }: { href: string; type: string }) => (
-    <a href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="p-2 bg-white/5 hover:bg-cyan-500/20 rounded-lg text-gray-400 hover:text-cyan-400 transition-all hover:scale-110">
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      onClick={(e) => e.stopPropagation()} 
+      className="p-2.5 bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500 hover:text-cyan-600 dark:hover:text-white hover:bg-cyan-50 dark:hover:bg-cyan-500/20 rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg dark:hover:shadow-cyan-500/10 group/icon"
+    >
        <span className="sr-only">{type}</span>
-       <IconPath type={type} className="w-5 h-5" />
+       <IconPath type={type} className="w-5 h-5 transition-transform group-hover/icon:-rotate-12" />
     </a>
   );
 
@@ -194,30 +251,30 @@ export default function CommitteePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center">
          <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
-            <p className="text-gray-400 font-mono text-sm animate-pulse">Initializing VGS Database...</p>
+            <p className="text-gray-300 font-mono text-sm animate-pulse">Initializing VGS Database...</p>
          </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 selection:bg-purple-500/30 font-sans">
+    <div className="min-h-screen bg-white dark:bg-gray-950 selection:bg-purple-500/30 font-sans">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 border-b border-white/5 bg-[#050505] overflow-hidden">
+      <section className="relative pt-32 pb-20 px-6 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#050505] overflow-hidden">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.1),transparent_50%)]"></div>
          
          <div className="max-w-7xl mx-auto relative z-10 text-center">
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
-               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Executive</span> Makers
+            <h1 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Executive</span> Makers
             </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                The visionaries, strategists, and leaders powering the Virtual Gaming Society's legacy.
             </p>
          </div>
@@ -225,7 +282,7 @@ export default function CommitteePage() {
 
       {/* Year Filter */}
       {committees.length > 0 && (
-         <div className="sticky top-20 z-40 bg-gray-950/80 backdrop-blur-md border-b border-white/5 py-4">
+         <div className="sticky top-20 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-white/5 py-4">
             <div className="max-w-7xl mx-auto px-6 overflow-x-auto custom-scrollbar">
                <div className="flex justify-center gap-2 min-w-max">
                   {committees.map((committee) => (
@@ -234,8 +291,8 @@ export default function CommitteePage() {
                         onClick={() => handleYearChange(committee.year_range)}
                         className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
                            selectedYear === committee.year_range
-                           ? 'bg-white text-black shadow-lg shadow-white/10 scale-105'
-                           : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                           ? 'bg-gray-900 dark:bg-white text-white dark:text-black shadow-lg shadow-gray-900/10 dark:shadow-white/10 scale-105'
+                           : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                         }`}
                      >
                         {committee.year_range}
@@ -252,9 +309,10 @@ export default function CommitteePage() {
          {/* Faculty Advisors */}
          {facultyMembers.length > 0 && (
             <section className="animate-fadeInUp">
-               <div className="flex items-end gap-4 mb-12 border-b border-white/5 pb-4">
-                  <h2 className="text-3xl font-bold text-white">Faculty Advisors</h2>
-                  <span className="text-cyan-500 font-mono text-sm mb-1.5 opacity-60">{'/// MENTORS'}</span>
+               <div className="flex items-end gap-4 mb-12 border-b border-gray-200 dark:border-white/5 pb-4">
+                  <svg className="w-6 h-6 text-cyan-500 dark:text-cyan-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Faculty Advisors</h2>
+                  <span className="text-cyan-600 dark:text-cyan-500 font-mono text-sm mb-1.5 opacity-70">{'/// MENTORS'}</span>
                </div>
                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
                   {facultyMembers.map(renderFacultyCard)}
@@ -265,9 +323,10 @@ export default function CommitteePage() {
          {/* Executive Members */}
          {executiveMembers.length > 0 && (
             <section className="animate-fadeInUp delay-100">
-               <div className="flex items-end gap-4 mb-12 border-b border-white/5 pb-4">
-                  <h2 className="text-3xl font-bold text-white">Student Leadership</h2>
-                  <span className="text-purple-500 font-mono text-sm mb-1.5 opacity-60">{'/// CORE_TEAM'}</span>
+               <div className="flex items-end gap-4 mb-12 border-b border-gray-200 dark:border-white/5 pb-4">
+                  <svg className="w-6 h-6 text-purple-500 dark:text-purple-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Student Leadership</h2>
+                  <span className="text-purple-600 dark:text-purple-500 font-mono text-sm mb-1.5 opacity-70">{'/// CORE_TEAM'}</span>
                </div>
                <div className="grid md:grid-cols-2 gap-6">
                   {executiveMembers.map(renderExecutiveCard)}
@@ -277,8 +336,8 @@ export default function CommitteePage() {
 
          {/* Empty State */}
          {!loading && !currentCommittee?.members.length && (
-            <div className="text-center py-20 border border-dashed border-white/10 rounded-2xl">
-               <p className="text-gray-500 text-lg">No committee members found for {selectedYear}</p>
+            <div className="text-center py-20 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-gray-50 dark:bg-transparent">
+               <p className="text-gray-500 dark:text-gray-400 text-lg">No committee members found for {selectedYear}</p>
             </div>
          )}
       </div>

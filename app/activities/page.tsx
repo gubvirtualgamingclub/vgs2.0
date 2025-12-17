@@ -71,7 +71,7 @@ export default function ActivitiesPage() {
   const statuses = ['upcoming', 'ongoing', 'past', 'recurring'];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-x-hidden">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
@@ -85,18 +85,18 @@ export default function ActivitiesPage() {
       <section className="relative pt-32 pb-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
            <ScrollAnimation animation="slideUp">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 mb-8 backdrop-blur-md">
                  <span className="relative flex h-2 w-2">
                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                  </span>
-                 <span className="text-xs font-bold tracking-widest uppercase text-gray-400">Mission Control</span>
+                 <span className="text-xs font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400">Mission Control</span>
               </div>
            </ScrollAnimation>
 
            <ScrollAnimation animation="gameOver" delay={100}>
               <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter">
-                <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+                <span className="bg-clip-text text-transparent bg-gradient-to-b from-gray-900 dark:from-white to-gray-600 dark:to-gray-400">
                    Operations &
                 </span>
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x mt-2">
@@ -106,7 +106,7 @@ export default function ActivitiesPage() {
            </ScrollAnimation>
            
            <ScrollAnimation animation="fadeIn" delay={300}>
-               <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                   Join the action. From competitive tournaments to community workshops, discover your next mission here.
                </p>
            </ScrollAnimation>
@@ -119,16 +119,17 @@ export default function ActivitiesPage() {
              <ScrollAnimation animation="slideUp" delay={400}>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                    {[
-                      { label: "Total Missions", value: activities.length, color: "text-purple-400", border: "border-purple-500/20" },
-                      { label: "Tournaments", value: tournamentCount, color: "text-cyan-400", border: "border-cyan-500/20" },
-                      { label: "Workshops", value: workshopCount, color: "text-green-400", border: "border-green-500/20" },
-                      { label: "Upcoming", value: upcomingCount, color: "text-pink-400", border: "border-pink-500/20" },
+                      { label: "Total Missions", value: activities.length, color: "text-purple-400", border: "border-purple-500/20", icon: <svg className="w-6 h-6 text-purple-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
+                      { label: "Tournaments", value: tournamentCount, color: "text-cyan-400", border: "border-cyan-500/20", icon: <svg className="w-6 h-6 text-cyan-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg> },
+                      { label: "Workshops", value: workshopCount, color: "text-green-400", border: "border-green-500/20", icon: <svg className="w-6 h-6 text-green-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> },
+                      { label: "Upcoming", value: upcomingCount, color: "text-pink-400", border: "border-pink-500/20", icon: <svg className="w-6 h-6 text-pink-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
                    ].map((stat, i) => (
-                      <div key={i} className={`bg-[#0a0a0b]/80 backdrop-blur-sm p-6 rounded-2xl border ${stat.border} text-center group hover:-translate-y-1 transition-transform`}>
+                      <div key={i} className={`bg-gray-100 dark:bg-[#0a0a0b]/80 backdrop-blur-sm p-6 rounded-2xl border ${stat.border} text-center group hover:-translate-y-1 transition-transform`}>
+                         {stat.icon}
                          <div className={`text-3xl md:text-4xl font-bold mb-1 ${stat.color} group-hover:scale-110 transition-transform`}>
                             {loading ? '...' : stat.value}
                          </div>
-                         <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">{stat.label}</div>
+                         <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{stat.label}</div>
                       </div>
                    ))}
                 </div>
@@ -142,7 +143,7 @@ export default function ActivitiesPage() {
            
            {/* Search & Filter */}
            <div className="sticky top-20 z-40 mb-12">
-               <div className="bg-[#0f0f10]/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl shadow-black/50">
+               <div className="bg-white/90 dark:bg-[#0f0f10]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 p-4 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/50">
                    <div className="flex flex-col md:flex-row gap-4">
                        <div className="flex-1 relative">
                            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -151,7 +152,7 @@ export default function ActivitiesPage() {
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                               placeholder="Search operations..." 
-                              className="w-full bg-[#1a1a1c] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                              className="w-full bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
                            />
                        </div>
                        
@@ -211,7 +212,7 @@ export default function ActivitiesPage() {
               <div className="text-center py-20 bg-[#0f0f10]/50 rounded-3xl border border-white/5">
                  <div className="text-6xl mb-4">🛸</div>
                  <h3 className="text-2xl font-bold text-white mb-2">No Signals Detected</h3>
-                 <p className="text-gray-400">Try adjusting your sensors (filters) to find what you are looking for.</p>
+                  <p className="text-gray-300">Try adjusting your sensors (filters) to find what you are looking for.</p>
                  <button 
                     onClick={() => { setSearchTerm(''); setFilterStatus('all'); setFilterCategory('all'); }}
                     className="mt-6 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all"
@@ -283,7 +284,7 @@ export default function ActivitiesPage() {
                                         {activity.title}
                                     </h3>
 
-                                    <p className="text-gray-400 text-sm line-clamp-2 mb-6 h-10">
+                                    <p className="text-gray-300 text-sm line-clamp-2 mb-6 h-10">
                                         {activity.short_description || activity.description}
                                     </p>
 

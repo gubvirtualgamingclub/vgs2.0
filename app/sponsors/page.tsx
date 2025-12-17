@@ -96,7 +96,7 @@ export default function SponsorsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-purple-500/30 selection:text-purple-200 font-sans">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0b] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-x-hidden">
       {/* Gaming Enhancements */}
       <ScrollProgressBar />
       <GamingCursor />
@@ -110,15 +110,15 @@ export default function SponsorsPage() {
 
         <div className="relative max-w-7xl mx-auto px-6 text-center z-10">
           <ScrollAnimation animation="slideUp" delay={100}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-bold tracking-widest uppercase text-gray-400">Our Partners</span>
+                <span className="text-xs font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400">Our Partners</span>
             </div>
           </ScrollAnimation>
 
           <ScrollAnimation animation="gameOver" delay={200}>
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-gray-400">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 dark:from-white via-gray-600 dark:via-purple-100 to-gray-400">
                 Sponsors &
               </span>
               <br />
@@ -129,7 +129,7 @@ export default function SponsorsPage() {
           </ScrollAnimation>
           
           <ScrollAnimation animation="fadeIn" delay={400}>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Powering the next generation of esports. Meet the brands and organizations that make our events possible.
             </p>
           </ScrollAnimation>
@@ -137,7 +137,7 @@ export default function SponsorsPage() {
       </section>
 
       {/* Filter Tabs */}
-      <div className="sticky top-0 z-30 bg-[#0a0a0b]/80 backdrop-blur-xl border-y border-white/5 py-4 mb-12">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#0a0a0b]/80 backdrop-blur-xl border-y border-gray-200 dark:border-white/5 py-4 mb-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center gap-2">
             {[
                 { key: 'all', label: 'All Partners' },
@@ -149,8 +149,8 @@ export default function SponsorsPage() {
                     onClick={() => setFilter(tab.key as any)}
                     className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border ${
                         filter === tab.key
-                        ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105'
-                        : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/20 hover:text-white'
+                        ? 'bg-gray-900 dark:bg-white text-white dark:text-black border-gray-900 dark:border-white shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105'
+                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
                     }`}
                 >
                     {tab.label}
@@ -387,7 +387,7 @@ export default function SponsorsPage() {
             
             <div className="relative z-10 max-w-4xl mx-auto px-6">
                  <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Ready to Level Up?</h2>
-                 <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+                 <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
                     Join forces with VGS and connect with the most passionate gaming community. Let's create something legendary together.
                  </p>
                  <button
@@ -428,7 +428,7 @@ export default function SponsorsPage() {
                         <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors">
                             <div className="text-3xl mb-4">{item.icon}</div>
                             <h3 className="font-bold text-white mb-2">{item.title}</h3>
-                            <p className="text-sm text-gray-400">{item.desc}</p>
+                            <p className="text-sm text-gray-300">{item.desc}</p>
                         </div>
                     ))}
                  </div>
@@ -463,7 +463,7 @@ export default function SponsorsPage() {
                  </div>
                  
                  <div className="text-center border-t border-white/5 pt-8">
-                     <p className="text-gray-400 mb-6">Need more details? Download our full partnership deck.</p>
+                     <p className="text-gray-300 mb-6">Need more details? Download our full partnership deck.</p>
                      {partnershipBrochureUrl ? (
                          <a href={partnershipBrochureUrl} target="_blank" className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-bold border-b border-purple-500/30 pb-1">
                              Download Brochure (PDF) →

@@ -409,10 +409,11 @@ export default function TournamentManagementPage() {
                           <label className={labelClassName}>Tournament Logo (URL)</label>
                            <input type="text" value={formData.logo} onChange={(e) => setFormData({ ...formData, logo: e.target.value })} className={inputClassName} />
                       </div>
-                      {/* Teaser Video Section - Split into two cards (60% Input / 40% Instructions) */}
-                      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-                           {/* Left Card: Input & Preview (Takes 3/5 space) */}
-                           <div className="xl:col-span-3 p-6 bg-purple-900/10 border border-purple-500/20 rounded-xl h-fit">
+                      {/* Teaser Video Section - Side by Side Grid */}
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                           
+                           {/* Main Input & Preview */}
+                           <div className="p-6 bg-purple-900/10 border border-purple-500/20 rounded-xl h-fit">
                                 <label className={labelClassName}>Teaser Video URL (Main Visual)</label>
                                 <div className="relative mt-2">
                                     <VideoCameraIcon className="absolute left-4 top-3.5 w-5 h-5 text-purple-500" />
@@ -426,94 +427,78 @@ export default function TournamentManagementPage() {
                                 )}
                            </div>
 
-                           {/* Right Card: Premium Instruction Panel */}
-                           <div className="xl:col-span-2 relative overflow-hidden rounded-2xl border border-white/10 bg-[#0a0c10]/80 backdrop-blur-xl h-fit group/panel">
-                               {/* Subtle Grid Background */}
-                               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-                               
-                               {/* Neon Gradient Border Effect */}
-                               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 pointer-events-none"></div>
+                           {/* Instructions Panel - Vertical Stack */}
+                           <div className="relative bg-gray-900 border border-white/10 rounded-xl overflow-hidden shadow-xl h-fit">
+                               {/* Header */}
+                               <div className="p-4 border-b border-white/10 bg-black/20 flex items-center gap-3">
+                                   <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg text-white">
+                                       <VideoCameraIcon className="w-5 h-5" />
+                                   </div>
+                                   <h3 className="font-bold text-white text-lg tracking-wide">Video Embedding Guide</h3>
+                               </div>
 
-                               <div className="relative p-6">
-                                   <div className="flex items-center gap-3 mb-6 border-b border-white/5 pb-4">
-                                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                               <div className="p-5 space-y-3">
+                                   {/* YouTube Card */}
+                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-red-500/30 transition-colors group">
+                                       <div className="flex items-center gap-4">
+                                           <div className="p-2 bg-red-500/10 text-red-500 rounded-md group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                           </div>
+                                           <div className="flex-1 min-w-0">
+                                               <div className="flex justify-between items-center mb-1">
+                                                   <h4 className="text-white font-bold text-sm group-hover:text-red-400">YouTube</h4>
+                                                   <span className="text-[10px] text-gray-500">Share → Embed</span>
+                                               </div>
+                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://www.youtube.com/embed/...</code>
+                                           </div>
                                        </div>
-                                       <h3 className="text-lg font-bold text-white tracking-wide font-sans">
-                                           VIDEO GUIDE
-                                       </h3>
                                    </div>
 
-                                   <div className="space-y-4">
-                                       {/* YouTube Card */}
-                                       <div className="group relative bg-[#13161f] hover:bg-[#1a1d26] border border-white/5 hover:border-red-500/50 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                                            <div className="flex items-start gap-4">
-                                                <div className="mt-1 w-8 h-8 rounded bg-red-500/10 flex items-center justify-center text-red-500 group-hover:text-white group-hover:bg-red-500 transition-colors shadow-[0_0_10px_rgba(239,68,68,0.0)] group-hover:shadow-[0_0_15px_rgba(239,68,68,0.5)]">
-                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-bold text-sm mb-2 group-hover:text-red-400 transition-colors">YouTube Embed</h4>
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono">01</span>
-                                                            <span>Click <b>Share</b> → <b>Embed</b></span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono">02</span>
-                                                            <span>Copy <code>src</code> URL</span>
-                                                        </div>
-                                                        <div className="mt-2 p-2 rounded bg-black/50 border border-white/5 font-mono text-[10px] text-gray-500 group-hover:text-gray-300 transition-colors">
-                                                            https://www.youtube.com/embed/...
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                   {/* Vimeo Card */}
+                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-blue-500/30 transition-colors group">
+                                       <div className="flex items-center gap-4">
+                                           <div className="p-2 bg-blue-500/10 text-blue-500 rounded-md group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.875 10.125c-.698 2.859-5.59 12.375-12.28 12.375-3.692 0-4.229-8.084-6.315-13.435-.747-1.742-1.233-1.637-2.66-.465l-1.62-2.1c2.18-1.92 4.364-4.14 5.733-4.265 2.155-.2 3.66 1.34 4.19 5.37.75 5.56 1.58 6.945 3.12 6.945 1.154 0 3.737-4.48 4.095-5.915.75-3.03 2.062-2.28 4.305-2.28 1.432 0 1.954 1.705 1.432 3.77z"/></svg>
+                                           </div>
+                                            <div className="flex-1 min-w-0">
+                                               <div className="flex justify-between items-center mb-1">
+                                                   <h4 className="text-white font-bold text-sm group-hover:text-blue-400">Vimeo</h4>
+                                                   <span className="text-[10px] text-gray-500">Share → Embed</span>
+                                               </div>
+                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://player.vimeo.com/video/...</code>
+                                           </div>
                                        </div>
+                                   </div>
 
-                                       {/* Vimeo Card */}
-                                       <div className="group relative bg-[#13161f] hover:bg-[#1a1d26] border border-white/5 hover:border-blue-500/50 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
-                                            <div className="flex items-start gap-4">
-                                                <div className="mt-1 w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:text-white group-hover:bg-blue-500 transition-colors shadow-[0_0_10px_rgba(59,130,246,0.0)] group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.875 10.125c-.698 2.859-5.59 12.375-12.28 12.375-3.692 0-4.229-8.084-6.315-13.435-.747-1.742-1.233-1.637-2.66-.465l-1.62-2.1c2.18-1.92 4.364-4.14 5.733-4.265 2.155-.2 3.66 1.34 4.19 5.37.75 5.56 1.58 6.945 3.12 6.945 1.154 0 3.737-4.48 4.095-5.915.75-3.03 2.062-2.28 4.305-2.28 1.432 0 1.954 1.705 1.432 3.77z"/></svg>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-bold text-sm mb-2 group-hover:text-blue-400 transition-colors">Vimeo Player</h4>
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono">01</span>
-                                                            <span>Click <b>Share</b> icon</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono">02</span>
-                                                            <span>Copy <b>Embed</b> source</span>
-                                                        </div>
-                                                        <div className="mt-2 p-2 rounded bg-black/50 border border-white/5 font-mono text-[10px] text-gray-500 group-hover:text-gray-300 transition-colors">
-                                                            https://player.vimeo.com/video/...
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                   {/* Google Drive Card */}
+                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-green-500/30 transition-colors group">
+                                       <div className="flex items-center gap-4">
+                                           <div className="p-2 bg-green-500/10 text-green-500 rounded-md group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7.643 14.286l2.142-3.715 5.286 9.143h-10.714l3.286-5.428zm6.571-3.714l-2.142 3.714h-6.572l5.429-9.429h6.571l-3.286 5.715zm1.5-2.572l-5.429 9.429h-4.286l5.429-9.429h4.286z"/></svg>
+                                           </div>
+                                            <div className="flex-1 min-w-0">
+                                               <div className="flex justify-between items-center mb-1">
+                                                   <h4 className="text-white font-bold text-sm group-hover:text-green-400">Drive</h4>
+                                                   <span className="text-[10px] text-gray-500">Embed item</span>
+                                               </div>
+                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://drive.google.com/file/...</code>
+                                           </div>
                                        </div>
+                                   </div>
 
-                                       {/* Google Drive Card */}
-                                       <div className="group relative bg-[#13161f] hover:bg-[#1a1d26] border border-white/5 hover:border-green-500/50 rounded-xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]">
-                                            <div className="flex items-start gap-4">
-                                                <div className="mt-1 w-8 h-8 rounded bg-green-500/10 flex items-center justify-center text-green-500 group-hover:text-white group-hover:bg-green-500 transition-colors shadow-[0_0_10px_rgba(34,197,94,0.0)] group-hover:shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7.643 14.286l2.142-3.715 5.286 9.143h-10.714l3.286-5.428zm6.571-3.714l-2.142 3.714h-6.572l5.429-9.429h6.571l-3.286 5.715zm1.5-2.572l-5.429 9.429h-4.286l5.429-9.429h4.286z"/></svg>
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-bold text-sm mb-2 group-hover:text-green-400 transition-colors">Google Drive</h4>
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono">01</span>
-                                                            <span>Open → 3 Dots → Embed item</span>
-                                                        </div>
-                                                        <div className="mt-2 p-2 rounded bg-black/50 border border-white/5 font-mono text-[10px] text-gray-500 group-hover:text-gray-300 transition-colors">
-                                                            https://drive.google.com/file/...
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                   {/* ImageKit.io Card */}
+                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-pink-500/30 transition-colors group">
+                                       <div className="flex items-center gap-4">
+                                           <div className="p-2 bg-pink-500/10 text-pink-500 rounded-md group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                           </div>
+                                            <div className="flex-1 min-w-0">
+                                               <div className="flex justify-between items-center mb-1">
+                                                   <h4 className="text-white font-bold text-sm group-hover:text-pink-400">ImageKit.io</h4>
+                                                   <span className="text-[10px] text-gray-500">File URL</span>
+                                               </div>
+                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://ik.imagekit.io/.../video.mp4</code>
+                                           </div>
                                        </div>
                                    </div>
                                </div>

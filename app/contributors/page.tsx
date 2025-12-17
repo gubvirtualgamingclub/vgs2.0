@@ -104,7 +104,7 @@ export default function ContributorsPage() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200 overflow-x-hidden">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
@@ -139,7 +139,7 @@ export default function ContributorsPage() {
           </ScrollAnimation>
 
           <ScrollAnimation animation="fadeIn" delay={400}>
-            <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed border-l-2 border-purple-500/50 pl-6 text-left md:text-center md:border-l-0 md:pl-0">
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed border-l-2 border-purple-500/50 pl-6 text-left md:text-center md:border-l-0 md:pl-0">
                From the first line of code to the final pixel, these visionaries built the foundation of our virtual society. 
                This is a tribute to the builders who made VGS possible.
             </p>
@@ -190,7 +190,7 @@ export default function ContributorsPage() {
                               <div className={`inline-block px-3 py-1 rounded-lg text-sm font-bold uppercase tracking-wider mb-4 ${index % 2 === 0 ? 'bg-purple-500/10 text-purple-400' : 'bg-cyan-500/10 text-cyan-400'}`}>
                                 {contributor.role}
                               </div>
-                              <p className="text-gray-400 font-mono text-sm mb-6 flex items-center gap-2 justify-center lg:justify-start">
+                              <p className="text-gray-300 font-mono text-sm mb-6 flex items-center gap-2 justify-center lg:justify-start">
                                 <span className="w-2 h-2 bg-gray-600 rounded-full" />
                                 ID: {contributor.studentId}
                               </p>
@@ -234,7 +234,7 @@ export default function ContributorsPage() {
                           </h3>
                           <ul className="space-y-4">
                              {contributor.contributions.map((item, i) => (
-                                 <li key={i} className="flex items-start gap-4 text-gray-400 group/item hover:text-gray-200 transition-colors">
+                                 <li key={i} className="flex items-start gap-4 text-gray-300 group/item hover:text-gray-100 transition-colors">
                                      <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${index % 2 === 0 ? 'bg-purple-500 group-hover/item:shadow-[0_0_10px_#a855f7]' : 'bg-cyan-500 group-hover/item:shadow-[0_0_10px_#06b6d4]'} transition-all`} />
                                      <span className="text-sm leading-relaxed">{item}</span>
                                  </li>
@@ -301,7 +301,7 @@ export default function ContributorsPage() {
                                 <div className={`ml-12 md:ml-0 md:w-5/12 ${i % 2 !== 0 && 'md:ml-auto'} ${i % 2 === 0 && 'md:mr-auto'} p-6 rounded-2xl bg-[#0f0f10] border border-white/5 hover:border-white/10 transition-all`}>
                                     <div className={`text-xs font-bold mb-2 uppercase tracking-widest ${item.color}`}>{item.phase}</div>
                                     <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                                    <p className="text-gray-300 text-sm leading-relaxed">{item.desc}</p>
                                 </div>
                             </div>
                           </ScrollAnimation>
@@ -317,7 +317,7 @@ export default function ContributorsPage() {
           <div className="relative z-10 max-w-3xl mx-auto px-6">
               <ScrollAnimation animation="fadeIn">
                 <div className="inline-block p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
-                   <p className="text-gray-400 text-sm md:text-base leading-relaxed">
+                   <p className="text-gray-300 text-sm md:text-base leading-relaxed">
                        This platform is a testament to the dedication of <span className="text-white font-bold">Faysal Hossain Tomal</span> and <span className="text-white font-bold">MD. SAZIB</span>. 
                        Their combined efforts built the digital home of VGS.
                    </p>

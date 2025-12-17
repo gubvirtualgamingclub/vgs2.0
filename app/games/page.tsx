@@ -79,7 +79,7 @@ export default function GamesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-gray-900 dark:text-white selection:bg-cyan-500/30 selection:text-cyan-200">
       
       {/* 🌌 Hero Section (Premium Dark) */}
       <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
@@ -91,27 +91,27 @@ export default function GamesPage() {
         </div>
 
         <div className="relative z-10 text-center max-w-4xl px-4">
-            <span className="inline-block px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 mb-6 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-fadeIn">
+            <span className="inline-block px-4 py-1.5 rounded-full border border-gray-300 dark:border-white/10 bg-gray-100 dark:bg-white/5 backdrop-blur-md text-xs font-bold uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400 mb-6 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-fadeIn">
               VGS Arsenal
             </span>
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 dark:from-white via-gray-600 dark:via-gray-200 to-gray-400 dark:to-gray-500">
                 Game Library
               </span>
             </h1>
-            <p className="text-lg text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-600 dark:text-gray-300 font-light max-w-2xl mx-auto leading-relaxed">
               Explore our curated collection of competitive titles. From high-octane FPS to strategy classics, find your battleground.
             </p>
         </div>
       </section>
 
       {/* 🔍 Filters & Search (Glassmorphism) */}
-      <section className="sticky top-20 z-40 py-6 border-b border-white/5 backdrop-blur-xl bg-[#050505]/80">
+      <section className="sticky top-20 z-40 py-6 border-b border-gray-200 dark:border-white/5 backdrop-blur-xl bg-white/80 dark:bg-[#050505]/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-6 justify-between items-center">
              
              {/* Filter Tabs */}
-             <div className="flex p-1 bg-white/5 rounded-full border border-white/10 overflow-x-auto max-w-full no-scrollbar">
+             <div className="flex p-1 bg-gray-100 dark:bg-white/5 rounded-full border border-gray-200 dark:border-white/10 overflow-x-auto max-w-full no-scrollbar">
                 {(['all', 'casual', 'mobile', 'pc'] as const).map((type) => (
                     <button
                         key={type}
@@ -119,7 +119,7 @@ export default function GamesPage() {
                         className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap ${
                             selectedType === type
                             ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-900/40 scale-105'
-                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/5'
                         }`}
                     >
                         {type === 'all' ? 'All Games' : type}
@@ -130,7 +130,7 @@ export default function GamesPage() {
              {/* Search Input */}
              <div className="relative w-full md:w-96 group">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
-                <div className="relative bg-[#0a0a0a] rounded-xl flex items-center border border-white/10 focus-within:border-cyan-500/50 transition-colors">
+                <div className="relative bg-white dark:bg-[#0a0a0a] rounded-xl flex items-center border border-gray-200 dark:border-white/10 focus-within:border-cyan-500/50 transition-colors">
                     <span className="pl-4 text-gray-500">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </span>
@@ -139,7 +139,7 @@ export default function GamesPage() {
                         placeholder="Search for a game..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 font-sans px-4 py-3"
+                        className="w-full bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500 font-sans px-4 py-3"
                     />
                 </div>
              </div>
@@ -157,7 +157,7 @@ export default function GamesPage() {
              <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
                 <div className="text-6xl mb-4 opacity-50">🕹️</div>
                 <h3 className="text-2xl font-bold text-white mb-2">No Games Found</h3>
-                <p className="text-gray-500">Try adjusting your filters or search term.</p>
+                <p className="text-gray-400">Try adjusting your filters or search term.</p>
              </div>
         ) : (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -270,18 +270,18 @@ export default function GamesPage() {
                     {/* Left Stats Column */}
                     <div className="lg:col-span-1 space-y-4">
                         <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Events</p>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Events</p>
                             <p className="text-3xl font-bold text-white">{gameHistory.length}</p>
                         </div>
                         <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Participants</p>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Participants</p>
                             <p className="text-3xl font-bold text-cyan-400">
                                 {gameHistory.reduce((acc, curr) => acc + curr.participants_count, 0)}
                             </p>
                         </div>
                         {selectedGame.max_participants && (
                              <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Max Per Match</p>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Max Per Match</p>
                                 <p className="text-3xl font-bold text-white">{selectedGame.max_participants}</p>
                             </div>
                         )}
@@ -319,7 +319,7 @@ export default function GamesPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-12 text-gray-500 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                            <div className="text-center py-12 text-gray-400 bg-white/5 rounded-2xl border border-dashed border-white/10">
                                 No tournaments recorded yet.
                             </div>
                         )}

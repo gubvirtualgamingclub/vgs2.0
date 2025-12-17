@@ -140,7 +140,7 @@ export default function ContactUsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0b] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
@@ -153,15 +153,15 @@ export default function ContactUsPage() {
 
         <div className="relative max-w-7xl mx-auto px-6 text-center z-10">
           <ScrollAnimation animation="slideUp" delay={100}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 mb-6 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-bold tracking-widest uppercase text-gray-400">24/7 Support</span>
+                <span className="text-xs font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400">24/7 Support</span>
             </div>
           </ScrollAnimation>
 
           <ScrollAnimation animation="gameOver" delay={200}>
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 dark:from-white via-gray-600 dark:via-gray-200 to-gray-400 dark:to-gray-500">
                 Get In
               </span>{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 animate-gradient-x">
@@ -171,7 +171,7 @@ export default function ContactUsPage() {
           </ScrollAnimation>
 
           <ScrollAnimation animation="fadeIn" delay={400}>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Have questions, partnership ideas, or just want to say hi? We'd love to hear from you.
             </p>
           </ScrollAnimation>
@@ -188,14 +188,14 @@ export default function ContactUsPage() {
                             href={method.href}
                             target={method.title === 'WhatsApp' ? '_blank' : undefined}
                             rel={method.title === 'WhatsApp' ? 'noopener noreferrer' : undefined}
-                            className={`group flex items-center gap-5 p-6 rounded-2xl bg-[#0f0f10]/80 backdrop-blur-sm border ${method.border} hover:border-opacity-50 transition-all duration-300 hover:-translate-x-2 hover:shadow-lg`}
+                            className={`group flex items-center gap-5 p-6 rounded-2xl bg-gray-100 dark:bg-[#0f0f10]/80 backdrop-blur-sm border ${method.border} hover:border-opacity-50 transition-all duration-300 hover:-translate-x-2 hover:shadow-lg`}
                         >
                             <div className={`w-14 h-14 rounded-xl ${method.bg} flex items-center justify-center ${method.color} shadow-lg group-hover:scale-110 transition-transform`}>
                                 {method.icon}
                             </div>
                             <div>
-                                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-1">{method.title}</h3>
-                                <p className={`font-mono text-lg font-bold group-hover:${method.color} transition-colors`}>{method.value}</p>
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1">{method.title}</h3>
+                                <p className={`font-mono text-lg font-bold text-gray-900 dark:text-white group-hover:${method.color} transition-colors`}>{method.value}</p>
                             </div>
                         </a>
                     </ScrollAnimation>
@@ -344,7 +344,7 @@ export default function ContactUsPage() {
                     <ScrollAnimation key={i} animation="fadeIn" delay={i * 100}>
                         <div className="bg-[#0f0f10] border border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors">
                             <h3 className="text-lg font-bold text-white mb-2">{faq.q}</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                            <p className="text-gray-300 text-sm leading-relaxed">{faq.a}</p>
                         </div>
                     </ScrollAnimation>
                 ))}

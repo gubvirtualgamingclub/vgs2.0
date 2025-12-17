@@ -249,52 +249,52 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 font-sans selection:bg-cyan-500/30 selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans selection:bg-cyan-500/30 selection:text-white">
       {/* Gaming Enhancements */}
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
       
       {/* 🚀 PREMIUM HERO SECTION 🚀 */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#050505]">
+      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-[#050505]">
         {/* Antigravity Canvas Background */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 z-0"
         />
 
-        {/* Cinematic Vignette */}
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] opacity-80 z-0"></div>
+        {/* Cinematic Vignette - different for light/dark */}
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,0.9)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] opacity-80 z-0"></div>
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 max-w-7xl mx-auto">
           {/* Badge */}
           <div className="inline-block mb-6 animate-fadeInDown">
-            <span className="px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+            <span className="px-5 py-2 rounded-full border border-gray-300 dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-md text-xs font-bold uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-400 shadow-lg dark:shadow-[0_0_20px_rgba(34,211,238,0.2)]">
               Est. 2024 • Excellence in Esports
             </span>
           </div>
 
           {/* Main Title with Premium Metallic Sheen Animation */}
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight leading-none px-4">
-             <span className="block text-transparent bg-clip-text bg-[linear-gradient(to_right,theme(colors.gray.600),theme(colors.white),theme(colors.gray.600))] animate-shimmer-text bg-[length:200%_auto]">
+             <span className="block text-transparent bg-clip-text bg-[linear-gradient(to_right,theme(colors.gray.400),theme(colors.gray.700),theme(colors.gray.400))] dark:bg-[linear-gradient(to_right,theme(colors.gray.600),theme(colors.white),theme(colors.gray.600))] animate-shimmer-text bg-[length:200%_auto]">
                GUCC VIRTUAL
              </span>
-             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 mt-2 filter drop-shadow-2xl">
+             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-gray-700 dark:from-white to-gray-400 dark:to-gray-500 mt-2 filter drop-shadow-2xl">
                GAMING SOCIETY
              </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 font-light tracking-wide leading-relaxed animate-fadeInUp delay-100">
-            The premier collegiate gaming organization. <br className="hidden md:block"/>
-            <span className="text-cyan-400 font-medium">Competitions</span>, <span className="text-purple-400 font-medium">Community</span>, and <span className="text-pink-400 font-medium">Careers</span> in Esports.
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-12 font-light tracking-wide leading-relaxed animate-fadeInUp delay-100">
+            The premier university gaming club. <br className="hidden md:block"/>
+            Organizing university-level <span className="text-cyan-600 dark:text-cyan-400 font-medium">Esports</span>, <span className="text-purple-600 dark:text-purple-400 font-medium">Community</span>, and <span className="text-pink-600 dark:text-pink-400 font-medium">Careers</span>.
           </p>
 
           {/* Premium Actions */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fadeInUp delay-200">
             <Link
               href="/activities"
-              className="group relative px-8 py-4 bg-white text-black text-lg font-bold rounded-full overflow-hidden transition-transform hover:scale-105"
+              className="group relative px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black text-lg font-bold rounded-full overflow-hidden transition-transform hover:scale-105"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
@@ -304,7 +304,7 @@ export default function Home() {
             
             <Link
               href="/committee"
-              className="group px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-lg font-bold hover:bg-white/10 transition-all hover:scale-105 hover:border-white/30"
+              className="group px-8 py-4 bg-gray-100 dark:bg-white/5 backdrop-blur-md border border-gray-300 dark:border-white/10 rounded-full text-lg font-bold text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-105 hover:border-gray-400 dark:hover:border-white/30"
             >
               Meet the Team
             </Link>
@@ -313,17 +313,17 @@ export default function Home() {
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
-           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+           <svg className="w-6 h-6 text-gray-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
         </div>
       </section>
 
       {/* 📜 WHO WE ARE 📜 */}
-      <section className="py-24 bg-gray-950 relative overflow-hidden">
+      <section className="py-24 bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                 <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">Defining the Future of <br/><span className="text-cyan-400">University Esports</span></h2>
-                 <div className="space-y-6 text-lg text-gray-400 leading-relaxed">
+                 <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">Defining the Future of <br/><span className="text-cyan-600 dark:text-cyan-400">University Esports</span></h2>
+                 <div className="space-y-6 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
                     <p>
                        The Virtual Gaming Society (VGS) is not just a club; it's a movement. We are building an ecosystem where competitive gamers, content creators, and casual players thrive together.
                     </p>
@@ -333,39 +333,48 @@ export default function Home() {
                  </div>
                  
                  {/* Stats */}
-                 <div className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/10">
-                    <div>
-                       <div className="text-4xl font-bold text-white mb-1">{stats.committeeMembers}+</div>
-                       <div className="text-sm text-gray-500 uppercase tracking-wider">Members</div>
+                 <div className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
+                    <div className="group">
+                       <div className="flex items-center gap-2 mb-1">
+                          <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                          <div className="text-4xl font-bold text-gray-900 dark:text-white">{stats.committeeMembers}+</div>
+                       </div>
+                       <div className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider">Members</div>
                     </div>
-                    <div>
-                       <div className="text-4xl font-bold text-white mb-1">{stats.activities}+</div>
-                       <div className="text-sm text-gray-500 uppercase tracking-wider">Events</div>
+                    <div className="group">
+                       <div className="flex items-center gap-2 mb-1">
+                          <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                          <div className="text-4xl font-bold text-gray-900 dark:text-white">{stats.activities}+</div>
+                       </div>
+                       <div className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider">Events</div>
                     </div>
-                     <div>
-                       <div className="text-4xl font-bold text-white mb-1">{stats.yearsActive}+</div>
-                       <div className="text-sm text-gray-500 uppercase tracking-wider">Years</div>
+                     <div className="group">
+                       <div className="flex items-center gap-2 mb-1">
+                          <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <div className="text-4xl font-bold text-gray-900 dark:text-white">{stats.yearsActive}+</div>
+                       </div>
+                       <div className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider">Years</div>
                     </div>
                  </div>
               </div>
               
               <div className="space-y-6">
                  {/* Mission Card */}
-                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl hover:border-cyan-500/30 transition-colors group">
+                 <div className="bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-8 rounded-3xl hover:border-cyan-500/30 transition-colors group">
                     <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                        <span className="text-2xl">🎯</span>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Our Mission</h3>
-                    <p className="text-gray-400">To create an inclusive ecosystem that nurtures talent, promotes sportsmanship, and elevates university esports to professional standards.</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Our Mission</h3>
+                    <p className="text-gray-600 dark:text-gray-300">To create an inclusive ecosystem that nurtures talent, promotes sportsmanship, and elevates university esports to professional standards.</p>
                  </div>
                  
                  {/* Vision Card */}
-                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl hover:border-purple-500/30 transition-colors group">
+                 <div className="bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-8 rounded-3xl hover:border-purple-500/30 transition-colors group">
                     <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                        <span className="text-2xl">👁️</span>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Our Vision</h3>
-                    <p className="text-gray-400">To be the gold standard for collegiate gaming societies globally, fostering a community where passion meets opportunity.</p>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Our Vision</h3>
+                    <p className="text-gray-600 dark:text-gray-300">To be the gold standard for collegiate gaming societies globally, fostering a community where passion meets opportunity.</p>
                  </div>
               </div>
            </div>
@@ -373,16 +382,16 @@ export default function Home() {
       </section>
 
       {/* 🎮 FEATURED ACTIVITIES 🎮 */}
-      <section className="py-24 bg-[#0a0a0a] border-t border-white/5">
+      <section className="py-24 bg-gray-50 dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-             <span className="text-cyan-400 font-bold tracking-wider uppercase text-sm">Action Packed</span>
-             <h2 className="text-4xl md:text-5xl font-bold text-white mt-2 mb-4">Featured Events</h2>
+             <span className="text-cyan-600 dark:text-cyan-400 font-bold tracking-wider uppercase text-sm">Action Packed</span>
+             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mt-2 mb-4">Featured Events</h2>
           </div>
 
           {!loading && activities.length > 0 ? (
              <div className="relative group">
-                <div className="relative h-[600px] w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
+                <div className="relative h-[600px] w-full overflow-hidden rounded-[2rem] border border-gray-200 dark:border-white/10 shadow-2xl">
                    {activities.map((activity, index) => (
                       <div 
                          key={activity.id}
@@ -427,7 +436,7 @@ export default function Home() {
                 </div>
              </div>
           ) : (
-             <div className="h-64 flex items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/5">
+             <div className="h-64 flex items-center justify-center border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-gray-100 dark:bg-white/5">
                 <p className="text-gray-500">No active events found</p>
              </div>
           )}
@@ -435,16 +444,16 @@ export default function Home() {
       </section>
 
       {/* 🤝 SPONSORS 🤝 */}
-      <section className="py-24 bg-gray-950 border-t border-white/5">
+      <section className="py-24 bg-gray-100 dark:bg-gray-950 border-t border-gray-200 dark:border-white/5">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-               <h2 className="text-3xl font-bold text-white mb-4">Our Featured Partners</h2>
-               <p className="text-gray-400">Powering the next generation of gamers</p>
+               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Our Featured Partners</h2>
+               <p className="text-gray-600 dark:text-gray-300">Powering the next generation of gamers</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
                {sponsors.length > 0 ? sponsors.map((sponsor, i) => (
-                  <div key={i} className="group relative bg-[#0f0f10] border border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-900/10">
+                  <div key={i} className="group relative bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-900/10">
                       {/* Hover Glow */}
                       <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
                       
@@ -459,18 +468,18 @@ export default function Home() {
 
                       {/* Info & Tags */}
                       <div className="relative z-10 w-full text-center">
-                          <h3 className="text-lg font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">{sponsor.name}</h3>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{sponsor.name}</h3>
                           
                           {/* Event Tags */}
                           {sponsor.events && sponsor.events.length > 0 ? (
                              <div className="flex flex-wrap justify-center gap-2">
                                 {sponsor.events.slice(0, 3).map((event, idx) => (
-                                   <span key={idx} className="px-2 py-1 bg-white/5 text-xs text-gray-400 rounded-md border border-white/5 group-hover:border-white/10 group-hover:bg-white/10 transition-colors">
+                                   <span key={idx} className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 rounded-md border border-gray-200 dark:border-white/5 group-hover:border-gray-300 dark:group-hover:border-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
                                       {event}
                                    </span>
                                 ))}
                                 {sponsor.events.length > 3 && (
-                                   <span className="px-2 py-1 bg-white/5 text-xs text-gray-400 rounded-md border border-white/5">
+                                   <span className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 rounded-md border border-gray-200 dark:border-white/5">
                                       +{sponsor.events.length - 3}
                                    </span>
                                 )}
@@ -483,8 +492,8 @@ export default function Home() {
                )) : (
                   // Placeholders
                   [1,2,3,4].map(i => (
-                     <div key={i} className="h-64 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-center animate-pulse">
-                        <span className="text-xs text-gray-600 font-bold uppercase tracking-widest">Partner Slot</span>
+                     <div key={i} className="h-64 bg-gray-100 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/5 flex items-center justify-center animate-pulse">
+                        <span className="text-xs text-gray-500 dark:text-gray-600 font-bold uppercase tracking-widest">Partner Slot</span>
                      </div>
                   ))
                )}
@@ -494,10 +503,10 @@ export default function Home() {
             <div className="text-center">
                <Link 
                   href="/sponsors" 
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full border border-white/10 hover:border-cyan-500/50 transition-all group"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold rounded-full border border-gray-300 dark:border-white/10 hover:border-cyan-500/50 transition-all group"
                >
                   <span>See All Our Partners</span>
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                  <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                </Link>
             </div>
          </div>

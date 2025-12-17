@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from './ThemeToggle';
 
 const navigation = [
   { 
@@ -201,9 +202,14 @@ export default function Header() {
             })}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="flex md:hidden">
-            <button
+          {/* Theme Toggle & Mobile menu button */}
+          <div className="flex items-center gap-3">
+            {/* Theme Toggle - Desktop */}
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <div className="flex md:hidden">
+              <button
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-cyan-600 hover:bg-cyan-50 dark:text-gray-300 dark:hover:text-cyan-400 dark:hover:bg-cyan-900/20 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500 transition-all duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -249,6 +255,7 @@ export default function Header() {
             </button>
           </div>
         </div>
+        </div>
 
         {/* Mobile menu */}
         <div
@@ -259,6 +266,11 @@ export default function Header() {
           }`}
         >
           <div className="space-y-1 pt-2 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg p-2">
+            {/* Mobile Theme Toggle */}
+            <div className="flex items-center justify-between px-3 py-2 mb-2 border-b border-gray-200/50 dark:border-gray-700/50">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
+              <ThemeToggle />
+            </div>
             {navigation.map((item) => {
               const active = isActive(item.href);
               const hasSubmenu = item.submenu && item.submenu.length > 0;

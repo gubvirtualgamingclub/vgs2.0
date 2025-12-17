@@ -2,16 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force dark mode by default */
+/* Light mode (default) */
 :root {
-  --background: #0a0a0a;
+  --background: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-card: #ffffff;
+  --foreground: #1a1a1a;
+  --foreground-secondary: #4a5568;
+}
+
+/* Dark mode */
+.dark {
+  --background: #050505;
+  --background-secondary: #0a0a0b;
+  --background-card: #0f0f10;
   --foreground: #ededed;
+  --foreground-secondary: #9ca3af;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
   overflow-x: hidden;
 }
 

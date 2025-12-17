@@ -123,11 +123,11 @@ function CountdownTimer({ deadline }: { deadline: string }) {
                             </svg>
                             
                             {/* Center Glass Card */}
-                            <div className="absolute inset-3 md:inset-4 rounded-full bg-[#0d1117]/80 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                            <div className="absolute inset-3 md:inset-4 rounded-full bg-white/90 dark:bg-[#0d1117]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-2xl">
                                 {/* Number Display */}
                                 <div className="relative overflow-hidden">
                                     <span 
-                                        className="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter"
+                                        className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white font-mono tracking-tighter"
                                         style={{
                                             textShadow: `0 0 20px ${glow}, 0 0 40px ${glow}`,
                                         }}
@@ -182,16 +182,16 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
   
   return (
     <div 
-      className="group relative h-[700px] w-full rounded-2xl transition-all duration-500 hover:-translate-y-2 perspective-1000"
+      className="group relative h-[700px] w-full rounded-2xl transition-all duration-300" // Removed hover:-translate-y-2 and perspective
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      {/* 3D Card Container */}
-      <div className="absolute inset-0 bg-[#0f1219] rounded-2xl border border-white/5 overflow-hidden shadow-xl transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:border-purple-500/50">
+      {/* Card Container */}
+      <div className="absolute inset-0 bg-white dark:bg-[#0f1219] rounded-2xl border border-gray-200 dark:border-white/5 overflow-hidden shadow-xl transition-all duration-300 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:border-purple-500/50">
         
         {/* Background Art */}
         <div className="absolute inset-0 z-0">
-           <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f1219] to-[#0b0f19]"></div>
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+           <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-100 dark:from-purple-900/20 via-white dark:via-[#0f1219] to-gray-50 dark:to-[#0b0f19]"></div>
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 dark:opacity-20 mix-blend-overlay"></div>
         </div>
 
         {/* Content Layer */}
@@ -199,25 +199,25 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
            
            {/* Logo Avatar - Large & Centered */}
            <div className="flex flex-col items-center mb-6">
-              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl group-hover:border-purple-500 group-hover:scale-110 transition-all duration-500 bg-[#1a1d29]">
+              <div className="relative w-40 h-40 transition-transform duration-500 group-hover:scale-110">
                  {game.game_logo ? (
                     <Image 
                        src={game.game_logo} 
                        alt={game.game_name} 
                        fill 
-                       className="object-cover"
+                       className="object-contain drop-shadow-2xl"
                     />
                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-purple-500/20 text-purple-400 text-4xl font-bold">
+                    <div className="w-full h-full flex items-center justify-center bg-transparent text-purple-400 text-6xl font-bold">
                        {game.game_name.charAt(0)}
                     </div>
                  )}
               </div>
               <div className="mt-6 text-center">
-                   <h3 className="text-3xl font-black text-white leading-none uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all">
+                   <h3 className="text-3xl font-black text-gray-900 dark:text-white leading-none uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all">
                       {game.game_name}
                    </h3>
-                   <span className="inline-block mt-2 px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400 border border-white/10">
+                   <span className="inline-block mt-2 px-3 py-1 bg-gray-100 dark:bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10">
                       {game.category} Edition
                    </span>
               </div>
@@ -225,25 +225,25 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
 
            {/* Stats Grid */}
            <div className="grid grid-cols-2 gap-3 mb-8 mt-auto">
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Prize Pool</div>
-                 <div className="text-green-400 font-bold font-mono text-sm">{game.prize_pool}</div>
+                 <div className="text-green-600 dark:text-green-400 font-bold font-mono text-sm">{game.prize_pool}</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Fee</div>
-                 <div className="text-purple-400 font-bold font-mono text-sm">{game.registration_fee || 'Free'}</div>
+                 <div className="text-purple-600 dark:text-purple-400 font-bold font-mono text-sm">{game.registration_fee || 'Free'}</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Format</div>
-                 <div className="text-blue-400 font-bold font-mono text-sm truncate">{game.format || 'Standard'}</div>
+                 <div className="text-blue-600 dark:text-blue-400 font-bold font-mono text-sm truncate">{game.format || 'Standard'}</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors">
+              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Team</div>
-                 <div className="text-white font-bold font-mono text-sm">{game.team_size}</div>
+                 <div className="text-gray-900 dark:text-white font-bold font-mono text-sm">{game.team_size}</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm text-center group-hover:bg-white/10 transition-colors col-span-2">
+              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 backdrop-blur-sm text-center group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors col-span-2">
                  <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Max Players</div>
-                 <div className="text-white font-bold font-mono text-sm">{game.max_participants || 'Unlimited'}</div>
+                 <div className="text-gray-900 dark:text-white font-bold font-mono text-sm">{game.max_participants || 'Unlimited'}</div>
               </div>
            </div>
 
@@ -253,9 +253,9 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
                 href={isRegistrationClosed ? '#' : game.registration_link} 
                 target={isRegistrationClosed ? undefined : "_blank"}
                 rel="noopener noreferrer"
-                className={`flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-300 transform group-hover:translate-y-1 ${isRegistrationClosed 
-                   ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' 
-                   : 'bg-white text-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-blue-600 hover:text-white hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] border border-transparent'}`}
+                 className={`flex-1 py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-300 transform group-hover:translate-y-1 ${isRegistrationClosed 
+                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' 
+                    : 'bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 hover:shadow-[0_0_30px_rgba(168,85,247,0.4)]'}`}
               >
                  {isRegistrationClosed ? 'Locked' : 'Register Now'}
               </a>
@@ -265,7 +265,7 @@ function PremiumGameCard({ game, index }: { game: TournamentGame; index: number 
                  target="_blank" 
                  rel="noopener noreferrer"
                  download
-                 className="flex-1 py-4 flex items-center justify-center gap-2 rounded-xl bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10 hover:text-white hover:border-purple-500/50 transition-all font-bold uppercase tracking-widest text-xs group-hover:translate-y-1"
+                 className="flex-1 py-4 flex items-center justify-center gap-2 rounded-xl bg-gray-200 dark:bg-white/5 text-gray-900 dark:text-gray-400 border border-gray-300 dark:border-white/10 hover:bg-gray-300 dark:hover:bg-white/10 hover:text-black dark:hover:text-white hover:border-purple-500/50 transition-all font-bold uppercase tracking-widest text-xs group-hover:translate-y-1"
               >
                  <span>Rule Book</span>
                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -288,16 +288,14 @@ function OrgLogo({ org, size = "medium" }: { org: Organization, size?: "small" |
    
    return (
      <div className={`relative group flex flex-col items-center justify-center ${sizeClasses[size]}`}>
-       {/* Glow Effect on Hover */}
-       <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
        
-       <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+       <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
            {org.logo ? (
                <Image 
                  src={org.logo} 
                  alt={org.name} 
                  fill 
-                 className="object-contain drop-shadow-lg"
+                 className="object-contain" // Removed drop-shadow
                  title={org.name}
                />
            ) : (
@@ -325,48 +323,60 @@ function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previo
     const activeEvent = glimpses[activeEventIndex];
 
     return (
-        <section className="py-24 px-6 relative overflow-hidden bg-[#0a0d14]">
-            {/* Background Mesh */}
-            <div className="absolute inset-0 opacity-20 bg-[linear-gradient(45deg,#1a1a1a_25%,transparent_25%,transparent_75%,#1a1a1a_75%,#1a1a1a),linear-gradient(45deg,#1a1a1a_25%,transparent_25%,transparent_75%,#1a1a1a_75%,#1a1a1a)] bg-[size:60px_60px] bg-[position:0_0,30px_30px]"></div>
+        <section className="py-24 px-6 relative overflow-hidden bg-gray-50 dark:bg-[#0a0d14]">
+            {/* Background Mesh - Removed for solid color look */}
             
             <div className="max-w-7xl mx-auto relative z-10">
-                <ScrollAnimation animation="slideUp">
-                    <h2 className="text-4xl md:text-6xl font-black text-white text-center mb-16 uppercase tracking-tighter">
-                        <span className="text-purple-500">{'///'}</span> Legacy Glimpses
-                    </h2>
-                </ScrollAnimation>
-
-                {/* Event Tabs */}
-                <div className="flex flex-wrap justify-center gap-4 mb-12">
-                    {glimpses.map((g, idx) => (
-                        <button 
-                            key={idx}
-                            onClick={() => setActiveEventIndex(idx)}
-                            className={`px-6 py-3 rounded-full font-bold uppercase text-xs tracking-widest transition-all ${
-                                idx === activeEventIndex 
-                                ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
-                                : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white border border-white/5'
-                            }`}
-                        >
-                            {g.title}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Masonry Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 auto-rows-[200px]">
-                    {activeEvent.images.map((img, idx) => (
-                        <div 
-                            key={idx} 
-                            className={`relative group rounded-2xl overflow-hidden cursor-pointer border border-white/10 hover:border-purple-500 transition-all duration-500 ${idx % 3 === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
-                            onClick={() => setSelectedImage(img)}
-                        >
-                            <Image src={img} alt="Event Photo" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-white text-3xl font-bold tracking-widest">+</span>
-                            </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    {/* Left Side: Images Grid */}
+                    <div key={activeEventIndex} className="relative order-2 lg:order-1 animate-fade-in">
+                        <div className="grid grid-cols-2 gap-4 auto-rows-[200px]">
+                             {activeEvent.images.slice(0, 4).map((img, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`relative group rounded-2xl overflow-hidden cursor-pointer border border-gray-200 dark:border-white/10 hover:border-purple-500 transition-all duration-500 ${idx === 0 ? 'col-span-2 row-span-2 h-[416px]' : 'h-[200px]'}`}
+                                    onClick={() => setSelectedImage(img)}
+                                >
+                                    <Image src={img} alt="Event Photo" fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span className="text-white text-3xl font-bold tracking-widest">+</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Right Side: Content & Navigation */}
+                    <div className="order-1 lg:order-2 text-left">
+                        <ScrollAnimation animation="slideLeft">
+                            <span className="text-purple-600 dark:text-purple-400 font-mono text-sm tracking-widest uppercase mb-4 block">/// Legacy Archives</span>
+                            <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tighter leading-none">
+                                {activeEvent.title}
+                            </h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg mb-12 max-w-md">
+                                Relive the intense moments and championship victories from our past tournaments.
+                            </p>
+
+                            {/* Arrow Navigation */}
+                            <div className="flex items-center gap-6">
+                                <button 
+                                    onClick={() => setActiveEventIndex((prev) => (prev - 1 + glimpses.length) % glimpses.length)}
+                                    className="w-16 h-16 rounded-full border border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all group"
+                                >
+                                    <svg className="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                </button>
+                                <div className="text-sm font-bold text-gray-400 font-mono">
+                                    {String(activeEventIndex + 1).padStart(2, '0')} / {String(glimpses.length).padStart(2, '0')}
+                                </div>
+                                <button 
+                                    onClick={() => setActiveEventIndex((prev) => (prev + 1) % glimpses.length)}
+                                    className="w-16 h-16 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black flex items-center justify-center hover:scale-110 hover:shadow-lg hover:shadow-purple-500/20 transition-all group"
+                                >
+                                     <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                </button>
+                            </div>
+                        </ScrollAnimation>
+                    </div>
                 </div>
             </div>
 
@@ -396,17 +406,17 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
     if (!games || games.length === 0) return null;
 
     return (
-        <section className="py-32 px-6 relative overflow-hidden bg-[#0a0d14]">
+        <section className="py-20 px-6 relative overflow-hidden bg-gray-100 dark:bg-[#0a0d14]">
             {/* Background Effects */}
             <div className="absolute inset-0">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(88,28,135,0.15),transparent_70%)]"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(88,28,135,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(88,28,135,0.15),transparent_70%)]"></div>
                 <div className="absolute bottom-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/20 to-transparent"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center">
                 <ScrollAnimation animation="slideUp">
-                    <div className="text-center mb-24">
-                        <h2 className="text-4xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">
+                    <div className="text-center mb-8 w-full">
+                    <h2 className="text-4xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 uppercase tracking-tighter">
                             Games <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 animate-gradient-x">In The Event</span>
                         </h2>
                         <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-orange-500 mx-auto rounded-full"></div>
@@ -428,7 +438,7 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
 
                     <button 
                         onClick={goToNext}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 hover:scale-110 hover:border-purple-500/50 transition-all flex items-center justify-center group"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-gray-100 dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 hover:scale-110 hover:border-purple-500/50 transition-all flex items-center justify-center group"
                     >
                         <svg className="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -483,7 +493,7 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
                                                      className="object-contain"
                                                  />
                                              ) : (
-                                                 <div className="w-full h-full rounded-full bg-white/5 flex items-center justify-center text-6xl font-black text-white/20">
+                                                 <div className="w-full h-full rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-6xl font-black text-gray-400 dark:text-white/20">
                                                      {game.game_name.charAt(0)}
                                                  </div>
                                              )}
@@ -492,7 +502,7 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
                                          {/* Game Name - Right Side (Foreground) */}
                                          <div className={`relative z-30 transition-all duration-700 delay-100 ease-out flex flex-col items-center md:items-start text-center md:text-left ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
                                              <h3 
-                                                className="text-[3rem] md:text-[6rem] lg:text-[7rem] leading-none font-black text-white uppercase tracking-tighter"
+                                                className="text-[3rem] md:text-[6rem] lg:text-[7rem] leading-none font-black text-gray-900 dark:text-white uppercase tracking-tighter"
                                                 style={{ 
                                                     textShadow: '0 0 30px rgba(168,85,247,0.5)',
                                                     WebkitTextStroke: '1px rgba(255,255,255,0.1)'
@@ -504,7 +514,7 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
                                              {/* Decorative Line (Only Active) */}
                                              <div className={`h-1 bg-gradient-to-r from-purple-500 to-transparent mt-4 transition-all duration-1000 ${isActive ? 'w-24 opacity-100' : 'w-0 opacity-0'}`}></div>
                                              
-                                             <div className={`mt-4 text-purple-400 font-mono text-sm md:text-xl tracking-widest uppercase transition-all duration-1000 delay-200 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                             <div className={`mt-4 text-purple-600 dark:text-purple-400 font-mono text-sm md:text-xl tracking-widest uppercase transition-all duration-1000 delay-200 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                                                  {game.category} Edition
                                              </div>
                                          </div>
@@ -521,7 +531,7 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
                         <button
                             key={idx}
                             onClick={() => setActiveIndex(idx)}
-                            className={`h-1 transition-all duration-500 rounded-full ${idx === activeIndex ? 'w-12 bg-purple-500' : 'w-4 bg-white/20 hover:bg-white/40'}`}
+                            className={`h-1 transition-all duration-500 rounded-full ${idx === activeIndex ? 'w-12 bg-purple-500' : 'w-4 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/40'}`}
                         />
                     ))}
                 </div>
@@ -559,7 +569,7 @@ export default function TournamentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0b0f19] flex items-center justify-center">
          <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 border-t-4 border-purple-500 border-r-4 border-r-transparent rounded-full animate-spin"></div>
             <div className="text-purple-500 font-mono tracking-widest text-sm animate-pulse">SYSTEM INITIALIZING...</div>
@@ -570,7 +580,7 @@ export default function TournamentsPage() {
 
   if (!tournament || tournament.status === 'closed') {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center relative overflow-hidden font-mono">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex items-center justify-center relative overflow-hidden font-mono">
         <ScrollProgressBar />
         <GamingCursor />
         
@@ -587,13 +597,13 @@ export default function TournamentsPage() {
                  </div>
              </div>
 
-             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter uppercase relative">
+             <h1 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tighter uppercase relative">
                  System <span className="text-red-600">Offline</span>
              </h1>
              
              <div className="h-px w-24 bg-gray-800 mx-auto mb-8"></div>
 
-             <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-xl mx-auto font-light leading-relaxed">
+             <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 mb-12 max-w-xl mx-auto font-light leading-relaxed">
                  Tournament protocols are currently suspended. Standby for future command data and event initiation.
              </p>
 
@@ -609,7 +619,7 @@ export default function TournamentsPage() {
              </div>
              
              <div className="mt-16">
-                  <p className="text-gray-700 text-xs font-mono uppercase tracking-[0.3em]">Connection Lost • Status: Inactive</p>
+                  <p className="text-gray-400 dark:text-gray-700 text-xs font-mono uppercase tracking-[0.3em]">Connection Lost • Status: Inactive</p>
              </div>
         </div>
       </div>
@@ -617,7 +627,7 @@ export default function TournamentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-white font-sans selection:bg-purple-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0b0f19] text-gray-900 dark:text-white font-sans selection:bg-purple-500/30 overflow-x-hidden">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
@@ -633,22 +643,22 @@ export default function TournamentsPage() {
                     loop 
                     muted 
                     playsInline 
-                    className="w-full h-full object-cover opacity-60"
+                    className="w-full h-full object-cover opacity-90 dark:opacity-60"
                  />
              ) : tournament.banner ? (
-                 <Image src={tournament.banner} alt="Banner" fill className="object-cover opacity-60" priority />
+                 <Image src={tournament.banner} alt="Banner" fill className="object-cover opacity-90 dark:opacity-60" priority />
              ) : (
-                 <div className="w-full h-full bg-gradient-to-br from-purple-900 via-black to-blue-900"></div>
+                 <div className="w-full h-full bg-gradient-to-br from-purple-100 via-white to-blue-100 dark:from-purple-900 dark:via-black dark:to-blue-900"></div>
              )}
              
              {/* Gradient Overlays */}
-             <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-[#0b0f19]/80 to-transparent"></div>
+             <div className="absolute inset-0 bg-gradient-to-t from-gray-50 via-gray-50/80 to-transparent dark:from-[#0b0f19] dark:via-[#0b0f19]/80 dark:to-transparent"></div>
              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+             <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
          </div>
 
          {/* Hero Content */}
-         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto mt-20">
+         <div className="relative z-10 text-center px-4 max-w-6xl mx-auto mt-20 p-8 rounded-3xl bg-white/40 dark:bg-transparent backdrop-blur-md dark:backdrop-blur-none border border-white/20 dark:border-none shadow-xl dark:shadow-none">
             <ScrollAnimation animation="fadeIn">
                 {tournament.logo && (
                    <div className="relative w-28 h-28 md:w-44 md:h-44 mx-auto mb-6 drop-shadow-[0_0_40px_rgba(168,85,247,0.3)]">
@@ -656,53 +666,76 @@ export default function TournamentsPage() {
                    </div>
                 )}
                 
-                <h1 className="text-4xl md:text-6xl font-black mb-4 leading-none tracking-tight uppercase text-white drop-shadow-xl">
+                <h1 className="text-4xl md:text-6xl font-black mb-4 leading-none tracking-tight uppercase text-gray-900 dark:text-white drop-shadow-xl">
                    {tournament.name}
                 </h1>
                 
                 {tournament.slogan && (
-                   <p className="text-xl md:text-3xl text-cyan-400 font-mono tracking-widest uppercase mb-12">
+                   <p className="text-xl md:text-3xl text-cyan-600 dark:text-cyan-400 font-mono tracking-widest uppercase mb-12">
                       {'//'}{tournament.slogan}
                    </p>
                 )}
 
                  {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mt-8">
-                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
-                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Date</div>
-                      <div className="text-white font-bold text-sm md:text-base">{tournament.date}</div>
-                   </div>
-                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
-                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Time</div>
-                      <div className="text-white font-bold text-sm md:text-base">{tournament.time}</div>
-                   </div>
-                   <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl hover:border-white/20 transition-colors group">
-                      <div className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-purple-400">Venue</div>
-                      <div className="text-white font-bold text-sm md:text-base truncate" title={tournament.venue}>{tournament.venue}</div>
-                   </div>
-                   <div className="bg-purple-900/40 backdrop-blur-md border border-purple-500/30 p-4 rounded-xl hover:bg-purple-900/50 transition-colors group">
-                      <div className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-1 group-hover:text-white">Prize Pool</div>
-                      <div className="text-white font-bold text-sm md:text-base">{tournament.total_prize_pool}</div>
-                   </div>
-                </div>
+                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto mt-12">
+                    <div className="bg-white/90 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/10 p-5 rounded-2xl hover:border-gray-300 dark:hover:border-white/20 transition-colors group text-left">
+                       <div className="flex items-center gap-2 mb-2">
+                           <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-200 dark:group-hover:bg-purple-500/20 transition-colors">
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                           </div>
+                           <div className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-600 dark:group-hover:text-purple-400">Date</div>
+                       </div>
+                       <div className="text-gray-900 dark:text-white font-bold text-sm md:text-base pl-1">{tournament.date}</div>
+                    </div>
+                    
+                    <div className="bg-white/90 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/10 p-5 rounded-2xl hover:border-gray-300 dark:hover:border-white/20 transition-colors group text-left">
+                       <div className="flex items-center gap-2 mb-2">
+                           <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20 transition-colors">
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                           </div>
+                           <div className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-600 dark:group-hover:text-purple-400">Time</div>
+                       </div>
+                       <div className="text-gray-900 dark:text-white font-bold text-sm md:text-base pl-1">{tournament.time}</div>
+                    </div>
+
+                    <div className="bg-white/90 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/10 p-5 rounded-2xl hover:border-gray-300 dark:hover:border-white/20 transition-colors group text-left">
+                       <div className="flex items-center gap-2 mb-2">
+                           <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:bg-orange-200 dark:group-hover:bg-orange-500/20 transition-colors">
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                           </div>
+                           <div className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-600 dark:group-hover:text-purple-400">Venue</div>
+                       </div>
+                       <div className="text-gray-900 dark:text-white font-bold text-sm md:text-base pl-1 break-words leading-tight" title={tournament.venue}>{tournament.venue}</div>
+                    </div>
+
+                    <div className="bg-purple-100 dark:bg-purple-900/40 backdrop-blur-md border border-purple-300 dark:border-purple-500/30 p-5 rounded-2xl hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors group text-left">
+                       <div className="flex items-center gap-2 mb-2">
+                           <div className="p-2 rounded-lg bg-purple-500 text-white shadow-lg shadow-purple-500/30">
+                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                           </div>
+                           <div className="text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-wider group-hover:text-purple-700 dark:group-hover:text-white">Prize Pool</div>
+                       </div>
+                       <div className="text-gray-900 dark:text-white font-bold text-lg md:text-xl pl-1">{tournament.total_prize_pool}</div>
+                    </div>
+                 </div>
             </ScrollAnimation>
          </div>
 
          {/* Scroll Indicator */}
          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-             <svg className="w-8 h-8 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+             <svg className="w-8 h-8 text-gray-500 dark:text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
          </div>
       </section>
 
       {/* --- REGISTRATION COUNTDOWN --- */}
-      <section className="relative z-20 py-16 px-4 bg-[#0b0f19]">
-         <div className="max-w-5xl mx-auto bg-[#13161f]/90 backdrop-blur-xl border border-white/10 rounded-[3rem] p-8 md:p-12 shadow-2xl shadow-purple-900/20 text-center transform hover:scale-[1.01] transition-transform duration-500 relative overflow-hidden">
+      <section className="relative z-20 py-16 px-4 bg-gray-50 dark:bg-[#0b0f19]">
+         <div className="max-w-5xl mx-auto bg-white dark:bg-[#13161f]/90 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-[3rem] p-8 md:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-purple-900/20 text-center transform hover:scale-[1.01] transition-transform duration-500 relative overflow-hidden">
              
              {/* Decorative Elements */}
              <div className="absolute top-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
              <div className="absolute bottom-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
-             <h2 className="text-sm font-bold text-purple-400 uppercase tracking-widest mb-10 flex items-center justify-center gap-4">
+             <h2 className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-10 flex items-center justify-center gap-4">
                  <span className="w-8 md:w-16 h-[1px] bg-gradient-to-r from-transparent to-purple-500"></span>
                  Registration Deadline
                  <span className="w-8 md:w-16 h-[1px] bg-gradient-to-l from-transparent to-purple-500"></span>
@@ -714,7 +747,7 @@ export default function TournamentsPage() {
              <div className="mt-12 flex justify-center">
                 <a 
                    href="#games-roster" 
-                   className="group relative inline-flex items-center gap-4 px-12 py-5 bg-white text-black font-black text-xl uppercase tracking-widest rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(168,85,247,0.5)]"
+                   className="group relative inline-flex items-center gap-4 px-12 py-5 bg-gray-900 dark:bg-white text-white dark:text-black font-black text-xl uppercase tracking-widest rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(168,85,247,0.5)]"
                 >
                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                    <span className="relative z-10 group-hover:text-white transition-colors">Register Now</span>
@@ -726,7 +759,7 @@ export default function TournamentsPage() {
 
       {/* --- EVENT TEASER SECTION --- */}
       {tournament.teaser_video_url && (
-        <section className="py-24 px-6 relative overflow-hidden bg-[#0a0d14]">
+        <section className="py-24 px-6 relative overflow-hidden bg-gray-100 dark:bg-[#0a0d14]">
           {/* Animated Background Grid */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.1)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
@@ -739,7 +772,7 @@ export default function TournamentsPage() {
             <ScrollAnimation animation="slideUp">
               {/* Section Header */}
               <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">
+                <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-4 uppercase tracking-tighter">
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400">Event</span> Teaser
                 </h2>
                 <p className="text-gray-500 text-lg">Get hyped for the action</p>
@@ -807,28 +840,28 @@ export default function TournamentsPage() {
       )}
 
       {/* --- ABOUT SECTION --- */}
-      <section className="py-20 px-6 bg-[#0b0f19]">
+      <section className="py-20 px-6 bg-gray-100 dark:bg-[#0b0f19]">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
               {/* About Event */}
               {/* About Event */}
               <ScrollAnimation animation="slideRight">
-                  <div className="relative group p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(168,85,247,0.1)]">
-                      <div className="absolute -left-10 -top-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
-                      <h2 className="text-4xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter cursor-default">
+                  <div className="relative group p-8 rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-purple-400 dark:hover:border-purple-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+                      <div className="absolute -left-10 -top-10 w-40 h-40 bg-purple-600/10 dark:bg-purple-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                      <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tighter cursor-default">
                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 group-hover:from-pink-400 group-hover:to-purple-400 transition-all duration-500">About The Event</span>
                       </h2>
-                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-l-2 border-purple-500/30 pl-6 h-full group-hover:border-purple-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_event || tournament.description || '' }}></div>
+                      <div className="prose prose-lg text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed font-light border-l-2 border-purple-500/30 pl-6 h-full group-hover:border-purple-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_event || tournament.description || '' }}></div>
                   </div>
               </ScrollAnimation>
 
               {/* About Organizer */}
               <ScrollAnimation animation="slideLeft">
-                   <div className="relative group p-8 rounded-3xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(59,130,246,0.1)]">
-                       <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
-                       <h2 className="text-4xl md:text-5xl font-black text-white mb-8 uppercase tracking-tighter text-right cursor-default">
+                   <div className="relative group p-8 rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-blue-400 dark:hover:border-blue-500/30 transition-all duration-500 hover:shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+                       <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/10 dark:bg-blue-600/20 rounded-full blur-3xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
+                       <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-8 uppercase tracking-tighter text-right cursor-default">
                           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 group-hover:from-cyan-400 group-hover:to-blue-400 transition-all duration-500">About The Organizer</span>
                       </h2>
-                      <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed font-light border-r-2 border-blue-500/30 pr-6 text-right h-full group-hover:border-blue-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_organizer || 'Proudly organized by VGS.' }}></div>
+                      <div className="prose prose-lg text-gray-600 dark:prose-invert dark:text-gray-400 leading-relaxed font-light border-r-2 border-blue-500/30 pr-6 text-right h-full group-hover:border-blue-500 transition-colors" dangerouslySetInnerHTML={{ __html: tournament.about_organizer || 'Proudly organized by VGS.' }}></div>
                    </div>
               </ScrollAnimation>
           </div>
@@ -839,24 +872,24 @@ export default function TournamentsPage() {
           <GlimpseGallery glimpses={tournament.previous_glimpses} />
       )}
 
-      {/* --- FEATURED GAMES SHOWCASE --- */}
-      {tournament.games && tournament.games.length > 0 && (
-          <FeaturedGamesShowcase games={tournament.games} />
-      )}
+
 
       {/* --- GAMES ARENA --- */}
-      <section id="games-roster" className="py-32 px-6 relative z-10 bg-[#0b0f19]">
+      <section id="games-roster" className="py-32 px-6 relative z-10 bg-gray-50 dark:bg-[#0b0f19]">
          <div className="max-w-7xl mx-auto">
-             <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20 border-b border-white/5 pb-8">
-                <div className="max-w-xl">
-                   <h2 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase tracking-tighter">
-                      Game <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-500">Roster</span>
-                   </h2>
-                   <p className="text-gray-400 text-lg">Select your battlefield. Dominate the competition.</p>
+             <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20 border-b border-gray-200 dark:border-white/5 pb-8">
+                 <div>
+                    <ScrollAnimation animation="slideRight">
+                       <span className="text-purple-600 dark:text-purple-500 font-mono text-sm tracking-widest uppercase mb-2 block">/// Select Your Arena</span>
+                       <h2 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">
+                          Game <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-500">Roster</span>
+                       </h2>
+                       <p className="text-gray-500 dark:text-gray-400 text-lg">Select your battlefield. Dominate the competition.</p>
+                    </ScrollAnimation>
                 </div>
                 
                 {/* Modern Filter Tabs */}
-                <div className="flex bg-[#1a1d29] p-1.5 rounded-2xl border border-white/5">
+                <div className="flex bg-gray-100 dark:bg-[#1a1d29] p-1.5 rounded-2xl border border-gray-200 dark:border-white/5">
                     {['all', 'pc', 'mobile', 'casual'].map((cat) => (
                     <button
                         key={cat}
@@ -864,7 +897,7 @@ export default function TournamentsPage() {
                         className={`px-6 py-3 rounded-xl text-sm font-bold uppercase transition-all ${
                             activeCategory === cat 
                             ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                            : 'text-gray-500 hover:text-white'
+                            : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                         }`}
                     >
                         {cat}
@@ -881,7 +914,7 @@ export default function TournamentsPage() {
                   ))}
                </div>
             ) : (
-               <div className="text-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
+               <div className="text-center py-32 border border-dashed border-gray-300 dark:border-white/10 rounded-3xl bg-gray-50 dark:bg-white/5">
                   <div className="text-6xl mb-4 grayscale opacity-30">⚠️</div>
                   <h3 className="text-2xl font-bold text-gray-500">No Games Found</h3>
                </div>
@@ -892,9 +925,9 @@ export default function TournamentsPage() {
       {/* --- COLLABORATORS & SPONSORS --- */}
       {/* --- COLLABORATORS & SPONSORS --- */}
       {/* --- COLLABORATORS & SPONSORS --- */}
-      <section className="py-32 px-6 bg-[#0a0d14] relative border-t border-white/5 overflow-hidden">
+      <section className="py-32 px-6 bg-white dark:bg-[#0a0d14] relative border-t border-gray-100 dark:border-white/5 overflow-hidden">
          {/* Background Glow */}
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-100/50 dark:bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
 
          <div className="max-w-7xl mx-auto space-y-32 relative z-10">
              
@@ -902,14 +935,12 @@ export default function TournamentsPage() {
              {tournament.organizers && tournament.organizers.length > 0 && (
                  <div className="text-center">
                      <ScrollAnimation animation="slideUp">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-12 flex items-center justify-center gap-6 opacity-80">
-                            <span className="w-16 h-[1px] bg-gradient-to-r from-transparent to-purple-500"></span>
+                        <h3 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 uppercase tracking-tight mb-16 text-center">
                             Presented By
-                            <span className="w-16 h-[1px] bg-gradient-to-l from-transparent to-purple-500"></span>
                         </h3>
                      </ScrollAnimation>
-                     <div className="flex flex-wrap justify-center gap-16 md:gap-24">
-                        {tournament.organizers.map((org, index) => <OrgLogo key={index} org={org} size="large" />)}
+                     <div className="flex flex-wrap justify-center gap-12">
+                        {tournament.organizers.map((org, index) => <OrgLogo key={index} org={org} size="medium" />)}
                      </div>
                  </div>
              )}
@@ -925,7 +956,7 @@ export default function TournamentsPage() {
                      {tournament.co_organizers && tournament.co_organizers.length > 0 && (
                          <div className="w-full flex flex-col items-center">
                              <ScrollAnimation animation="slideRight">
-                                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-10 border-b border-blue-500/20 pb-2 inline-block">
+                                <h3 className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 uppercase tracking-tight mb-12 text-center">
                                     Co-Organized By
                                 </h3>
                              </ScrollAnimation>
@@ -939,7 +970,7 @@ export default function TournamentsPage() {
                      {tournament.associated_with && tournament.associated_with.length > 0 && (
                          <div className="w-full flex flex-col items-center">
                             <ScrollAnimation animation="slideLeft">
-                                <h3 className="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-10 border-b border-cyan-500/20 pb-2 inline-block">
+                                <h3 className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-400 dark:to-emerald-400 uppercase tracking-tight mb-12 text-center">
                                     In Association With
                                 </h3>
                             </ScrollAnimation>
@@ -953,10 +984,10 @@ export default function TournamentsPage() {
 
              {/* 3. Global Sponsors (Tier 3 - Grid) */}
              {tournament.sponsors && tournament.sponsors.length > 0 && (
-                 <div className="relative pt-20 border-t border-white/5">
+                 <div className="relative pt-20 border-t border-gray-100 dark:border-white/5">
                     <ScrollAnimation animation="fadeIn">
                         <div className="text-center mb-16">
-                            <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2">
+                            <h3 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2">
                                 Official <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Partners</span>
                             </h3>
                             <p className="text-gray-500 text-sm">Powering the next generation of esports</p>
