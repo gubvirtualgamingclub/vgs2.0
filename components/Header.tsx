@@ -99,10 +99,10 @@ export default function Header() {
   return (
     <header className={`
       fixed top-0 left-0 right-0 z-50
-      bg-white/60 dark:bg-gray-900/60 
+      bg-white/90 dark:bg-gray-900/60 
       backdrop-blur-2xl backdrop-saturate-150
-      border-b border-white/20 dark:border-gray-700/20
-      shadow-lg shadow-black/5
+      border-b border-slate-200/80 dark:border-gray-700/20
+      shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] dark:shadow-lg dark:shadow-black/5
       transition-all duration-300 ease-in-out
       ${isVisible ? 'translate-y-0' : '-translate-y-full'}
     `}>

@@ -28,10 +28,10 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-gray-100 dark:bg-[#050505] text-gray-800 dark:text-gray-200 pt-20 pb-6 selection:bg-cyan-500/30" aria-labelledby="footer-heading">
+    <footer className="relative bg-gradient-to-b from-slate-100 to-slate-200 dark:bg-[#050505] dark:from-transparent dark:to-transparent text-slate-800 dark:text-gray-200 pt-20 pb-6 selection:bg-cyan-500/30 border-t border-slate-200 dark:border-transparent" aria-labelledby="footer-heading">
       {/* Background Ambient Glows */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-900/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-900/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-200/30 dark:bg-purple-900/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-200/30 dark:bg-cyan-900/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-16">

@@ -645,31 +645,39 @@ export default function AdminActivitiesPage() {
       <AdminHelpButton
         title="📅 Activities & Events Manager"
         instructions={[
-          "**Create Activity**: Click the `+ Add Activity` button to open the creation drawer.",
-          "**Edit Mode**: Click the pencil icon on any activity card to modify details.",
-          "**Publishing**: Use the 'Published/Draft' toggle on the card to control visibility immediately.",
-          "**Filtering**: Use the search bar for titles and the dropdown for categories (Workshop, Tournament, etc.)."
+          "**Create Activity**: Click `+ Add Activity` to open the creation drawer with all fields.",
+          "**Edit Mode**: Click the pencil icon on any card to modify existing activity details.",
+          "**Quick Publish**: Use the 'Published/Draft' toggle directly on cards for instant visibility control.",
+          "**Search & Filter**: Use the search bar for titles and the category dropdown to find events quickly.",
+          "**Sponsors**: Link multiple sponsors to auto-display their logos on the activity page."
         ]}
         tips={[
-          "**Featured Events** appear on the homepage hero section.",
-          "**Slug Generation**: Slugs are auto-generated from the title but can be manually edited for SEO.",
-          "**Sponsors**: You can link multiple sponsors to a single event for automated logo display."
+          "**Featured Events**: Enabling 'Featured' displays the event prominently on the homepage hero section.",
+          "**Auto-Slug**: Slugs are auto-generated from titles. You can customize them for better SEO URLs.",
+          "**Banner Images**: Use 16:9 aspect ratio images (1920x1080 recommended) for best display.",
+          "**Status Badges**: 'Ongoing' status adds a pulsing live indicator on the public page.",
+          "**Tags**: Add relevant tags to improve event discoverability and categorization."
         ]}
         actions={[
           {
-            title: "📝 content Formatting",
+            title: "📝 Content Formatting",
             description: 
-              "The description field supports **Markdown**-like formatting:\n- Use `**bold**` for strong text.\n- Use `-` for bullet points.\n- Use `[Link Text](url)` for hyperlinks."
+              "The description field supports Markdown-like formatting:\n\n**Bold text**: `**your text**`\n**Bullet points**: Start line with `-`\n**Links**: `[Link Text](https://url.com)`\n\n*Preview your content on the public page after saving.*"
           },
           {
             title: "🖼️ Image Guidelines",
             description:
-              "**Banner Size**:\n- Recommended: `1920x1080` or `16:9` aspect ratio.\n- Max file size: 2MB for optimal loading.\n\n**External Hosting**:\n- Use Imgur or specific S3 bucket URLs for banners."
+              "**Recommended Size**: `1920 x 1080` (16:9 aspect ratio)\n**Max File Size**: 2MB for optimal loading\n\n**Hosting Options**:\n- Use direct image URLs from cloud storage\n- Imgur, Cloudinary, or S3 bucket links work best"
           },
           {
-            title: "⚙️ Advanced Status",
+            title: "⚙️ Status Guide",
             description:
-              "**Status Meanings**:\n- `Upcoming`: Visible in 'Upcoming Events' list.\n- `Ongoing`: Highlighted with a 'Live' badge.\n- `Past`: Moved to archive/history section."
+              "**Upcoming**: Visible in 'Upcoming Events' section\n**Ongoing**: Shows 'Live' badge with pulse animation\n**Past**: Moves to archive/history section\n**Recurring**: For weekly/monthly repeating events"
+          },
+          {
+            title: "👥 Guest Speakers",
+            description:
+              "Add guest profiles that appear on the event detail page:\n\n**Name**: Full name of the speaker\n**Designation**: Title or role (e.g., 'CEO at Company')\n**Photo URL**: Direct link to their headshot image"
           }
         ]}
       />

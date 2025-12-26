@@ -77,9 +77,9 @@ export default function ActivitiesPage() {
       <FloatingIcons />
       
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
-      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-purple-900/10 blur-[150px] rounded-full pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-900/10 blur-[150px] rounded-full pointer-events-none" />
+      <div className="fixed inset-0 bg-[url('/grid.svg')] opacity-5 dark:opacity-10 pointer-events-none" />
+      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-purple-300/20 dark:bg-purple-900/10 blur-[150px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-300/20 dark:bg-cyan-900/10 blur-[150px] rounded-full pointer-events-none" />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 overflow-hidden">
@@ -124,7 +124,7 @@ export default function ActivitiesPage() {
                       { label: "Workshops", value: workshopCount, color: "text-green-400", border: "border-green-500/20", icon: <svg className="w-6 h-6 text-green-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg> },
                       { label: "Upcoming", value: upcomingCount, color: "text-pink-400", border: "border-pink-500/20", icon: <svg className="w-6 h-6 text-pink-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
                    ].map((stat, i) => (
-                      <div key={i} className={`bg-gray-100 dark:bg-[#0a0a0b]/80 backdrop-blur-sm p-6 rounded-2xl border ${stat.border} text-center group hover:-translate-y-1 transition-transform`}>
+                      <div key={i} className={`bg-white dark:bg-[#0a0a0b]/80 backdrop-blur-sm p-6 rounded-2xl border ${stat.border} text-center group hover:-translate-y-1 transition-transform shadow-md shadow-slate-100 dark:shadow-none`}>
                          {stat.icon}
                          <div className={`text-3xl md:text-4xl font-bold mb-1 ${stat.color} group-hover:scale-110 transition-transform`}>
                             {loading ? '...' : stat.value}
@@ -143,7 +143,7 @@ export default function ActivitiesPage() {
            
            {/* Search & Filter */}
            <div className="sticky top-20 z-40 mb-12">
-               <div className="bg-white/90 dark:bg-[#0f0f10]/90 backdrop-blur-xl border border-gray-200 dark:border-white/10 p-4 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/50">
+               <div className="bg-white dark:bg-[#0f0f10]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 p-4 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/50">
                    <div className="flex flex-col md:flex-row gap-4">
                        <div className="flex-1 relative">
                            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -152,7 +152,7 @@ export default function ActivitiesPage() {
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                               placeholder="Search operations..." 
-                              className="w-full bg-gray-100 dark:bg-[#1a1a1c] border border-gray-300 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                              className="w-full bg-slate-100 dark:bg-[#1a1a1c] border border-slate-300 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors"
                            />
                        </div>
                        
@@ -160,7 +160,7 @@ export default function ActivitiesPage() {
                            <select 
                               value={filterStatus}
                               onChange={(e) => setFilterStatus(e.target.value)}
-                              className="bg-[#1a1a1c] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-cyan-500 transition-colors cursor-pointer"
+                              className="bg-slate-100 dark:bg-[#1a1a1c] border border-slate-300 dark:border-white/10 rounded-xl py-3 px-4 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors cursor-pointer"
                            >
                               <option value="all">All Status</option>
                               {statuses.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
@@ -168,7 +168,7 @@ export default function ActivitiesPage() {
                            <select 
                               value={filterCategory}
                               onChange={(e) => setFilterCategory(e.target.value)}
-                              className="bg-[#1a1a1c] border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-green-500 transition-colors cursor-pointer"
+                              className="bg-slate-100 dark:bg-[#1a1a1c] border border-slate-300 dark:border-white/10 rounded-xl py-3 px-4 text-slate-900 dark:text-white focus:outline-none focus:border-green-500 transition-colors cursor-pointer"
                            >
                               <option value="all">All Categories</option>
                               {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -233,7 +233,7 @@ export default function ActivitiesPage() {
                             {/* Card Glow */}
                             <div className={`absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none`} />
 
-                            <div className="relative h-full bg-[#0f0f10] border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:border-white/20">
+                            <div className="relative h-full bg-white dark:bg-[#0f0f10] border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-2xl transition-transform duration-500 group-hover:-translate-y-2 group-hover:border-slate-300 dark:group-hover:border-white/20">
                                 {/* Image Container */}
                                 <div className="relative h-48 sm:h-56 overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f10] to-transparent z-10" />

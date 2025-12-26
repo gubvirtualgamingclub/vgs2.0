@@ -409,101 +409,20 @@ export default function TournamentManagementPage() {
                           <label className={labelClassName}>Tournament Logo (URL)</label>
                            <input type="text" value={formData.logo} onChange={(e) => setFormData({ ...formData, logo: e.target.value })} className={inputClassName} />
                       </div>
-                      {/* Teaser Video Section - Side by Side Grid */}
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                           
-                           {/* Main Input & Preview */}
-                           <div className="p-6 bg-purple-900/10 border border-purple-500/20 rounded-xl h-fit">
-                                <label className={labelClassName}>Teaser Video URL (Main Visual)</label>
-                                <div className="relative mt-2">
-                                    <VideoCameraIcon className="absolute left-4 top-3.5 w-5 h-5 text-purple-500" />
-                                    <input type="text" value={formData.teaser_video_url} onChange={(e) => setFormData({ ...formData, teaser_video_url: e.target.value })} className={`${inputClassName} pl-12`} placeholder="https://www.youtube.com/embed/..." />
+                      {/* Teaser Video Section */}
+                       <div className="p-6 bg-purple-900/10 border border-purple-500/20 rounded-xl">
+                            <label className={labelClassName}>Teaser Video URL (Main Visual)</label>
+                            <div className="relative mt-2">
+                                <VideoCameraIcon className="absolute left-4 top-3.5 w-5 h-5 text-purple-500" />
+                                <input type="text" value={formData.teaser_video_url} onChange={(e) => setFormData({ ...formData, teaser_video_url: e.target.value })} className={`${inputClassName} pl-12`} placeholder="https://www.youtube.com/embed/..." />
+                            </div>
+                            <p className="mt-2 text-xs text-gray-400">This video replaces the static banner on the main page. Supports YouTube, Vimeo, Twitch, and direct video links.</p>
+                            {formData.teaser_video_url && (
+                                <div className="mt-6 aspect-video bg-black rounded-lg overflow-hidden border border-white/10 shadow-2xl">
+                                    <video src={formData.teaser_video_url} className="w-full h-full object-cover" controls muted />
                                 </div>
-                                <p className="mt-2 text-xs text-gray-400">This video replaces the static banner on the main page. Supports YouTube, Vimeo, Twitch, and direct video links.</p>
-                                {formData.teaser_video_url && (
-                                    <div className="mt-6 aspect-video bg-black rounded-lg overflow-hidden border border-white/10 shadow-2xl">
-                                        <video src={formData.teaser_video_url} className="w-full h-full object-cover" controls muted />
-                                    </div>
-                                )}
-                           </div>
-
-                           {/* Instructions Panel - Vertical Stack */}
-                           <div className="relative bg-gray-900 border border-white/10 rounded-xl overflow-hidden shadow-xl h-fit">
-                               {/* Header */}
-                               <div className="p-4 border-b border-white/10 bg-black/20 flex items-center gap-3">
-                                   <div className="p-2 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg text-white">
-                                       <VideoCameraIcon className="w-5 h-5" />
-                                   </div>
-                                   <h3 className="font-bold text-white text-lg tracking-wide">Video Embedding Guide</h3>
-                               </div>
-
-                               <div className="p-5 space-y-3">
-                                   {/* YouTube Card */}
-                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-red-500/30 transition-colors group">
-                                       <div className="flex items-center gap-4">
-                                           <div className="p-2 bg-red-500/10 text-red-500 rounded-md group-hover:bg-red-500 group-hover:text-white transition-colors">
-                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                                           </div>
-                                           <div className="flex-1 min-w-0">
-                                               <div className="flex justify-between items-center mb-1">
-                                                   <h4 className="text-white font-bold text-sm group-hover:text-red-400">YouTube</h4>
-                                                   <span className="text-[10px] text-gray-500">Share → Embed</span>
-                                               </div>
-                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://www.youtube.com/embed/...</code>
-                                           </div>
-                                       </div>
-                                   </div>
-
-                                   {/* Vimeo Card */}
-                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-blue-500/30 transition-colors group">
-                                       <div className="flex items-center gap-4">
-                                           <div className="p-2 bg-blue-500/10 text-blue-500 rounded-md group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.875 10.125c-.698 2.859-5.59 12.375-12.28 12.375-3.692 0-4.229-8.084-6.315-13.435-.747-1.742-1.233-1.637-2.66-.465l-1.62-2.1c2.18-1.92 4.364-4.14 5.733-4.265 2.155-.2 3.66 1.34 4.19 5.37.75 5.56 1.58 6.945 3.12 6.945 1.154 0 3.737-4.48 4.095-5.915.75-3.03 2.062-2.28 4.305-2.28 1.432 0 1.954 1.705 1.432 3.77z"/></svg>
-                                           </div>
-                                            <div className="flex-1 min-w-0">
-                                               <div className="flex justify-between items-center mb-1">
-                                                   <h4 className="text-white font-bold text-sm group-hover:text-blue-400">Vimeo</h4>
-                                                   <span className="text-[10px] text-gray-500">Share → Embed</span>
-                                               </div>
-                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://player.vimeo.com/video/...</code>
-                                           </div>
-                                       </div>
-                                   </div>
-
-                                   {/* Google Drive Card */}
-                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-green-500/30 transition-colors group">
-                                       <div className="flex items-center gap-4">
-                                           <div className="p-2 bg-green-500/10 text-green-500 rounded-md group-hover:bg-green-500 group-hover:text-white transition-colors">
-                                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7.643 14.286l2.142-3.715 5.286 9.143h-10.714l3.286-5.428zm6.571-3.714l-2.142 3.714h-6.572l5.429-9.429h6.571l-3.286 5.715zm1.5-2.572l-5.429 9.429h-4.286l5.429-9.429h4.286z"/></svg>
-                                           </div>
-                                            <div className="flex-1 min-w-0">
-                                               <div className="flex justify-between items-center mb-1">
-                                                   <h4 className="text-white font-bold text-sm group-hover:text-green-400">Drive</h4>
-                                                   <span className="text-[10px] text-gray-500">Embed item</span>
-                                               </div>
-                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://drive.google.com/file/...</code>
-                                           </div>
-                                       </div>
-                                   </div>
-
-                                   {/* ImageKit.io Card */}
-                                   <div className="bg-[#111] p-3 rounded-lg border border-white/5 hover:border-pink-500/30 transition-colors group">
-                                       <div className="flex items-center gap-4">
-                                           <div className="p-2 bg-pink-500/10 text-pink-500 rounded-md group-hover:bg-pink-500 group-hover:text-white transition-colors">
-                                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                           </div>
-                                            <div className="flex-1 min-w-0">
-                                               <div className="flex justify-between items-center mb-1">
-                                                   <h4 className="text-white font-bold text-sm group-hover:text-pink-400">ImageKit.io</h4>
-                                                   <span className="text-[10px] text-gray-500">File URL</span>
-                                               </div>
-                                               <code className="block w-full p-1.5 bg-black rounded border border-white/10 text-[10px] text-gray-500 font-mono truncate">https://ik.imagekit.io/.../video.mp4</code>
-                                           </div>
-                                       </div>
-                                   </div>
-                               </div>
-                           </div>
-                      </div>
+                            )}
+                       </div>
                    </div>
                 </div>
 
@@ -536,6 +455,81 @@ export default function TournamentManagementPage() {
                    </div>
                 </div>
              </div>
+
+              {/* Video Embedding Guide - Full Width Horizontal */}
+              <div className="relative bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+                  {/* Header */}
+                  <div className="p-5 border-b border-white/10 bg-black/30 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                          <div className="p-2.5 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl text-white shadow-lg shadow-purple-500/20">
+                              <VideoCameraIcon className="w-6 h-6" />
+                          </div>
+                          <div>
+                              <h3 className="font-bold text-white text-lg tracking-wide">Video Embedding Guide</h3>
+                              <p className="text-xs text-gray-500">Supported platforms for teaser videos</p>
+                          </div>
+                      </div>
+                  </div>
+
+                  {/* Horizontal Cards Grid */}
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* YouTube Card */}
+                      <div className="bg-black/40 p-4 rounded-xl border border-white/5 hover:border-red-500/40 transition-all group hover:bg-red-500/5 hover:shadow-lg hover:shadow-red-500/10">
+                          <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2.5 bg-red-500/10 text-red-500 rounded-lg group-hover:bg-red-500 group-hover:text-white transition-all shadow-sm">
+                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                              </div>
+                              <div>
+                                  <h4 className="text-white font-bold text-sm group-hover:text-red-400 transition-colors">YouTube</h4>
+                                  <span className="text-[10px] text-gray-500">Share → Embed</span>
+                              </div>
+                          </div>
+                          <code className="block w-full p-2.5 bg-black/60 rounded-lg border border-white/10 text-[10px] text-gray-400 font-mono truncate">youtube.com/embed/...</code>
+                      </div>
+
+                      {/* Vimeo Card */}
+                      <div className="bg-black/40 p-4 rounded-xl border border-white/5 hover:border-blue-500/40 transition-all group hover:bg-blue-500/5 hover:shadow-lg hover:shadow-blue-500/10">
+                          <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2.5 bg-blue-500/10 text-blue-500 rounded-lg group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
+                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.875 10.125c-.698 2.859-5.59 12.375-12.28 12.375-3.692 0-4.229-8.084-6.315-13.435-.747-1.742-1.233-1.637-2.66-.465l-1.62-2.1c2.18-1.92 4.364-4.14 5.733-4.265 2.155-.2 3.66 1.34 4.19 5.37.75 5.56 1.58 6.945 3.12 6.945 1.154 0 3.737-4.48 4.095-5.915.75-3.03 2.062-2.28 4.305-2.28 1.432 0 1.954 1.705 1.432 3.77z"/></svg>
+                              </div>
+                              <div>
+                                  <h4 className="text-white font-bold text-sm group-hover:text-blue-400 transition-colors">Vimeo</h4>
+                                  <span className="text-[10px] text-gray-500">Share → Embed</span>
+                              </div>
+                          </div>
+                          <code className="block w-full p-2.5 bg-black/60 rounded-lg border border-white/10 text-[10px] text-gray-400 font-mono truncate">player.vimeo.com/video/...</code>
+                      </div>
+
+                      {/* Google Drive Card */}
+                      <div className="bg-black/40 p-4 rounded-xl border border-white/5 hover:border-green-500/40 transition-all group hover:bg-green-500/5 hover:shadow-lg hover:shadow-green-500/10">
+                          <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2.5 bg-green-500/10 text-green-500 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-all shadow-sm">
+                                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7.643 14.286l2.142-3.715 5.286 9.143h-10.714l3.286-5.428zm6.571-3.714l-2.142 3.714h-6.572l5.429-9.429h6.571l-3.286 5.715zm1.5-2.572l-5.429 9.429h-4.286l5.429-9.429h4.286z"/></svg>
+                              </div>
+                              <div>
+                                  <h4 className="text-white font-bold text-sm group-hover:text-green-400 transition-colors">Google Drive</h4>
+                                  <span className="text-[10px] text-gray-500">Embed item</span>
+                              </div>
+                          </div>
+                          <code className="block w-full p-2.5 bg-black/60 rounded-lg border border-white/10 text-[10px] text-gray-400 font-mono truncate">drive.google.com/file/...</code>
+                      </div>
+
+                      {/* ImageKit.io Card */}
+                      <div className="bg-black/40 p-4 rounded-xl border border-white/5 hover:border-pink-500/40 transition-all group hover:bg-pink-500/5 hover:shadow-lg hover:shadow-pink-500/10">
+                          <div className="flex items-center gap-3 mb-3">
+                              <div className="p-2.5 bg-pink-500/10 text-pink-500 rounded-lg group-hover:bg-pink-500 group-hover:text-white transition-all shadow-sm">
+                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                              </div>
+                              <div>
+                                  <h4 className="text-white font-bold text-sm group-hover:text-pink-400 transition-colors">ImageKit.io</h4>
+                                  <span className="text-[10px] text-gray-500">Direct URL</span>
+                              </div>
+                          </div>
+                          <code className="block w-full p-2.5 bg-black/60 rounded-lg border border-white/10 text-[10px] text-gray-400 font-mono truncate">ik.imagekit.io/.../video.mp4</code>
+                      </div>
+                  </div>
+              </div>
 
             {/* About Sections */}
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-white/10">
@@ -825,31 +819,38 @@ export default function TournamentManagementPage() {
       <AdminHelpButton
          title="🏆 Tournament Manager"
          instructions={[
-            "**Tournament Lifecycle**: Manage the entire flow from `Setup` → `Registration` → `Live` → `Conclusion`.",
-            "**Featured Games**: Select which games are part of this specific tournament season.",
-            "**Partner Showcase**: Highlights Organizers, Sponsors, and Collaborators.",
-            "**Glimpses**: Upload photo galleries from previous iterations to build hype."
+            "**Tournament Lifecycle**: Manage your tournament from `Setup` → `Registration` → `Live` → `Conclusion`.",
+            "**Status Control**: Toggle status to `OPEN` to enable public registration immediately.",
+            "**Featured Games**: Add games with individual registration fees, prize pools, and rulebooks.",
+            "**Partner Showcase**: Add Organizers, Co-Organizers, Sponsors, and Collaborators with logos.",
+            "**Glimpses Gallery**: Upload photo galleries from previous events to build excitement."
          ]}
          tips={[
-            "**Status Toggle**: Switching to `OPEN` immediately enables public registration.",
-            "**Teaser Video**: A background video loop creates a high-impact landing page experience.",
-            "**Logistics**: Ensure 'Venue' and 'Deadline' are accurate as they trigger countdown timers."
+            "**Teaser Video**: A looping background video creates a high-impact landing page experience.",
+            "**Registration Deadline**: This triggers the countdown timer on the public page.",
+            "**Venue Details**: Ensure address is accurate - it's displayed prominently to participants.",
+            "**Total Prize Pool**: Displayed as headline stat on the tournament banner."
          ]}
          actions={[
             {
-               title: "🤝 Partner Management",
+               title: "🎮 Adding Games",
                description:
-                  "**Tiers**:\n- **Organizers**: Main hosts.\n- **Co-Organizers**: Strategic partners.\n- **Sponsors**: Financial backers.\n\n*Tip: Drag and drop support is not available yet, so add them in order.*"
+                  "Each game can have unique settings:\n\n**Registration Fee**: e.g., `500 BDT` or `Free`\n**Rulebook Link**: External PDF or Google Doc URL\n**Prize Pool**: Game-specific winnings\n**Team Size**: Solo, Duo, Squad, etc.\n**Format**: Knockout, League, Swiss, etc."
             },
             {
-               title: "🎮 Game Specifics",
+               title: "🤝 Partner Tiers",
                description:
-                  "Each game in the tournament can have its own:\n- **Registration Fee**: e.g., '500 BDT'.\n- **Rulebook Link**: External PDF/Doc.\n- **Prize Pool**: Specific to that game title."
+                  "**Organizers**: Primary hosts (largest display)\n**Co-Organizers**: Strategic partners\n**Sponsors**: Financial backers\n**Associated With**: Supporting organizations\n\n*Tip: Add partners in display order preference.*"
             },
             {
                title: "📸 Gallery (Glimpses)",
                description:
-                  "**Add Event**: Create a group like 'Winter 2023'.\n**Add Images**: Paste direct URLs (limit 5 per group).\n**Deletion**: One-click remove for outdated content."
+                  "**Create Event Group**: e.g., 'Winter Championship 2023'\n**Add Images**: Paste direct image URLs (max 5 per group)\n**Ordering**: First image becomes the featured large display\n**Removal**: Click X to remove outdated content"
+            },
+            {
+               title: "🎬 Video Embedding",
+               description:
+                  "Use the embed URL format for teaser videos:\n\n**YouTube**: `https://www.youtube.com/embed/VIDEO_ID`\n**Vimeo**: `https://player.vimeo.com/video/VIDEO_ID`\n**Google Drive**: Share → Embed → Copy URL"
             }
          ]}
       />

@@ -435,18 +435,18 @@ export default function EmailManagementPage() {
                     </button>
                   </div>
                 </div>
-                <div className="max-h-60 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-2 custom-scrollbar">
                   {participants.map((p, idx) => (
                     <label key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30">
                       <input
                         type="checkbox"
                         checked={selectedParticipants.has(p.email)}
                         onChange={() => toggleParticipant(p.email)}
-                        className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700"
+                        className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700 flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <span className="text-white font-medium">{p.name || 'Participant'}</span>
-                        <span className="text-gray-400 text-sm ml-2">&lt;{p.email}&gt;</span>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-white font-medium truncate block">{p.name || 'Participant'}</span>
+                        <span className="text-gray-400 text-sm truncate block">{p.email}</span>
                       </div>
                     </label>
                   ))}
@@ -643,25 +643,39 @@ export default function EmailManagementPage() {
       <AdminHelpButton
         title="📧 Email Campaign Manager"
         instructions={[
-          "**Compose**: Send one-off emails manually or bulk campaigns via Google Sheets.",
-          "**Templates**: Create reusable HTML layouts with dynamic variables like `{{name}}`.",
-          "**Variables**: Use `{{name}}` and `{{email}}` to personalize content for each recipient.",
-          "**History**: Track delivered, failed, and bounced emails in the logs."
+          "**Step 1 - Add Participants**: Choose between Google Sheets (bulk) or Manual Entry mode.",
+          "**Step 2 - Compose Content**: Write your subject line and HTML email body.",
+          "**Step 3 - Send Campaign**: Review recipients and click 'Send Campaign' to dispatch emails.",
+          "**Templates**: Save frequently used email designs for quick reuse.",
+          "**History Tab**: Track all sent campaigns with delivery status and timestamps."
         ]}
         tips={[
-          "**Google Sheets**: Your sheet must be `Public` (Viewer) and have column headers `Name` and `Email`.",
-          "**Preview**: Always use the 'Eye' icon to check your HTML rendering before sending.",
-          "**Rate Limits**: The system queues emails to avoid hitting SMTP limits (max 50/minute)."
+          "**Google Sheets Setup**: Your sheet MUST be publicly accessible (Anyone with the link can view).",
+          "**Required Columns**: Sheet must have headers named exactly `Name` and `Email` (case-sensitive).",
+          "**Preview Before Sending**: Always click the 'Eye' icon to preview your HTML before sending.",
+          "**Rate Limiting**: System sends max ~50 emails/minute to avoid SMTP throttling.",
+          "**Variables**: Use `{{name}}` and `{{email}}` in your content - they auto-replace per recipient."
         ]}
         actions={[
           {
-            title: "📊 Bulk Sending Guide",
+            title: "📊 Google Sheets Format",
             description: 
-              "1. **Prepare Sheet**: Create a Google Sheet with `Name` and `Email` columns.\n2. **Fetch**: Paste the URL in the 'Google Sheets' tab.\n3. **Select**: Choose recipients from the loaded list.\n4. **Send**: content is sent individually to each selected person."
+              "Your spreadsheet must have these exact column headers:\n\n`Name` | `Email`\n`John Doe` | `john@example.com`\n`Jane Smith` | `jane@test.com`\n\n**Share Settings**: File → Share → General Access → 'Anyone with the link'"
+          },
+          {
+            title: "✍️ Manual Entry Format",
+            description:
+              "Enter one participant per line in CSV format:\n\n`John Doe, john@example.com`\n`Jane Smith, jane@test.com`\n\nOr just emails (Name will default to 'Participant'):\n\n`admin@vgs.com`\n`support@vgs.com`"
           },
           {
             title: "🎨 Template Variables",
-            description: "Write: `Hello {{name}}, welcome!`\nResult: `Hello John Doe, welcome!`\n\n*Note: Variables are case-sensitive.*"
+            description: 
+              "Personalize emails with dynamic placeholders:\n\n**Input**: `Hello {{name}}, welcome to VGS!`\n**Output**: `Hello John Doe, welcome to VGS!`\n\n**Available Variables**:\n- `{{name}}` → Recipient's full name\n- `{{email}}` → Recipient's email address"
+          },
+          {
+            title: "📝 HTML Email Tips",
+            description:
+              "**Do's**:\n- Use inline CSS styles\n- Keep images under 600px width\n- Test on multiple email clients\n\n**Don'ts**:\n- Avoid JavaScript (blocked by clients)\n- Don't use external stylesheets\n- Avoid complex layouts"
           }
         ]}
       />

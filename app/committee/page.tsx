@@ -267,12 +267,13 @@ export default function CommitteePage() {
       <FloatingIcons />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#050505] overflow-hidden">
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.1),transparent_50%)]"></div>
+      <section className="relative pt-32 pb-20 px-6 border-b border-gray-200 dark:border-white/5 bg-gradient-to-b from-slate-50 to-white dark:from-[#050505] dark:to-[#050505] overflow-hidden">
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.15),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.1),transparent_50%)]"></div>
          
          <div className="max-w-7xl mx-auto relative z-10 text-center">
-            <h1 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
-               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Executive</span> Makers
+            <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 animate-gradient-x bg-[length:200%_auto]">Executive</span>
+               <span className="text-gray-900 dark:text-white"> Makers</span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                The visionaries, strategists, and leaders powering the Virtual Gaming Society's legacy.

@@ -129,17 +129,17 @@ export default function ContributorsPage() {
 
           <ScrollAnimation animation="gameOver" delay={200}>
             <h1 className="text-5xl md:text-8xl font-black mb-8 tracking-tighter leading-none">
-              <span className="block bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+              <span className="block bg-clip-text text-transparent bg-gradient-to-b from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
                 Architects
               </span>
-              <span className="block text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 animate-gradient-x mt-2">
+              <span className="block text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 animate-gradient-x bg-[length:200%_auto] mt-2">
                 of the Digital Realm
               </span>
             </h1>
           </ScrollAnimation>
 
           <ScrollAnimation animation="fadeIn" delay={400}>
-            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed border-l-2 border-purple-500/50 pl-6 text-left md:text-center md:border-l-0 md:pl-0">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed border-l-2 border-purple-500/50 pl-6 text-left md:text-center md:border-l-0 md:pl-0">
                From the first line of code to the final pixel, these visionaries built the foundation of our virtual society. 
                This is a tribute to the builders who made VGS possible.
             </p>
@@ -312,13 +312,13 @@ export default function ContributorsPage() {
       </section>
 
       {/* Tribute Footer */}
-      <section className="py-20 text-center relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-64 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
+      <section className="py-20 text-center relative overflow-hidden bg-gradient-to-b from-slate-50 to-white dark:from-transparent dark:to-transparent">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-64 bg-gradient-to-r from-purple-300/30 to-cyan-300/30 dark:from-purple-500/10 dark:to-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
           <div className="relative z-10 max-w-3xl mx-auto px-6">
               <ScrollAnimation animation="fadeIn">
-                <div className="inline-block p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
-                   <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-                       This platform is a testament to the dedication of <span className="text-white font-bold">Faysal Hossain Tomal</span> and <span className="text-white font-bold">MD. SAZIB</span>. 
+                <div className="inline-block p-6 rounded-2xl bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 shadow-lg shadow-slate-100 dark:shadow-none">
+                   <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base leading-relaxed">
+                       This platform is a testament to the dedication of <span className="text-purple-600 dark:text-white font-bold">Faysal Hossain Tomal</span> and <span className="text-purple-600 dark:text-white font-bold">MD. SAZIB</span>. 
                        Their combined efforts built the digital home of VGS.
                    </p>
                 </div>

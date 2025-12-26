@@ -117,8 +117,10 @@ export default function Home() {
             this.rotationSpeed = (Math.random() - 0.5) * 0.05;
             const types = ['square', 'triangle', 'pentagon'] as const;
             this.type = types[Math.floor(Math.random() * types.length)];
-            // Premium colors: Cyan, Purple, Blue - reduced opacity for glass feel
-            const colors = ['rgba(6, 182, 212, 0.15)', 'rgba(139, 92, 246, 0.15)', 'rgba(59, 130, 246, 0.15)'];
+            // Premium colors: Light mode uses darker versions, dark mode uses translucent versions
+            const colors = typeof window !== 'undefined' && document.documentElement.classList.contains('dark') 
+              ? ['rgba(6, 182, 212, 0.15)', 'rgba(139, 92, 246, 0.15)', 'rgba(59, 130, 246, 0.15)']
+              : ['rgba(6, 182, 212, 0.25)', 'rgba(139, 92, 246, 0.25)', 'rgba(59, 130, 246, 0.25)'];
             this.color = colors[Math.floor(Math.random() * colors.length)];
         }
 
@@ -256,7 +258,7 @@ export default function Home() {
       <FloatingIcons />
       
       {/* 🚀 PREMIUM HERO SECTION 🚀 */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-[#050505]">
+      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 dark:bg-[#050505] dark:from-transparent dark:via-transparent dark:to-transparent">
         {/* Antigravity Canvas Background */}
         <canvas
           ref={canvasRef}
@@ -275,12 +277,12 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Main Title with Premium Metallic Sheen Animation */}
+          {/* Main Title with Premium Animated Gradient */}
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 tracking-tight leading-none px-4">
-             <span className="block text-transparent bg-clip-text bg-[linear-gradient(to_right,theme(colors.gray.400),theme(colors.gray.700),theme(colors.gray.400))] dark:bg-[linear-gradient(to_right,theme(colors.gray.600),theme(colors.white),theme(colors.gray.600))] animate-shimmer-text bg-[length:200%_auto]">
+             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 animate-gradient-x bg-[length:200%_auto]">
                GUCC VIRTUAL
              </span>
-             <span className="block text-transparent bg-clip-text bg-gradient-to-b from-gray-700 dark:from-white to-gray-400 dark:to-gray-500 mt-2 filter drop-shadow-2xl">
+             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 dark:from-cyan-400 dark:via-blue-400 dark:to-purple-400 animate-gradient-x bg-[length:200%_auto] mt-2" style={{ animationDelay: '0.5s' }}>
                GAMING SOCIETY
              </span>
           </h1>
@@ -318,7 +320,7 @@ export default function Home() {
       </section>
 
       {/* 📜 WHO WE ARE 📜 */}
-      <section className="py-24 bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
+      <section className="py-24 bg-white dark:bg-gray-950 relative overflow-hidden border-t border-slate-200/50 dark:border-transparent">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
@@ -360,7 +362,7 @@ export default function Home() {
               
               <div className="space-y-6">
                  {/* Mission Card */}
-                 <div className="bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-8 rounded-3xl hover:border-cyan-500/30 transition-colors group">
+                 <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 p-8 rounded-3xl hover:border-cyan-400 dark:hover:border-cyan-500/30 transition-colors group shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-cyan-100 dark:hover:shadow-none">
                     <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                        <span className="text-2xl">🎯</span>
                     </div>
@@ -369,7 +371,7 @@ export default function Home() {
                  </div>
                  
                  {/* Vision Card */}
-                 <div className="bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-8 rounded-3xl hover:border-purple-500/30 transition-colors group">
+                 <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 p-8 rounded-3xl hover:border-purple-400 dark:hover:border-purple-500/30 transition-colors group shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-purple-100 dark:hover:shadow-none">
                     <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                        <span className="text-2xl">👁️</span>
                     </div>
@@ -382,7 +384,7 @@ export default function Home() {
       </section>
 
       {/* 🎮 FEATURED ACTIVITIES 🎮 */}
-      <section className="py-24 bg-gray-50 dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/5">
+      <section className="py-24 bg-slate-50 dark:bg-[#0a0a0a] border-t border-slate-200 dark:border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
              <span className="text-cyan-600 dark:text-cyan-400 font-bold tracking-wider uppercase text-sm">Action Packed</span>
@@ -444,7 +446,7 @@ export default function Home() {
       </section>
 
       {/* 🤝 SPONSORS 🤝 */}
-      <section className="py-24 bg-gray-100 dark:bg-gray-950 border-t border-gray-200 dark:border-white/5">
+      <section className="py-24 bg-white dark:bg-gray-950 border-t border-slate-200 dark:border-white/5">
          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Our Featured Partners</h2>
@@ -453,9 +455,9 @@ export default function Home() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
                {sponsors.length > 0 ? sponsors.map((sponsor, i) => (
-                  <div key={i} className="group relative bg-white dark:bg-[#0f0f10] border border-gray-200 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-cyan-900/10">
+                  <div key={i} className="group relative bg-slate-50 dark:bg-[#0f0f10] border border-slate-200 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500 dark:hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-purple-200/50 dark:hover:shadow-2xl dark:hover:shadow-cyan-900/10">
                       {/* Hover Glow */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-purple-100/50 dark:from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
                       
                       {/* Logo Area */}
                       <div className="relative z-10 w-full h-32 flex items-center justify-center mb-6 p-2">

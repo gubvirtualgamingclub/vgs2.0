@@ -181,87 +181,113 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
     const error = errors[field.id];
     const hasError = error && error.trim() !== '';
 
-    // Premium Input Styles
-    const baseInputClass = `w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 focus:bg-white/10 transition-all duration-300 outline-none backdrop-blur-sm ${hasError ? 'border-red-500/50 ring-2 ring-red-500/20' : 'hover:border-white/20'}`;
+    // Premium Input Styles with enhanced glassmorphism
+    const baseInputClass = `w-full px-5 py-4 bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-400/50 focus:bg-white/10 transition-all duration-500 outline-none backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${hasError ? 'border-red-500/50 ring-2 ring-red-500/20' : 'hover:border-white/25 hover:bg-white/[0.06]'}`;
 
     return (
-        <div className="relative group">
-            {field.type === 'textarea' ? (
-                 <textarea
-                    value={value}
-                    onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
-                    placeholder=" "
-                    className={`${baseInputClass} min-h-32 pt-6`}
-                    rows={4}
-                 />
-            ) : field.type === 'select' ? (
-                <select
-                    value={value}
-                    onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
-                    className={`${baseInputClass} pt-6 appearance-none`}
-                >
-                    <option value="" className="bg-gray-900 text-gray-400">Select Option</option>
-                    {field.options?.map((option) => (
-                        <option key={option} value={option} className="bg-gray-900 text-white">
-                            {option}
-                        </option>
-                    ))}
-                </select>
-            ) : field.type === 'radio' || field.type === 'checkbox' ? (
-                <div className="pt-2 space-y-3">
-                    {field.options?.map((option) => (
-                        <label key={option} className="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer transition-all group/option">
-                             <input
-                                type={field.type}
-                                name={field.id}
-                                value={option}
-                                checked={field.type === 'radio' ? value === option : (Array.isArray(value) && value.includes(option))}
-                                onChange={(e) => {
-                                   if (field.type === 'radio') handleFieldChange(field.id, e.target.value, field);
-                                   else {
-                                       const curr = Array.isArray(value) ? [...value] : [];
-                                       const newVal = e.target.checked ? [...curr, option] : curr.filter((v) => v !== option);
-                                       handleFieldChange(field.id, newVal, field);
-                                   }
-                                }}
-                                className={`w-5 h-5 accent-purple-500 border-gray-600 rounded focus:ring-offset-0 focus:ring-0 ${field.type === 'radio' ? 'rounded-full' : 'rounded'}`}
-                             />
-                             <span className="text-gray-300 font-medium group-hover/option:text-white transition-colors">{option}</span>
+        <div className="relative group animate-fadeInUp" style={{ animationDelay: `${Math.random() * 0.1}s` }}>
+            {/* Glow effect on focus */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/0 via-purple-600/0 to-pink-600/0 rounded-2xl blur-xl transition-all duration-500 group-focus-within:from-purple-600/20 group-focus-within:via-pink-600/20 group-focus-within:to-purple-600/20" />
+            
+            <div className="relative">
+                {field.type === 'textarea' ? (
+                     <textarea
+                        value={value}
+                        onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
+                        placeholder=" "
+                        className={`${baseInputClass} min-h-32 pt-7 resize-none`}
+                        rows={4}
+                     />
+                ) : field.type === 'select' ? (
+                    <div className="relative">
+                        <select
+                            value={value}
+                            onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
+                            className={`${baseInputClass} pt-7 appearance-none cursor-pointer`}
+                        >
+                            <option value="" className="bg-gray-900 text-gray-400">Select an option...</option>
+                            {field.options?.map((option) => (
+                                <option key={option} value={option} className="bg-gray-900 text-white">
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-purple-400">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                    </div>
+                ) : field.type === 'radio' || field.type === 'checkbox' ? (
+                    <div className="pt-3 space-y-3">
+                        <label className="block text-sm font-bold text-purple-300 uppercase tracking-wider mb-3">
+                            {field.label} {field.required && <span className="text-red-400">*</span>}
                         </label>
-                    ))}
-                </div>
-            ) : (
-                <input
-                    type={field.type}
-                    value={value}
-                    onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
-                    placeholder=" "
-                    className={`${baseInputClass} pt-6`}
-                />
-            )}
-            
-            {/* Floating Label - Highlighted */}
-            {field.type !== 'radio' && field.type !== 'checkbox' && (
-                <label className={`absolute left-5 transition-all duration-300 pointer-events-none font-bold text-sm uppercase tracking-wide
-                    ${value ? 'top-2 text-[10px] text-purple-300 shadow-sm' : 'top-4 text-white/70 group-focus-within:top-2 group-focus-within:text-[10px] group-focus-within:text-purple-300'}`}>
-                    {field.label} {field.required && <span className="text-red-500">*</span>}
-                </label>
-            )}
-            
-            {/* Input Line Animation */}
-             {(field.type !== 'radio' && field.type !== 'checkbox') && (
-                <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 group-focus-within:w-full rounded-b-xl" />
-             )}
+                        {field.options?.map((option, idx) => (
+                            <label 
+                                key={option} 
+                                className="flex items-center gap-4 p-4 rounded-xl border border-white/5 bg-gradient-to-r from-white/[0.03] to-white/[0.01] hover:from-white/[0.08] hover:to-white/[0.04] cursor-pointer transition-all duration-300 group/option hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/5"
+                                style={{ animationDelay: `${idx * 0.05}s` }}
+                            >
+                                 <div className="relative">
+                                     <input
+                                        type={field.type}
+                                        name={field.id}
+                                        value={option}
+                                        checked={field.type === 'radio' ? value === option : (Array.isArray(value) && value.includes(option))}
+                                        onChange={(e) => {
+                                           if (field.type === 'radio') handleFieldChange(field.id, e.target.value, field);
+                                           else {
+                                               const curr = Array.isArray(value) ? [...value] : [];
+                                               const newVal = e.target.checked ? [...curr, option] : curr.filter((v) => v !== option);
+                                               handleFieldChange(field.id, newVal, field);
+                                           }
+                                        }}
+                                        className="sr-only peer"
+                                     />
+                                     <div className={`w-6 h-6 rounded-${field.type === 'radio' ? 'full' : 'lg'} border-2 border-white/20 bg-white/5 flex items-center justify-center transition-all duration-300 peer-checked:border-purple-500 peer-checked:bg-purple-500/20`}>
+                                         {field.type === 'radio' ? (
+                                             <div className="w-3 h-3 rounded-full bg-purple-400 scale-0 peer-checked:scale-100 transition-transform duration-300" />
+                                         ) : (
+                                             <svg className="w-4 h-4 text-purple-400 scale-0 peer-checked:scale-100 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                         )}
+                                     </div>
+                                 </div>
+                                 <span className="text-gray-300 font-medium group-hover/option:text-white transition-colors">{option}</span>
+                            </label>
+                        ))}
+                    </div>
+                ) : (
+                    <input
+                        type={field.type}
+                        value={value}
+                        onChange={(e) => handleFieldChange(field.id, e.target.value, field)}
+                        placeholder=" "
+                        className={`${baseInputClass} pt-7`}
+                    />
+                )}
+                
+                {/* Enhanced Floating Label */}
+                {field.type !== 'radio' && field.type !== 'checkbox' && (
+                    <label className={`absolute left-5 transition-all duration-500 pointer-events-none font-bold uppercase tracking-wider
+                        ${value ? 'top-2 text-[11px] text-purple-400' : 'top-4 text-sm text-white/50 group-focus-within:top-2 group-focus-within:text-[11px] group-focus-within:text-purple-400'}`}>
+                        {field.label} {field.required && <span className="text-pink-400">*</span>}
+                    </label>
+                )}
+                
+                {/* Animated Bottom Border */}
+                 {(field.type !== 'radio' && field.type !== 'checkbox') && (
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-0 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 transition-all duration-700 ease-out group-focus-within:w-full rounded-full" />
+                 )}
+            </div>
 
             {/* Help Text */}
             {field.helpText && (
-                <p className="text-gray-400 text-xs mt-1 ml-4 italic flex items-center gap-1">
-                    <span className="text-purple-400">ℹ️</span> {field.helpText}
+                <p className="text-gray-500 text-xs mt-2 ml-1 flex items-center gap-1.5">
+                    <span className="text-purple-400/70">💡</span> {field.helpText}
                 </p>
             )}
 
             {hasError && (
-                <div className="flex items-center gap-2 mt-2 text-red-400 text-xs animate-slideDown ml-1">
+                <div className="flex items-center gap-2 mt-2 text-red-400 text-xs animate-shake ml-1">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     {error}
                 </div>
@@ -517,29 +543,102 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
             </div>
         </div>
 
-        {/* Success Popup */}
+        {/* Success Popup - Premium Animated Circular Checkmark */}
         {submitted && (
-             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
-                <div className="bg-[#0f0f0f] border border-green-500/30 p-12 rounded-[2rem] text-center max-w-lg w-full shadow-[0_0_100px_rgba(34,197,94,0.2)] relative overflow-hidden animate-zoomIn">
-                     {/* Confetti / Particle Effect Background */}
-                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-900/20 to-transparent"></div>
+             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-fadeIn">
+                <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] border border-green-500/20 p-12 rounded-[2.5rem] text-center max-w-lg w-full shadow-[0_0_150px_rgba(34,197,94,0.15)] relative overflow-hidden animate-scaleIn">
+                     {/* Animated Background Rings */}
+                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                         <div className="w-[300px] h-[300px] rounded-full border border-green-500/5 animate-ping-slow" />
+                         <div className="absolute w-[400px] h-[400px] rounded-full border border-green-500/5 animate-ping-slower" />
+                     </div>
+                     
+                     {/* Confetti Particles */}
+                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                         {[...Array(12)].map((_, i) => (
+                             <div
+                                 key={i}
+                                 className="absolute w-2 h-2 rounded-full animate-confetti"
+                                 style={{
+                                     left: `${10 + (i * 7)}%`,
+                                     top: '-10%',
+                                     backgroundColor: ['#22c55e', '#a855f7', '#ec4899', '#3b82f6'][i % 4],
+                                     animationDelay: `${i * 0.1}s`,
+                                     animationDuration: `${2 + Math.random()}s`
+                                 }}
+                             />
+                         ))}
+                     </div>
                      
                      <div className="relative z-10">
-                         <div className="w-24 h-24 bg-gradient-to-tr from-green-500 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-green-500/30 animate-bounce-slow">
-                             <svg className="w-12 h-12 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                         {/* Animated Circular Checkmark */}
+                         <div className="w-32 h-32 mx-auto mb-8 relative">
+                             {/* Outer Glow */}
+                             <div className="absolute inset-0 rounded-full bg-green-500/20 blur-2xl animate-pulse" />
+                             
+                             {/* SVG Circle + Checkmark Animation */}
+                             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                                 {/* Background Circle */}
+                                 <circle
+                                     cx="50" cy="50" r="45"
+                                     fill="none"
+                                     stroke="rgba(34, 197, 94, 0.1)"
+                                     strokeWidth="4"
+                                 />
+                                 {/* Animated Circle */}
+                                 <circle
+                                     cx="50" cy="50" r="45"
+                                     fill="none"
+                                     stroke="url(#gradient)"
+                                     strokeWidth="4"
+                                     strokeLinecap="round"
+                                     strokeDasharray="283"
+                                     strokeDashoffset="283"
+                                     className="animate-drawCircle"
+                                 />
+                                 <defs>
+                                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                         <stop offset="0%" stopColor="#22c55e" />
+                                         <stop offset="50%" stopColor="#10b981" />
+                                         <stop offset="100%" stopColor="#22c55e" />
+                                     </linearGradient>
+                                 </defs>
                              </svg>
+                             
+                             {/* Checkmark SVG - Animated Draw */}
+                             <svg className="absolute inset-0 w-32 h-32" viewBox="0 0 100 100">
+                                 <path
+                                     d="M30 52 L45 67 L70 35"
+                                     fill="none"
+                                     stroke="#22c55e"
+                                     strokeWidth="5"
+                                     strokeLinecap="round"
+                                     strokeLinejoin="round"
+                                     strokeDasharray="60"
+                                     strokeDashoffset="60"
+                                     className="animate-drawCheck"
+                                 />
+                             </svg>
+                             
+                             {/* Center Glow */}
+                             <div className="absolute inset-8 rounded-full bg-gradient-to-br from-green-400/20 to-emerald-600/20 animate-pulse" />
                          </div>
-                         <h2 className="text-4xl font-black text-white mb-4 italic uppercase">Registration Successful!</h2>
-                         <p className="text-gray-400 mb-8 text-lg font-light">Your seat has been reserved. Good luck, Soldier!</p>
                          
-                         <div className="p-4 bg-white/5 rounded-xl border border-white/10 mb-8">
-                             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Transaction ID</p>
-                             <p className="text-xl font-mono text-green-400 tracking-widest">{transactionId}</p>
+                         <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 mb-4 uppercase tracking-wide animate-fadeInUp" style={{ animationDelay: '0.5s' }}>Registration Successful!</h2>
+                         <p className="text-gray-400 mb-8 text-lg animate-fadeInUp" style={{ animationDelay: '0.6s' }}>Your seat has been reserved. Good luck, Soldier! 🎮</p>
+                         
+                         <div className="p-5 bg-gradient-to-r from-green-900/20 to-emerald-900/20 rounded-2xl border border-green-500/20 mb-8 animate-fadeInUp" style={{ animationDelay: '0.7s' }}>
+                             <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Transaction ID</p>
+                             <p className="text-2xl font-mono font-bold text-green-400 tracking-widest">{transactionId}</p>
                          </div>
 
-                         <button onClick={() => window.location.reload()} className="px-8 py-4 bg-white hover:bg-gray-200 text-black font-bold uppercase tracking-wide rounded-xl transition-colors w-full">
-                             Register Another Team
+                         <button 
+                             onClick={() => window.location.reload()} 
+                             className="group relative px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold uppercase tracking-wide rounded-2xl transition-all duration-300 w-full overflow-hidden animate-fadeInUp" 
+                             style={{ animationDelay: '0.8s' }}
+                         >
+                             <span className="relative z-10">Register Another Team</span>
+                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                          </button>
                      </div>
                 </div>
@@ -557,11 +656,43 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
            }
            .animate-float { animation: float 6s ease-in-out infinite; }
            .animate-pulse-slow { animation: pulse-slow 8s ease-in-out infinite; }
-           .animate-zoomIn { animation: zoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-           @keyframes zoomIn {
-               from { opacity: 0; transform: scale(0.9); }
+           .animate-scaleIn { animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+           @keyframes scaleIn {
+               from { opacity: 0; transform: scale(0.8); }
                to { opacity: 1; transform: scale(1); }
            }
+           @keyframes drawCircle {
+               0% { stroke-dashoffset: 283; }
+               100% { stroke-dashoffset: 0; }
+           }
+           .animate-drawCircle { animation: drawCircle 1s ease-out 0.2s forwards; }
+           @keyframes drawCheck {
+               0% { stroke-dashoffset: 60; }
+               100% { stroke-dashoffset: 0; }
+           }
+           .animate-drawCheck { animation: drawCheck 0.5s ease-out 1s forwards; }
+           @keyframes fadeInUp {
+               from { opacity: 0; transform: translateY(20px); }
+               to { opacity: 1; transform: translateY(0); }
+           }
+           .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; }
+           @keyframes confetti {
+               0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+               100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+           }
+           .animate-confetti { animation: confetti 3s ease-out forwards; }
+           @keyframes ping-slow {
+               0% { transform: scale(1); opacity: 0.3; }
+               100% { transform: scale(1.5); opacity: 0; }
+           }
+           .animate-ping-slow { animation: ping-slow 2s ease-out infinite; }
+           .animate-ping-slower { animation: ping-slow 3s ease-out infinite 0.5s; }
+           @keyframes shake {
+               0%, 100% { transform: translateX(0); }
+               25% { transform: translateX(-5px); }
+               75% { transform: translateX(5px); }
+           }
+           .animate-shake { animation: shake 0.3s ease-out; }
         `}</style>
     </div>
   );

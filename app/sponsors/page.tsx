@@ -118,11 +118,11 @@ export default function SponsorsPage() {
 
           <ScrollAnimation animation="gameOver" delay={200}>
             <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 dark:from-white via-gray-600 dark:via-purple-100 to-gray-400">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-purple-100 dark:to-gray-400">
                 Sponsors &
               </span>
               <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 animate-gradient-x">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-cyan-500 to-purple-600 dark:from-purple-400 dark:via-cyan-400 dark:to-purple-400 animate-gradient-x bg-[length:200%_auto]">
                  Collaborators
               </span>
             </h1>
@@ -382,17 +382,17 @@ export default function SponsorsPage() {
       )}
 
       {/* Collaboration CTA */}
-      <section className="py-24 relative overflow-hidden text-center">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
+      <section className="py-24 relative overflow-hidden text-center bg-gradient-to-b from-slate-100 to-white dark:from-transparent dark:to-transparent">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-300/30 dark:bg-purple-600/10 blur-[120px] rounded-full pointer-events-none" />
             
             <div className="relative z-10 max-w-4xl mx-auto px-6">
-                 <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Ready to Level Up?</h2>
-                 <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                 <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 dark:from-white dark:via-purple-200 dark:to-white mb-6">Ready to Level Up?</h2>
+                 <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
                     Join forces with VGS and connect with the most passionate gaming community. Let's create something legendary together.
                  </p>
                  <button
                     onClick={() => setShowCollaborationModal(true)}
-                    className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-lg rounded-full hover:shadow-[0_0_40px_rgba(147,51,234,0.5)] hover:scale-105 transition-all duration-300"
+                    className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-lg rounded-full hover:shadow-[0_0_40px_rgba(147,51,234,0.5)] hover:scale-105 transition-all duration-300 shadow-lg"
                 >
                     Become a Partner
                 </button>
