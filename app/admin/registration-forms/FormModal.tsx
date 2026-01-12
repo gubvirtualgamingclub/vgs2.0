@@ -139,14 +139,14 @@ export default function FormModal({
                 <label className="block text-sm font-medium mb-2">Banner URL (Top of Form)</label>
                 <input
                   type="text"
-                  value={formData.banner_url || ''}
-                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
+                  value={formData.hero_image_url || ''}
+                  onChange={(e) => setFormData({ ...formData, hero_image_url: e.target.value })}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                   placeholder="https://... or /images/banner.jpg"
                 />
-                {formData.banner_url && (
+                {formData.hero_image_url && (
                   <img
-                    src={formData.banner_url}
+                    src={formData.hero_image_url}
                     alt="Banner Preview"
                     className="mt-2 w-full h-24 object-cover rounded-lg"
                   />
@@ -201,16 +201,16 @@ export default function FormModal({
                     <label className="block text-sm font-medium mb-2">Organizer Logo</label>
                     <input
                       type="text"
-                      value={formData.organizer_logo_url}
+                      value={formData.club_logo_url}
                       onChange={(e) =>
-                        setFormData({ ...formData, organizer_logo_url: e.target.value })
+                        setFormData({ ...formData, club_logo_url: e.target.value })
                       }
                       className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
                       placeholder="https://... or /logos/club.png"
                     />
-                    {formData.organizer_logo_url && (
+                    {formData.club_logo_url && (
                       <img
-                        src={formData.organizer_logo_url}
+                        src={formData.club_logo_url}
                         alt="Organizer"
                         className="mt-2 h-16 object-contain bg-white/5 rounded p-2"
                       />

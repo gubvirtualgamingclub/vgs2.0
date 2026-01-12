@@ -317,19 +317,19 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-12 md:py-20">
             
             {/* Banner Image */}
-            {form.banner_url && (
+            {form.hero_image_url && (
                 <div className="mb-12 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative group">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-                    <img src={form.banner_url} alt="Form Banner" className="w-full h-48 md:h-64 object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                    <img src={form.hero_image_url} alt="Form Banner" className="w-full h-48 md:h-64 object-cover transform group-hover:scale-105 transition-transform duration-700" />
                 </div>
             )}
 
             {/* Header Logos */}
             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 mb-12">
-                {form.organizer_logo_url && (
+                {form.club_logo_url && (
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <img src={form.organizer_logo_url} className="h-16 md:h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" alt="Organizer" />
+                        <img src={form.club_logo_url} className="h-16 md:h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" alt="Organizer" />
                     </div>
                 )}
                 {form.tournament_logo_url && (
