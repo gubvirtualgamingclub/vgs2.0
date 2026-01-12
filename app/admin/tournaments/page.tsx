@@ -326,7 +326,7 @@ export default function TournamentManagementPage() {
     try {
         await createTournamentSchedule({
             tournament_id: tournament.id,
-            game_id: scheduleForm.game_id || undefined,
+            game_id: scheduleForm.game_id ? scheduleForm.game_id : undefined,
             title: scheduleForm.title,
             match_time: scheduleForm.match_time,
             description: scheduleForm.description,
@@ -356,7 +356,7 @@ export default function TournamentManagementPage() {
 
         await createTournamentResult({
             tournament_id: tournament.id,
-            game_id: resultForm.game_id || undefined,
+            game_id: resultForm.game_id ? resultForm.game_id : undefined,
             stage_name: resultForm.stage_name,
             result_data: resultData,
             is_active: true
