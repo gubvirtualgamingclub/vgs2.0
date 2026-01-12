@@ -80,6 +80,34 @@ export interface Tournament {
   sponsors?: Organization[];
   status: 'open' | 'closed';
   registration_status?: 'open' | 'closed';
+  show_schedule?: boolean;
+  show_results?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// New: Tournament Schedules
+export interface TournamentSchedule {
+  id: string;
+  tournament_id: string;
+  game_id?: string; // Optional (if general schedule)
+  title: string;
+  match_time: string;
+  stage?: string; // e.g., "Qualifiers", "Finals"
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// New: Tournament Results
+export interface TournamentResult {
+  id: string;
+  tournament_id: string;
+  game_id?: string;
+  stage_name: string; // e.g., "Grand Final"
+  result_data: any; // JSONB structure for flexibility (leaderboard array)
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -118,7 +118,7 @@ function PremiumGameCard({ game, index, isGlobalRegistrationClosed }: { game: To
   
   return (
     <div 
-      className="group relative h-auto min-h-[750px] w-full rounded-2xl transition-transform duration-300"
+      className="group relative w-full aspect-square rounded-2xl transition-transform duration-300"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Card Container */}
@@ -131,11 +131,11 @@ function PremiumGameCard({ game, index, isGlobalRegistrationClosed }: { game: To
         </div>
 
         {/* Content Layer */}
-        <div className="relative z-10 flex flex-col h-full p-6 md:p-8">
+        <div className="relative z-10 flex flex-col h-full p-4 md:p-6">
            
-           {/* Logo Avatar - Large & Centered */}
-           <div className="flex flex-col items-center mb-8 flex-shrink-0">
-              <div className="relative w-48 h-48 md:w-56 md:h-56 transition-transform duration-500 group-hover:scale-105">
+           {/* Top: Logo & Name */}
+           <div className="flex flex-col items-center justify-center flex-1">
+              <div className="relative w-24 h-24 md:w-32 md:h-32 transition-transform duration-500 group-hover:scale-110">
                  {game.game_logo ? (
                     <Image 
                        src={game.game_logo} 
@@ -145,69 +145,47 @@ function PremiumGameCard({ game, index, isGlobalRegistrationClosed }: { game: To
                        sizes="(max-width: 768px) 100vw, 33vw"
                     />
                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-white/5 rounded-full text-purple-400 text-6xl font-bold">
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-white/5 rounded-full text-purple-400 text-4xl font-bold">
                        {game.game_name.charAt(0)}
                     </div>
                  )}
               </div>
-              <div className="mt-6 text-center">
-                   <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white leading-none uppercase tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all">
-                      {game.game_name}
-                   </h3>
-                   <span className="inline-block mt-3 px-4 py-1 bg-gray-100 dark:bg-white/5 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/10">
-                      {game.category} Edition
-                   </span>
-              </div>
+              <h3 className="mt-4 text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight text-center leading-none">
+                  {game.game_name}
+              </h3>
+              <div className="mt-2 text-green-600 dark:text-green-400 font-bold font-mono text-sm">{game.prize_pool}</div>
            </div>
 
-           {/* Stats Grid - Pushed to bottom of upper section */}
-           <div className="grid grid-cols-2 gap-3 mb-8 mt-auto w-full">
-              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center transition-colors">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Prize Pool</div>
-                 <div className="text-green-600 dark:text-green-400 font-bold font-mono text-sm break-words">{game.prize_pool}</div>
+           {/* Bottom: Compact Stats & Buttons */}
+           <div className="mt-auto space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-mono text-center">
+                  <div className="bg-gray-100 dark:bg-white/5 rounded-lg py-1 px-2 border border-gray-200 dark:border-white/5">{game.team_size}</div>
+                  <div className="bg-gray-100 dark:bg-white/5 rounded-lg py-1 px-2 border border-gray-200 dark:border-white/5">{game.registration_fee || 'Free'}</div>
               </div>
-              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center transition-colors">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Fee</div>
-                 <div className="text-purple-600 dark:text-purple-400 font-bold font-mono text-sm">{game.registration_fee || 'Free'}</div>
-              </div>
-              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center transition-colors">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Format</div>
-                 <div className="text-blue-600 dark:text-blue-400 font-bold font-mono text-sm truncate" title={game.format}>{game.format || 'Standard'}</div>
-              </div>
-              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 text-center transition-colors">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Team</div>
-                 <div className="text-gray-900 dark:text-white font-bold font-mono text-sm">{game.team_size}</div>
-              </div>
-              <div className="bg-gray-100 dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/5 backdrop-blur-sm text-center transition-colors col-span-2">
-                 <div className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Max Players</div>
-                 <div className="text-gray-900 dark:text-white font-bold font-mono text-sm">{game.max_participants || 'Unlimited'}</div>
-              </div>
-           </div>
 
-           {/* Action Buttons - Always Visible */}
-           <div className="flex flex-col gap-3 mt-4">
-              <a 
-                href={isRegistrationClosed ? undefined : game.registration_link}
-                target={isRegistrationClosed ? undefined : "_blank"}
-                rel="noopener noreferrer"
-                 className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 transition-all duration-300 transform group-hover:translate-y-[-2px] ${isRegistrationClosed
-                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700 pointer-events-none'
-                    : 'bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 hover:shadow-[0_0_30px_rgba(168,85,247,0.4)]'}`}
-              >
-                 {isRegistrationClosed ? 'Registration Closed' : 'Register Now'}
-                 {!isRegistrationClosed && <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>}
-              </a>
-              
-              <a 
-                 href={game.rulebook_link} 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 download
-                 className="w-full py-4 flex items-center justify-center gap-2 rounded-xl bg-gray-200 dark:bg-white/5 text-gray-900 dark:text-gray-400 border border-gray-300 dark:border-white/10 hover:bg-gray-300 dark:hover:bg-white/10 hover:text-black dark:hover:text-white hover:border-purple-500/50 transition-all font-bold uppercase tracking-widest text-sm"
-              >
-                 <span>Rule Book</span>
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              </a>
+              <div className="flex gap-2">
+                  <a
+                    href={isRegistrationClosed ? undefined : game.registration_link}
+                    target={isRegistrationClosed ? undefined : "_blank"}
+                    rel="noopener noreferrer"
+                    className={`flex-1 py-3 rounded-lg font-bold uppercase tracking-widest text-[10px] md:text-xs flex items-center justify-center gap-1 transition-all ${isRegistrationClosed
+                        ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
+                        : 'bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20'}`}
+                  >
+                    {isRegistrationClosed ? 'Closed' : 'Register'}
+                  </a>
+
+                  <a
+                    href={game.rulebook_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="py-3 px-4 rounded-lg bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 text-gray-900 dark:text-white border border-gray-300 dark:border-white/10 transition-all flex items-center justify-center"
+                    title="Rule Book"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                  </a>
+              </div>
            </div>
 
         </div>
@@ -251,7 +229,173 @@ function OrgLogo({ org, size = "medium" }: { org: Organization, size?: "small" |
    );
 }
 
-// 3. Premium Glimpse Gallery with Bento Grid
+// 3. Tournament Hub Modal (Schedule & Results)
+function TournamentHubModal({
+    isOpen,
+    onClose,
+    schedules,
+    results,
+    games
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    schedules: any[];
+    results: any[];
+    games: TournamentGame[]
+}) {
+    const [activeTab, setActiveTab] = useState<'schedule' | 'results'>('schedule');
+    const [activeGameFilter, setActiveGameFilter] = useState<string>('all');
+
+    if (!isOpen) return null;
+
+    // Filter content
+    const filteredSchedules = schedules.filter(s => activeGameFilter === 'all' || s.game_id === activeGameFilter);
+    const filteredResults = results.filter(r => activeGameFilter === 'all' || r.game_id === activeGameFilter);
+
+    // Group Schedules by Date
+    const groupedSchedules = filteredSchedules.reduce((acc, schedule) => {
+        const date = new Date(schedule.match_time).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(schedule);
+        return acc;
+    }, {} as Record<string, typeof schedules>);
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fadeIn">
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={onClose}></div>
+
+            <div className="relative w-full max-w-6xl h-[90vh] bg-[#0f1219] border border-white/10 rounded-3xl overflow-hidden flex flex-col shadow-2xl shadow-purple-900/20">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 md:p-8 border-b border-white/5 bg-white/5 backdrop-blur-md">
+                    <div>
+                        <h2 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter">Live Center</h2>
+                        <p className="text-gray-400 text-sm">Official Tournament Hub</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                {/* Tabs & Filters */}
+                <div className="flex flex-col md:flex-row gap-4 p-6 border-b border-white/5 bg-[#0b0f19]">
+                    <div className="flex bg-black/40 p-1 rounded-xl">
+                        <button
+                            onClick={() => setActiveTab('schedule')}
+                            className={`px-6 py-2 rounded-lg text-sm font-bold uppercase transition-all ${activeTab === 'schedule' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                        >
+                            Schedule
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('results')}
+                            className={`px-6 py-2 rounded-lg text-sm font-bold uppercase transition-all ${activeTab === 'results' ? 'bg-cyan-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                        >
+                            Results
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-x-auto no-scrollbar flex gap-2">
+                        <button
+                            onClick={() => setActiveGameFilter('all')}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase border transition-all whitespace-nowrap ${activeGameFilter === 'all' ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-gray-500 hover:text-white'}`}
+                        >
+                            All Games
+                        </button>
+                        {games.map(game => (
+                            <button
+                                key={game.id}
+                                onClick={() => setActiveGameFilter(game.id)}
+                                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase border transition-all whitespace-nowrap ${activeGameFilter === game.id ? 'bg-white/10 border-white/20 text-white' : 'border-transparent text-gray-500 hover:text-white'}`}
+                            >
+                                {game.game_name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar">
+                    {activeTab === 'schedule' ? (
+                        Object.entries(groupedSchedules).length > 0 ? (
+                            Object.entries(groupedSchedules).map(([date, items]) => (
+                                <div key={date}>
+                                    <h3 className="text-purple-400 text-sm font-bold uppercase tracking-widest mb-4 sticky top-0 bg-[#0f1219] py-2 z-10">{date}</h3>
+                                    <div className="grid gap-3">
+                                        {(items as any[]).map((item: any) => (
+                                            <div key={item.id} className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-purple-500/30 transition-colors">
+                                                <div className="text-center md:text-left min-w-[100px]">
+                                                    <div className="text-xl font-black text-white">
+                                                        {new Date(item.match_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 font-bold uppercase">{item.stage || 'Group Stage'}</div>
+                                                </div>
+                                                <div className="w-px h-10 bg-white/10 hidden md:block"></div>
+                                                <div className="flex-1 text-center md:text-left">
+                                                    <h4 className="text-lg font-bold text-white">{item.title}</h4>
+                                                    <p className="text-sm text-gray-400">{item.description}</p>
+                                                </div>
+                                                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-cyan-400">
+                                                    {item.game?.game_name || 'General'}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-20 text-gray-600">No scheduled matches found.</div>
+                        )
+                    ) : (
+                        // Results View
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {filteredResults.length > 0 ? (
+                                filteredResults.map((res: any) => (
+                                    <div key={res.id} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
+                                        <div className="p-4 bg-white/5 flex justify-between items-center">
+                                            <div>
+                                                <h4 className="font-bold text-white">{res.stage_name}</h4>
+                                                <span className="text-xs text-gray-400">{res.game?.game_name}</span>
+                                            </div>
+                                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                        </div>
+                                        <div className="p-4">
+                                            {/* Dynamic JSON Rendering for Leaderboard */}
+                                            {Array.isArray(res.result_data) && (
+                                                <table className="w-full text-sm">
+                                                    <thead>
+                                                        <tr className="text-left text-gray-500 text-xs uppercase">
+                                                            <th className="pb-2">Rank</th>
+                                                            <th className="pb-2">Team / Player</th>
+                                                            <th className="pb-2 text-right">Score</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-white/5">
+                                                        {res.result_data.map((row: any, idx: number) => (
+                                                            <tr key={idx} className="group">
+                                                                <td className="py-2 text-gray-400 group-hover:text-white font-mono">
+                                                                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${row.rank || idx + 1}`}
+                                                                </td>
+                                                                <td className="py-2 font-bold text-white">{row.team || row.name}</td>
+                                                                <td className="py-2 text-right text-cyan-400 font-mono">{row.score || row.status || '-'}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-20 text-gray-600">No results posted yet.</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// 4. Premium Glimpse Gallery with Bento Grid
 function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previous_glimpses']> }) {
     const [activeEventIndex, setActiveEventIndex] = useState(0);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -503,9 +647,10 @@ function FeaturedGamesShowcase({ games }: { games: TournamentGame[] }) {
 
 
 export default function TournamentsPage() {
-  const [tournament, setTournament] = useState<(Tournament & { games: TournamentGame[] }) | null>(null);
+  const [tournament, setTournament] = useState<(Tournament & { games: TournamentGame[]; schedules?: any[]; results?: any[] }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<'all' | 'casual' | 'mobile' | 'pc'>('all');
+  const [isHubOpen, setIsHubOpen] = useState(false);
 
   useEffect(() => {
     fetchTournament();
@@ -592,6 +737,33 @@ export default function TournamentsPage() {
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
+
+      {/* --- LIVE CENTER BUTTON (Top Right) --- */}
+      {tournament.status === 'open' && (tournament.show_schedule || tournament.show_results) && (
+          <div className="fixed top-24 right-4 z-50 animate-bounce-in">
+              <button
+                onClick={() => setIsHubOpen(true)}
+                className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-purple-500/50 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:bg-purple-900/80 transition-all hover:scale-105"
+              >
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                  <span className="font-bold text-white text-sm uppercase tracking-wider">Live Center</span>
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  </div>
+              </button>
+          </div>
+      )}
+
+      <TournamentHubModal
+        isOpen={isHubOpen}
+        onClose={() => setIsHubOpen(false)}
+        schedules={tournament.schedules || []}
+        results={tournament.results || []}
+        games={tournament.games}
+      />
 
       {/* --- HERO SECTION --- */}
       <section className="relative min-h-[90vh] w-full flex flex-col items-center justify-center overflow-hidden py-20">

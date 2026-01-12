@@ -12,9 +12,15 @@ import {
   updateTournamentGame,
   getTournamentGames,
   createTournamentGame,
-  deleteTournamentGame
+  deleteTournamentGame,
+  getTournamentSchedules,
+  createTournamentSchedule,
+  deleteTournamentSchedule,
+  getTournamentResults,
+  createTournamentResult,
+  deleteTournamentResult
 } from '@/lib/supabase-queries';
-import type { Tournament, TournamentGame, Organization } from '@/lib/types/database';
+import type { Tournament, TournamentGame, Organization, TournamentSchedule, TournamentResult } from '@/lib/types/database';
 import { 
   TrophyIcon, 
   CalendarIcon, 
@@ -26,15 +32,19 @@ import {
   CheckCircleIcon,
   BuildingOffice2Icon,
   VideoCameraIcon,
-  TrashIcon
+  TrashIcon,
+  TableCellsIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 export default function TournamentManagementPage() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [games, setGames] = useState<TournamentGame[]>([]);
+  const [schedules, setSchedules] = useState<TournamentSchedule[]>([]);
+  const [results, setResults] = useState<TournamentResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'games' | 'glimpses'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'games' | 'glimpses' | 'hub'>('info');
   
   // Tournament form state - REMOVED BANNER
   const [formData, setFormData] = useState({
@@ -51,7 +61,9 @@ export default function TournamentManagementPage() {
     total_prize_pool: '',
     registration_deadline: '',
     status: 'closed' as 'open' | 'closed',
-    registration_status: 'closed' as 'open' | 'closed'
+    registration_status: 'closed' as 'open' | 'closed',
+    show_schedule: false,
+    show_results: false
   });
 
   // Organizations state
@@ -87,6 +99,10 @@ export default function TournamentManagementPage() {
     order_index: 0
   });
 
+  // Hub Form States
+  const [scheduleForm, setScheduleForm] = useState({ game_id: '', title: '', match_time: '', description: '' });
+  const [resultForm, setResultForm] = useState({ game_id: '', stage_name: '', rank: '', team: '', score: '' });
+
   useEffect(() => {
     loadTournament();
   }, []);
@@ -112,7 +128,9 @@ export default function TournamentManagementPage() {
           total_prize_pool: tournamentData.total_prize_pool,
           registration_deadline: tournamentData.registration_deadline ? tournamentData.registration_deadline.split('T')[0] : '',
           status: tournamentData.status,
-          registration_status: tournamentData.registration_status || 'closed'
+          registration_status: tournamentData.registration_status || 'closed',
+          show_schedule: tournamentData.show_schedule || false,
+          show_results: tournamentData.show_results || false
         });
         setOrganizers(tournamentData.organizers || []);
         setCoOrganizers(tournamentData.co_organizers || []);
@@ -123,6 +141,12 @@ export default function TournamentManagementPage() {
         // Load games
         const gamesData = await getTournamentGames(tournamentData.id);
         setGames(gamesData);
+
+        // Load Hub Data
+        const schedulesData = await getTournamentSchedules(tournamentData.id);
+        setSchedules(schedulesData);
+        const resultsData = await getTournamentResults(tournamentData.id);
+        setResults(resultsData);
       }
     } catch (error) {
       console.error('Error loading tournament:', error);
@@ -296,6 +320,59 @@ export default function TournamentManagementPage() {
     }
   };
 
+  // Hub Functions
+  const handleAddSchedule = async () => {
+    if (!tournament || !scheduleForm.title || !scheduleForm.match_time) return alert("Title and Time required");
+    try {
+        await createTournamentSchedule({
+            tournament_id: tournament.id,
+            game_id: scheduleForm.game_id || undefined,
+            title: scheduleForm.title,
+            match_time: scheduleForm.match_time,
+            description: scheduleForm.description,
+            is_active: true
+        });
+        setScheduleForm({ game_id: '', title: '', match_time: '', description: '' });
+        loadTournament();
+    } catch (e) { console.error(e); alert("Failed to add schedule"); }
+  };
+
+  const handleDeleteSchedule = async (id: string) => {
+      if (confirm("Delete this schedule?")) {
+          await deleteTournamentSchedule(id);
+          loadTournament();
+      }
+  };
+
+  const handleAddResult = async () => {
+    if (!tournament || !resultForm.stage_name || !resultForm.team) return alert("Stage and Team required");
+    try {
+        // Simple structure: One entry per row for now, can be expanded to full arrays later
+        const resultData = [{
+            rank: resultForm.rank,
+            team: resultForm.team,
+            score: resultForm.score
+        }];
+
+        await createTournamentResult({
+            tournament_id: tournament.id,
+            game_id: resultForm.game_id || undefined,
+            stage_name: resultForm.stage_name,
+            result_data: resultData,
+            is_active: true
+        });
+        setResultForm({ ...resultForm, team: '', score: '', rank: '' }); // Keep stage/game for faster entry
+        loadTournament();
+    } catch (e) { console.error(e); alert("Failed to add result"); }
+  };
+
+  const handleDeleteResult = async (id: string) => {
+      if (confirm("Delete this result entry?")) {
+          await deleteTournamentResult(id);
+          loadTournament();
+      }
+  };
+
   // Glimpses Functions
   const [newEventTitle, setNewEventTitle] = useState('');
   const [newImageInputs, setNewImageInputs] = useState<{[key: number]: string}>({});
@@ -439,6 +516,7 @@ export default function TournamentManagementPage() {
         {[
             { id: 'info', icon: TrophyIcon, label: 'Tournament Info' },
             { id: 'games', icon: BuildingOffice2Icon, label: `Games (${games.length})` },
+            { id: 'hub', icon: TableCellsIcon, label: 'Hub & Schedule' },
             { id: 'glimpses', icon: PhotoIcon, label: 'Previous Glimpses' },
         ].map((tab) => (
             <button
@@ -807,6 +885,113 @@ export default function TournamentManagementPage() {
                  ))}
               </div>
            </div>
+        )}
+
+        {/* HUB & SCHEDULE TAB */}
+        {activeTab === 'hub' && (
+            <div className="p-6 lg:p-8 space-y-12">
+
+                {/* Toggles */}
+                <div className="flex flex-col md:flex-row gap-8 p-6 bg-white/5 rounded-2xl border border-white/5">
+                    <div className="flex items-center justify-between gap-4 w-full">
+                        <div>
+                            <h3 className="text-white font-bold">Show Schedule Tab</h3>
+                            <p className="text-xs text-gray-400">Make schedule visible to public</p>
+                        </div>
+                        <AnimatedToggle isOn={formData.show_schedule} onToggle={() => setFormData({ ...formData, show_schedule: !formData.show_schedule })} />
+                    </div>
+                    <div className="w-px bg-white/10 hidden md:block"></div>
+                    <div className="flex items-center justify-between gap-4 w-full">
+                        <div>
+                            <h3 className="text-white font-bold">Show Results Tab</h3>
+                            <p className="text-xs text-gray-400">Make results visible to public</p>
+                        </div>
+                        <AnimatedToggle isOn={formData.show_results} onToggle={() => setFormData({ ...formData, show_results: !formData.show_results })} />
+                    </div>
+                    <button onClick={handleSaveTournament} className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-sm whitespace-nowrap">Save Settings</button>
+                </div>
+
+                {/* Schedule Manager */}
+                <div className="space-y-6">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2 border-b border-white/10 pb-4">
+                        <CalendarIcon className="w-6 h-6 text-purple-500" /> Schedule Manager
+                    </h3>
+
+                    {/* Add Schedule Form */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                        <select value={scheduleForm.game_id} onChange={e => setScheduleForm({...scheduleForm, game_id: e.target.value})} className={inputClassName}>
+                            <option value="">General / All Games</option>
+                            {games.map(g => <option key={g.id} value={g.id}>{g.game_name}</option>)}
+                        </select>
+                        <input type="text" placeholder="Match Title (e.g. Group A - Match 1)" value={scheduleForm.title} onChange={e => setScheduleForm({...scheduleForm, title: e.target.value})} className={inputClassName} />
+                        <input type="datetime-local" value={scheduleForm.match_time} onChange={e => setScheduleForm({...scheduleForm, match_time: e.target.value})} className={inputClassName} />
+                        <input type="text" placeholder="Description / Teams" value={scheduleForm.description} onChange={e => setScheduleForm({...scheduleForm, description: e.target.value})} className={inputClassName} />
+                        <button onClick={handleAddSchedule} className="bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2"><PlusIcon className="w-5 h-5" /> Add</button>
+                    </div>
+
+                    {/* List Schedules */}
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {schedules.map((item) => (
+                            <div key={item.id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className="text-center min-w-[80px]">
+                                        <div className="text-purple-400 font-bold text-sm">{new Date(item.match_time).toLocaleDateString()}</div>
+                                        <div className="text-gray-500 text-xs">{new Date(item.match_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                    </div>
+                                    <div className="w-px h-8 bg-white/10"></div>
+                                    <div>
+                                        <h4 className="text-white font-bold">{item.title}</h4>
+                                        <p className="text-xs text-gray-400">{item.description}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => handleDeleteSchedule(item.id)} className="text-red-500 hover:text-red-400 p-2"><TrashIcon className="w-5 h-5" /></button>
+                            </div>
+                        ))}
+                        {schedules.length === 0 && <p className="text-gray-500 text-center py-4">No schedules added yet.</p>}
+                    </div>
+                </div>
+
+                {/* Results Manager */}
+                <div className="space-y-6">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2 border-b border-white/10 pb-4">
+                        <TrophyIcon className="w-6 h-6 text-cyan-500" /> Results & Leaderboard
+                    </h3>
+
+                    {/* Add Result Form */}
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                        <select value={resultForm.game_id} onChange={e => setResultForm({...resultForm, game_id: e.target.value})} className={inputClassName}>
+                            <option value="">Select Game...</option>
+                            {games.map(g => <option key={g.id} value={g.id}>{g.game_name}</option>)}
+                        </select>
+                        <input type="text" placeholder="Stage (e.g. Finals)" value={resultForm.stage_name} onChange={e => setResultForm({...resultForm, stage_name: e.target.value})} className={inputClassName} />
+                        <input type="text" placeholder="Rank (1)" value={resultForm.rank} onChange={e => setResultForm({...resultForm, rank: e.target.value})} className={`${inputClassName} col-span-1`} />
+                        <input type="text" placeholder="Team / Player Name" value={resultForm.team} onChange={e => setResultForm({...resultForm, team: e.target.value})} className={`${inputClassName} col-span-2`} />
+                        <input type="text" placeholder="Score / Status" value={resultForm.score} onChange={e => setResultForm({...resultForm, score: e.target.value})} className={inputClassName} />
+                        <button onClick={handleAddResult} className="bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 md:col-span-6"><PlusIcon className="w-5 h-5" /> Add Result Entry</button>
+                    </div>
+
+                    {/* List Results */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {results.map((item) => (
+                            <div key={item.id} className="p-4 bg-white/5 rounded-xl border border-white/5 relative group">
+                                <button onClick={() => handleDeleteResult(item.id)} className="absolute top-2 right-2 text-red-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"><XMarkIcon className="w-4 h-4" /></button>
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="text-white font-bold">{item.stage_name}</h4>
+                                    <span className="text-xs text-gray-500 border border-white/10 px-2 py-0.5 rounded">{games.find(g => g.id === item.game_id)?.game_name || 'Unknown Game'}</span>
+                                </div>
+                                <div className="space-y-1">
+                                    {(item.result_data as any[])?.map((row, idx) => (
+                                        <div key={idx} className="flex justify-between text-sm">
+                                            <span className="text-gray-400">#{row.rank} {row.team}</span>
+                                            <span className="text-cyan-400 font-mono">{row.score}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         )}
       </div>
 
