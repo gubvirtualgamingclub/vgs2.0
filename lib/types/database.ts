@@ -79,6 +79,7 @@ export interface Tournament {
   associated_with?: Organization[];
   sponsors?: Organization[];
   status: 'open' | 'closed';
+  registration_status?: 'open' | 'closed';
   created_at: string;
   updated_at: string;
 }

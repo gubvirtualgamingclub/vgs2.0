@@ -50,7 +50,8 @@ export default function TournamentManagementPage() {
     venue: '',
     total_prize_pool: '',
     registration_deadline: '',
-    status: 'closed' as 'open' | 'closed'
+    status: 'closed' as 'open' | 'closed',
+    registration_status: 'closed' as 'open' | 'closed'
   });
 
   // Organizations state
@@ -110,7 +111,8 @@ export default function TournamentManagementPage() {
           venue: tournamentData.venue,
           total_prize_pool: tournamentData.total_prize_pool,
           registration_deadline: tournamentData.registration_deadline ? tournamentData.registration_deadline.split('T')[0] : '',
-          status: tournamentData.status
+          status: tournamentData.status,
+          registration_status: tournamentData.registration_status || 'closed'
         });
         setOrganizers(tournamentData.organizers || []);
         setCoOrganizers(tournamentData.co_organizers || []);
@@ -164,6 +166,20 @@ export default function TournamentManagementPage() {
     } catch (error) {
       console.error('Error toggling status:', error);
       alert('Failed to change tournament status');
+    }
+  };
+
+  const handleToggleRegistrationStatus = async () => {
+    if (!tournament) return;
+
+    const newStatus = formData.registration_status === 'open' ? 'closed' : 'open';
+    try {
+      await updateTournament(tournament.id, { registration_status: newStatus });
+      alert(`Global Registration is now ${newStatus}!`);
+      loadTournament();
+    } catch (error) {
+      console.error('Error toggling registration status:', error);
+      alert('Failed to change registration status');
     }
   };
 
@@ -383,19 +399,38 @@ export default function TournamentManagementPage() {
            <p className="text-gray-400 text-lg">Manage the active season, competitive titles, and details</p>
         </div>
         
-        <div className="flex items-center gap-4 bg-gray-900/40 backdrop-blur-md p-2 rounded-2xl border border-white/5">
-             <div className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tournament.status === 'open' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
-                <div className={`w-2 h-2 rounded-full ${tournament.status === 'open' ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                {tournament.status === 'open' ? 'REGISTRATION OPEN' : 'REGISTRATION CLOSED'}
+        <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
+             {/* Tournament Status Toggle */}
+             <div className="flex items-center gap-4 bg-gray-900/40 backdrop-blur-md p-2 rounded-2xl border border-white/5">
+                <div className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${tournament.status === 'open' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                    <div className={`w-2 h-2 rounded-full ${tournament.status === 'open' ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+                    {tournament.status === 'open' ? 'SYSTEM ONLINE' : 'SYSTEM OFFLINE'}
+                </div>
+                <AnimatedToggle
+                    isOn={tournament.status === 'open'}
+                    onToggle={(isOpen) => handleToggleStatus()}
+                    label=""
+                    onLabel="On"
+                    offLabel="Off"
+                    size="md"
+                />
              </div>
-             <AnimatedToggle
-                isOn={tournament.status === 'open'}
-                onToggle={(isOpen) => handleToggleStatus()}
-                label=""
-                onLabel="Open"
-                offLabel="Closed"
-                size="md"
-              />
+
+             {/* Registration Status Toggle */}
+             <div className="flex items-center gap-4 bg-gray-900/40 backdrop-blur-md p-2 rounded-2xl border border-white/5">
+                <div className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 ${formData.registration_status === 'open' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'}`}>
+                    <div className={`w-2 h-2 rounded-full ${formData.registration_status === 'open' ? 'bg-blue-400 animate-pulse' : 'bg-orange-400'}`} />
+                    {formData.registration_status === 'open' ? 'REG OPEN' : 'REG CLOSED'}
+                </div>
+                <AnimatedToggle
+                    isOn={formData.registration_status === 'open'}
+                    onToggle={(isOpen) => handleToggleRegistrationStatus()}
+                    label=""
+                    onLabel="Open"
+                    offLabel="Closed"
+                    size="md"
+                />
+             </div>
         </div>
       </div>
 
@@ -572,12 +607,20 @@ export default function TournamentManagementPage() {
             {/* About Sections */}
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-white/10">
                  <div>
-                    <label className={labelClassName}>About Event (HTML/Markdown)</label>
-                    <textarea value={formData.about_event} onChange={(e) => setFormData({ ...formData, about_event: e.target.value })} className={`${inputClassName} font-mono text-sm`} rows={8} />
+                    <label className={labelClassName}>About Event (HTML Supported)</label>
+                    <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-2 text-xs text-blue-300">
+                       <strong className="block mb-1">💡 Formatting Tips:</strong>
+                       Use standard HTML tags. Avoid fixed widths (e.g., width: 500px). Use <code>w-full</code> or percentage widths for responsiveness.
+                    </div>
+                    <textarea value={formData.about_event} onChange={(e) => setFormData({ ...formData, about_event: e.target.value })} className={`${inputClassName} font-mono text-sm`} rows={8} placeholder="<p>Enter details...</p>" />
                  </div>
                  <div>
-                    <label className={labelClassName}>About Organizer (HTML/Markdown)</label>
-                    <textarea value={formData.about_organizer} onChange={(e) => setFormData({ ...formData, about_organizer: e.target.value })} className={`${inputClassName} font-mono text-sm`} rows={8} />
+                    <label className={labelClassName}>About Organizer (HTML Supported)</label>
+                    <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg mb-2 text-xs text-blue-300">
+                       <strong className="block mb-1">💡 Formatting Tips:</strong>
+                       Ensure images are responsive (max-width: 100%). Layouts will stack on mobile devices automatically.
+                    </div>
+                    <textarea value={formData.about_organizer} onChange={(e) => setFormData({ ...formData, about_organizer: e.target.value })} className={`${inputClassName} font-mono text-sm`} rows={8} placeholder="<p>About us...</p>" />
                  </div>
              </div>
 
@@ -847,12 +890,14 @@ export default function TournamentManagementPage() {
          title="🏆 Tournament Manager"
          instructions={[
             "**Tournament Lifecycle**: Manage your tournament from `Setup` → `Registration` → `Live` → `Conclusion`.",
-            "**Status Control**: Toggle status to `OPEN` to enable public registration immediately.",
+            "**System Status**: 'SYSTEM ONLINE' makes the page visible. 'SYSTEM OFFLINE' shows a maintenance screen.",
+            "**Registration Status**: 'REG OPEN' enables buttons. 'REG CLOSED' disables all game registration buttons globally.",
             "**Featured Games**: Add games with individual registration fees, prize pools, and rulebooks.",
             "**Partner Showcase**: Add Organizers, Co-Organizers, Sponsors, and Collaborators with logos.",
             "**Glimpses Gallery**: Upload photo galleries from previous events to build excitement."
          ]}
          tips={[
+            "**HTML Content**: When adding 'About' content, use responsive classes. Avoid fixed pixel widths to ensure mobile compatibility.",
             "**Teaser Video**: A looping background video creates a high-impact landing page experience.",
             "**Registration Deadline**: This triggers the countdown timer on the public page.",
             "**Venue Details**: Ensure address is accurate - it's displayed prominently to participants.",
