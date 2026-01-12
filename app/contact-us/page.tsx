@@ -107,9 +107,9 @@ export default function ContactUsPage() {
       title: 'Email',
       value: contactEmail,
       href: `mailto:${contactEmail}`,
-      color: 'text-cyan-400',
-      bg: 'bg-cyan-500/10',
-      border: 'border-cyan-500/20'
+      color: 'text-cyan-600 dark:text-cyan-400',
+      bg: 'bg-cyan-100 dark:bg-cyan-500/10',
+      border: 'border-cyan-200 dark:border-cyan-500/20'
     },
     {
       icon: (
@@ -120,9 +120,9 @@ export default function ContactUsPage() {
       title: 'Phone',
       value: contactPhone,
       href: `tel:${contactPhone.replace(/[^0-9+]/g, '')}`,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20'
+      color: 'text-purple-600 dark:text-purple-400',
+      bg: 'bg-purple-100 dark:bg-purple-500/10',
+      border: 'border-purple-200 dark:border-purple-500/20'
     },
     {
       icon: (
@@ -133,14 +133,14 @@ export default function ContactUsPage() {
       title: 'WhatsApp',
       value: contactWhatsApp,
       href: `https://wa.me/${contactWhatsApp}`,
-      color: 'text-green-400',
-      bg: 'bg-green-500/10',
-      border: 'border-green-500/20'
+      color: 'text-green-600 dark:text-green-400',
+      bg: 'bg-green-100 dark:bg-green-500/10',
+      border: 'border-green-200 dark:border-green-500/20'
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0b] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0b] text-gray-900 dark:text-white selection:bg-purple-500/30 selection:text-purple-200 transition-colors duration-300">
       <ScrollProgressBar />
       <GamingCursor />
       <FloatingIcons />
@@ -164,7 +164,7 @@ export default function ContactUsPage() {
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 dark:from-white via-gray-600 dark:via-gray-200 to-gray-400 dark:to-gray-500">
                 Get In
               </span>{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 animate-gradient-x">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-cyan-600 to-purple-600 dark:from-purple-400 dark:via-cyan-400 dark:to-purple-400 animate-gradient-x">
                 Touch
               </span>
             </h1>
@@ -178,7 +178,7 @@ export default function ContactUsPage() {
         </div>
       </section>
 
-      <main className="max-w-7xl mx-auto px-6 pb-24 relative z-10">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 pb-24 relative z-10">
         <div className="grid lg:grid-cols-3 gap-8">
             {/* Contact Methods Sidebar */}
             <div className="lg:col-span-1 space-y-6">
@@ -188,14 +188,14 @@ export default function ContactUsPage() {
                             href={method.href}
                             target={method.title === 'WhatsApp' ? '_blank' : undefined}
                             rel={method.title === 'WhatsApp' ? 'noopener noreferrer' : undefined}
-                            className={`group flex items-center gap-5 p-6 rounded-2xl bg-gray-100 dark:bg-[#0f0f10]/80 backdrop-blur-sm border ${method.border} hover:border-opacity-50 transition-all duration-300 hover:-translate-x-2 hover:shadow-lg`}
+                            className={`group flex items-center gap-5 p-6 rounded-2xl bg-white/80 dark:bg-[#0f0f10]/80 backdrop-blur-xl border border-gray-200 dark:border-white/5 hover:border-purple-500/30 transition-all duration-300 hover:-translate-x-2 hover:shadow-lg shadow-sm`}
                         >
                             <div className={`w-14 h-14 rounded-xl ${method.bg} flex items-center justify-center ${method.color} shadow-lg group-hover:scale-110 transition-transform`}>
                                 {method.icon}
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1">{method.title}</h3>
-                                <p className={`font-mono text-lg font-bold text-gray-900 dark:text-white group-hover:${method.color} transition-colors`}>{method.value}</p>
+                                <p className={`font-mono text-lg font-bold text-gray-900 dark:text-white group-hover:${method.color.split(' ')[0]} transition-colors`}>{method.value}</p>
                             </div>
                         </a>
                     </ScrollAnimation>
@@ -203,15 +203,15 @@ export default function ContactUsPage() {
 
                 {/* Location Card */}
                 <ScrollAnimation animation="slideLeft" delay={400}>
-                    <div className="p-6 rounded-2xl bg-[#0f0f10]/80 backdrop-blur-sm border border-white/5 space-y-4">
-                        <h3 className="flex items-center gap-2 text-lg font-bold text-white">
+                    <div className="p-6 rounded-2xl bg-white/80 dark:bg-[#0f0f10]/80 backdrop-blur-xl border border-gray-200 dark:border-white/5 space-y-4 shadow-sm hover:shadow-lg transition-shadow">
+                        <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                             <span className="text-orange-500">📍</span> Visit Campus
                         </h3>
                         <div className="space-y-2">
-                            <p className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+                            <p className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400">
                                 {universityLocation.name}
                             </p>
-                            <p className="text-white/80 font-medium leading-relaxed border-l-2 border-purple-500 pl-3">
+                            <p className="text-gray-600 dark:text-white/80 font-medium leading-relaxed border-l-2 border-purple-500 pl-3">
                                 {universityLocation.address}
                             </p>
                         </div>
@@ -222,10 +222,10 @@ export default function ContactUsPage() {
             {/* Contact Form & Map */}
             <div className="lg:col-span-2 space-y-8">
                 <ScrollAnimation animation="slideUp" delay={200}>
-                    <div className="rounded-3xl bg-[#0f0f10] border border-white/5 p-8 md:p-10 relative overflow-hidden group">
+                    <div className="rounded-3xl bg-white/80 dark:bg-[#0f0f10] backdrop-blur-xl border border-gray-200 dark:border-white/5 p-8 md:p-10 relative overflow-hidden group shadow-lg">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-purple-500/10 transition-colors" />
                         
-                        <h2 className="text-3xl font-bold text-white mb-8 relative z-10">Send a Message</h2>
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 relative z-10">Send a Message</h2>
                         
                         <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                             <div className="grid md:grid-cols-2 gap-6">
@@ -237,7 +237,7 @@ export default function ContactUsPage() {
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full px-5 py-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:bg-black/40 transition-all font-medium"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-medium"
                                         placeholder="Your name"
                                     />
                                 </div>
@@ -249,7 +249,7 @@ export default function ContactUsPage() {
                                         value={formData.email}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full px-5 py-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:bg-black/40 transition-all font-medium"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-medium"
                                         placeholder="john@example.com"
                                     />
                                 </div>
@@ -263,7 +263,7 @@ export default function ContactUsPage() {
                                     value={formData.subject}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full px-5 py-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:bg-black/40 transition-all font-medium"
+                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-medium"
                                     placeholder="Partnership Inquiry / General Question"
                                 />
                             </div>
@@ -276,20 +276,20 @@ export default function ContactUsPage() {
                                     onChange={handleInputChange}
                                     required
                                     rows={5}
-                                    className="w-full px-5 py-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:bg-black/40 transition-all font-medium resize-none"
+                                    className="w-full px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-medium resize-none"
                                     placeholder="How can we help you level up?"
                                 />
                             </div>
 
                             {/* Status Messages */}
                             {submitStatus === 'success' && (
-                                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm font-medium flex items-center gap-2 animate-fadeIn">
+                                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-600 dark:text-green-400 text-sm font-medium flex items-center gap-2 animate-fadeIn">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                     Opening your email client...
                                 </div>
                             )}
                             {submitStatus === 'error' && (
-                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm font-medium flex items-center gap-2 animate-fadeIn">
+                                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2 animate-fadeIn">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     Something went wrong. Please try again.
                                 </div>
@@ -315,7 +315,7 @@ export default function ContactUsPage() {
 
                 {/* Map Section */}
                 <ScrollAnimation animation="slideUp" delay={300}>
-                    <div className="h-[400px] w-full rounded-3xl overflow-hidden border border-white/5 relative bg-[#0f0f10]">
+                    <div className="h-[400px] w-full rounded-3xl overflow-hidden border border-gray-200 dark:border-white/5 relative bg-white dark:bg-[#0f0f10] shadow-md">
                         <iframe
                             width="100%"
                             height="100%"
@@ -332,8 +332,8 @@ export default function ContactUsPage() {
         </div>
 
         {/* FAQ Section */}
-        <section className="mt-24 pt-12 border-t border-white/5">
-            <h2 className="text-3xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-gray-200 to-gray-400">Common Queries</h2>
+        <section className="mt-24 pt-12 border-t border-gray-200 dark:border-white/5">
+            <h2 className="text-3xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400">Common Queries</h2>
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 {[
                     { q: 'What is the best way to contact VGS?', a: 'Email queries are preferred for formal issues. For quick questions, hit us up on WhatsApp or socials.' },
@@ -342,9 +342,9 @@ export default function ContactUsPage() {
                     { q: 'Partnerships?', a: 'We are always scouting for allies. Use the form above to propose an alliance.' }
                 ].map((faq, i) => (
                     <ScrollAnimation key={i} animation="fadeIn" delay={i * 100}>
-                        <div className="bg-[#0f0f10] border border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors">
-                            <h3 className="text-lg font-bold text-white mb-2">{faq.q}</h3>
-                            <p className="text-gray-300 text-sm leading-relaxed">{faq.a}</p>
+                        <div className="bg-white/50 dark:bg-[#0f0f10] backdrop-blur-sm border border-gray-200 dark:border-white/5 p-6 rounded-2xl hover:border-purple-500/30 transition-colors shadow-sm">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{faq.q}</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">{faq.a}</p>
                         </div>
                     </ScrollAnimation>
                 ))}

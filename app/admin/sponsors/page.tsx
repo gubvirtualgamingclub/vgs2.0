@@ -596,8 +596,12 @@ export default function AdminSponsorsPage() {
                               {event}
                               <button
                                   type="button"
-                                  onClick={() => setFormData({ ...formData, events: formData.events.filter((_, i) => i !== idx) })}
-                                  className="hover:text-white transition-colors"
+                                  onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setFormData({ ...formData, events: formData.events.filter((_, i) => i !== idx) });
+                                  }}
+                                  className="p-1 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                               >
                                   <XMarkIcon className="w-3 h-3" />
                               </button>
