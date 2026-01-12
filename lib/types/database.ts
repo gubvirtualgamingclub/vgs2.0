@@ -236,7 +236,8 @@ export interface RegistrationForm {
   is_active: boolean;
   registration_deadline?: string;
   registration_fee?: string;
-  club_logo_url?: string;
+  banner_url?: string;
+  organizer_logo_url?: string;
   tournament_logo_url?: string;
   game_logo_url?: string;
   // Enhanced Design Fields
@@ -247,31 +248,6 @@ export interface RegistrationForm {
   accent_color?: string; // Hex color (e.g., '#3B82F6')
   heading_font?: 'default' | 'modern' | 'gaming' | 'elegant'; // Font family presets
   body_font?: 'default' | 'modern' | 'gaming' | 'elegant';
-  tournament_details?: {
-    about?: string;
-    key_features?: string[];
-    prize_pool_highlights?: string;
-  };
-  game_details?: {
-    description?: string;
-    game_image_url?: string;
-    game_image_source?: 'url' | 'path';
-  };
-  schedule?: {
-    registration_deadline_label?: string;
-    tournament_start?: string;
-    tournament_end?: string;
-    other_dates?: Array<{ label: string; date: string }>;
-  };
-  rules_and_regulations?: {
-    summary?: string;
-    rulebook_url?: string;
-    full_rulebook_file?: string;
-  };
-  show_tournament_section?: boolean;
-  show_game_details_section?: boolean;
-  show_schedule_section?: boolean;
-  show_rules_section?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -299,7 +275,6 @@ export interface RegistrationSubmission {
   submitted_at: string;
   ip_address?: string;
   user_agent?: string;
-  // New Payment Fields
   transaction_id?: string;
   payment_method_id?: string;
 }

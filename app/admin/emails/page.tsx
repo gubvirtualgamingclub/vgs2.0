@@ -266,8 +266,9 @@ export default function EmailManagementPage() {
       if (!response.ok) throw new Error(data.error || 'Failed to save template');
 
       setMessage({ type: 'success', text: `✅ Template "${name}" saved successfully!` });
-      fetchTemplates();
+      await fetchTemplates();
     } catch (error: any) {
+      console.error('Save template error:', error);
       setMessage({ type: 'error', text: `❌ Failed to save template: ${error.message}` });
     } finally {
       setLoading(false);
@@ -437,7 +438,7 @@ export default function EmailManagementPage() {
                 </div>
                 <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-2 custom-scrollbar">
                   {participants.map((p, idx) => (
-                    <label key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30">
+                    <label key={`${p.email}-${idx}`} className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30">
                       <input
                         type="checkbox"
                         checked={selectedParticipants.has(p.email)}

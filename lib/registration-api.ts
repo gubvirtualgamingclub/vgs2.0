@@ -89,6 +89,8 @@ export async function toggleFormStatus(id: string, isActive: boolean): Promise<v
 export async function submitRegistration(
   formId: string,
   submissionData: Record<string, any>,
+  transactionId?: string,
+  paymentMethodId?: string,
   ipAddress?: string,
   userAgent?: string
 ): Promise<RegistrationSubmission> {
@@ -98,6 +100,8 @@ export async function submitRegistration(
       {
         form_id: formId,
         submission_data: submissionData,
+        transaction_id: transactionId,
+        payment_method_id: paymentMethodId,
         ip_address: ipAddress,
         user_agent: userAgent,
       },
