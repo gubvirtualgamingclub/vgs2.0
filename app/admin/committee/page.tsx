@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminHelpButton from '@/components/AdminHelpButton';
 import AdminImage from '@/components/AdminImage';
+import Modal from '@/components/Modal';
 import {
   getAllCommittees,
   getCommitteesWithMembers,
@@ -660,298 +661,264 @@ export default function AdminCommitteePage() {
         </div>
       )}
 
-      {/* Slide-over Committee Form */}
-      {isCommitteeFormOpen && (
-         <div className="fixed inset-0 z-50 overflow-hidden">
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseCommitteeForm} />
-           <div className="absolute inset-y-0 right-0 max-w-xl w-full flex">
-             <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
-                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
-                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                     <BuildingLibraryIcon className="w-5 h-5 text-purple-500" />
-                     {editingCommittee ? 'Edit Committee' : 'New Committee'}
-                   </h2>
-                   <button onClick={handleCloseCommitteeForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-                     <XMarkIcon className="w-6 h-6" />
-                   </button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                    <form id="committee-form" onSubmit={handleSubmitCommittee} className="space-y-6">
-                       <div>
-                          <label className={labelClassName}>Committee Name *</label>
-                          <input
-                            type="text"
-                            value={committeeFormData.name}
-                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, name: e.target.value })}
-                            placeholder="e.g. Executive Committee"
-                            className={inputClassName}
-                            required
-                          />
-                       </div>
-                       
-                       <div>
-                          <label className={labelClassName}>Year Range *</label>
-                          <input
-                            type="text"
-                            value={committeeFormData.year_range}
-                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, year_range: e.target.value })}
-                            placeholder="e.g. 2024-2025"
-                            className={inputClassName}
-                            required
-                          />
-                       </div>
-                       
-                       <div>
-                          <label className={labelClassName}>Description</label>
-                          <textarea
-                            value={committeeFormData.description}
-                            onChange={(e) => setCommitteeFormData({ ...committeeFormData, description: e.target.value })}
-                            placeholder="Brief description..."
-                            rows={3}
-                            className={inputClassName}
-                          />
-                       </div>
-                       
-                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                            <input 
-                              type="checkbox" 
-                              checked={committeeFormData.is_published} 
-                              onChange={(e) => setCommitteeFormData({ ...committeeFormData, is_published: e.target.checked })}
-                              className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent" 
-                            />
-                            <span className="text-gray-300 font-medium text-sm">Publish immediately</span>
-                        </label>
-                    </form>
-                </div>
-                
-                <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
-                   <button
-                      type="submit"
-                      form="committee-form"
-                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                    >
-                     {editingCommittee ? 'Update Committee' : 'Create Committee'}
-                   </button>
-                </div>
-             </div>
-           </div>
-         </div>
-      )}
+      {/* Committee Modal */}
+      <Modal
+        isOpen={isCommitteeFormOpen}
+        onClose={handleCloseCommitteeForm}
+        title={editingCommittee ? 'Edit Committee' : 'New Committee'}
+      >
+        <form id="committee-form" onSubmit={handleSubmitCommittee} className="space-y-6">
+            <div>
+              <label className={labelClassName}>Committee Name *</label>
+              <input
+                type="text"
+                value={committeeFormData.name}
+                onChange={(e) => setCommitteeFormData({ ...committeeFormData, name: e.target.value })}
+                placeholder="e.g. Executive Committee"
+                className={inputClassName}
+                required
+              />
+            </div>
 
-      {/* Slide-over Member Form */}
-      {isMemberFormOpen && (
-         <div className="fixed inset-0 z-50 overflow-hidden">
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseMemberForm} />
-           <div className="absolute inset-y-0 right-0 max-w-2xl w-full flex">
-             <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
-                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
-                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                     <UsersIcon className="w-5 h-5 text-purple-500" />
-                     {editingMember ? 'Edit Member' : 'Add Member'}
-                   </h2>
-                   <button onClick={handleCloseMemberForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-                     <XMarkIcon className="w-6 h-6" />
-                   </button>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                    {/* Member Search */}
-                   {!editingMember && (
-                      <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-xl p-4 border border-white/10 mb-6">
-                         <label className="text-sm font-medium text-purple-300 mb-2 block flex items-center gap-2">
-                            <MagnifyingGlassIcon className="w-4 h-4" /> Import Existing Member
-                         </label>
-                         <div className="relative">
-                            <input
-                              type="text"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              placeholder="Search by name or email..."
-                              className={inputClassName}
-                            />
-                            {isSearching && <div className="absolute right-3 top-3.5"><div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"/></div>}
-                         </div>
-                         
-                         {showSearchResults && searchResults.length > 0 && (
-                            <div className="mt-2 bg-gray-800 border border-white/10 rounded-xl overflow-hidden max-h-48 overflow-y-auto custom-scrollbar shadow-2xl z-20">
-                               {getFilteredSearchResults(searchResults).map(member => (
-                                  <button
-                                     key={member.id}
-                                     onClick={() => handleSelectMember(member)}
-                                     className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 flex items-center gap-3 transition-colors"
-                                  >
-                                     <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
-                                        <AdminImage src={member.photo} alt={member.name} width={32} height={32} className="w-full h-full object-cover"/>
-                                     </div>
-                                     <div>
-                                        <p className="text-white text-sm font-semibold">{member.name}</p>
-                                        <p className="text-gray-500 text-xs">{member.designation} ({member.email})</p>
-                                     </div>
-                                  </button>
-                               ))}
-                            </div>
-                         )}
+            <div>
+              <label className={labelClassName}>Year Range *</label>
+              <input
+                type="text"
+                value={committeeFormData.year_range}
+                onChange={(e) => setCommitteeFormData({ ...committeeFormData, year_range: e.target.value })}
+                placeholder="e.g. 2024-2025"
+                className={inputClassName}
+                required
+              />
+            </div>
+
+            <div>
+              <label className={labelClassName}>Description</label>
+              <textarea
+                value={committeeFormData.description}
+                onChange={(e) => setCommitteeFormData({ ...committeeFormData, description: e.target.value })}
+                placeholder="Brief description..."
+                rows={3}
+                className={inputClassName}
+              />
+            </div>
+
+            <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={committeeFormData.is_published}
+                  onChange={(e) => setCommitteeFormData({ ...committeeFormData, is_published: e.target.checked })}
+                  className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent"
+                />
+                <span className="text-gray-300 font-medium text-sm">Publish immediately</span>
+            </label>
+
+            <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+              {editingCommittee ? 'Update Committee' : 'Create Committee'}
+            </button>
+        </form>
+      </Modal>
+
+      {/* Member Modal */}
+      <Modal
+        isOpen={isMemberFormOpen}
+        onClose={handleCloseMemberForm}
+        title={editingMember ? 'Edit Member' : 'Add Member'}
+      >
+        <div className="space-y-6">
+          {/* Member Search */}
+          {!editingMember && (
+              <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-xl p-4 border border-white/10 mb-6">
+                  <label className="text-sm font-medium text-purple-300 mb-2 block flex items-center gap-2">
+                    <MagnifyingGlassIcon className="w-4 h-4" /> Import Existing Member
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by name or email..."
+                      className={inputClassName}
+                    />
+                    {isSearching && <div className="absolute right-3 top-3.5"><div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"/></div>}
+                  </div>
+
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="mt-2 bg-gray-800 border border-white/10 rounded-xl overflow-hidden max-h-48 overflow-y-auto custom-scrollbar shadow-2xl z-20">
+                        {getFilteredSearchResults(searchResults).map(member => (
+                          <button
+                              key={member.id}
+                              onClick={() => handleSelectMember(member)}
+                              className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 flex items-center gap-3 transition-colors"
+                          >
+                              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-700">
+                                <AdminImage src={member.photo} alt={member.name} width={32} height={32} className="w-full h-full object-cover"/>
+                              </div>
+                              <div>
+                                <p className="text-white text-sm font-semibold">{member.name}</p>
+                                <p className="text-gray-500 text-xs">{member.designation} ({member.email})</p>
+                              </div>
+                          </button>
+                        ))}
+                    </div>
+                  )}
+              </div>
+          )}
+
+          <form id="member-form" onSubmit={handleSubmitMember} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2 md:col-span-1">
+                    <label className={labelClassName}>Full Name *</label>
+                    <input
+                      type="text"
+                      value={memberFormData.name}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, name: e.target.value })}
+                      className={inputClassName}
+                      required
+                    />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className={labelClassName}>Designation *</label>
+                    <input
+                      type="text"
+                      value={memberFormData.designation}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, designation: e.target.value })}
+                      className={inputClassName}
+                      required
+                    />
+                  </div>
+              </div>
+
+              <div>
+                  <label className={labelClassName}>Category *</label>
+                  <select
+                      value={memberFormData.category}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, category: e.target.value as any })}
+                      className={inputClassName}
+                  >
+                      <option value="Student Executives" className="bg-gray-900">Student Executive</option>
+                      <option value="Faculty Advisors" className="bg-gray-900">Faculty Advisor</option>
+                  </select>
+              </div>
+
+              <div>
+                    <label className={labelClassName}>Photo Path *</label>
+                    <div className="flex gap-4">
+                      <input
+                        type="text"
+                        value={memberFormData.photo}
+                        onChange={(e) => setMemberFormData({ ...memberFormData, photo: e.target.value })}
+                        className={inputClassName}
+                        placeholder="/members/name.jpg"
+                        required
+                      />
+                      <div className="w-12 h-12 bg-black/40 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
+                          <AdminImage src={memberFormData.photo} alt="Preview" width={48} height={48} className="w-full h-full object-cover" />
                       </div>
-                   )}
+                    </div>
+              </div>
 
-                    <form id="member-form" onSubmit={handleSubmitMember} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="col-span-2 md:col-span-1">
-                              <label className={labelClassName}>Full Name *</label>
-                              <input
-                                type="text"
-                                value={memberFormData.name}
-                                onChange={(e) => setMemberFormData({ ...memberFormData, name: e.target.value })}
-                                className={inputClassName}
-                                required
-                              />
-                           </div>
-                           <div className="col-span-2 md:col-span-1">
-                              <label className={labelClassName}>Designation *</label>
-                              <input
-                                type="text"
-                                value={memberFormData.designation}
-                                onChange={(e) => setMemberFormData({ ...memberFormData, designation: e.target.value })}
-                                className={inputClassName}
-                                required
-                              />
-                           </div>
-                        </div>
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact & Social</h3>
 
-                        <div>
-                            <label className={labelClassName}>Category *</label>
-                            <select
-                                value={memberFormData.category}
-                                onChange={(e) => setMemberFormData({ ...memberFormData, category: e.target.value as any })}
-                                className={inputClassName}
-                            >
-                                <option value="Student Executives" className="bg-gray-900">Student Executive</option>
-                                <option value="Faculty Advisors" className="bg-gray-900">Faculty Advisor</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                             <label className={labelClassName}>Photo Path *</label>
-                             <div className="flex gap-4">
-                                <input
-                                  type="text"
-                                  value={memberFormData.photo}
-                                  onChange={(e) => setMemberFormData({ ...memberFormData, photo: e.target.value })}
-                                  className={inputClassName}
-                                  placeholder="/members/name.jpg"
-                                  required
-                                />
-                                <div className="w-12 h-12 bg-black/40 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
-                                   <AdminImage src={memberFormData.photo} alt="Preview" width={48} height={48} className="w-full h-full object-cover" />
-                                </div>
-                             </div>
-                        </div>
+                  <div>
+                    <label className={labelClassName}>Email</label>
+                    <input
+                      type="email"
+                      value={memberFormData.email}
+                      onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
+                      className={inputClassName}
+                    />
+                  </div>
 
-                        <div className="space-y-4 pt-4 border-t border-white/5">
-                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Contact & Social</h3>
-                           
-                           <div>
-                              <label className={labelClassName}>Email</label>
-                              <input
-                                type="email"
-                                value={memberFormData.email}
-                                onChange={(e) => setMemberFormData({ ...memberFormData, email: e.target.value })}
-                                className={inputClassName}
-                              />
-                           </div>
-                           
-                           {memberFormData.category === 'Student Executives' && (
-                             <>
-                               <div>
-                                  <label className={labelClassName}>Student ID</label>
-                                  <input
-                                    type="text"
-                                    value={memberFormData.student_id}
-                                    onChange={(e) => setMemberFormData({ ...memberFormData, student_id: e.target.value })}
-                                    className={inputClassName}
-                                  />
-                               </div>
-                               <div className="grid grid-cols-3 gap-3">
-                                  <input
-                                    type="text"
-                                    value={memberFormData.facebook}
-                                    onChange={(e) => setMemberFormData({ ...memberFormData, facebook: e.target.value })}
-                                    className={inputClassName}
-                                    placeholder="Facebook URL"
-                                  />
-                                   <input
-                                    type="text"
-                                    value={memberFormData.linkedin}
-                                    onChange={(e) => setMemberFormData({ ...memberFormData, linkedin: e.target.value })}
-                                    className={inputClassName}
-                                    placeholder="LinkedIn URL"
-                                  />
-                                   <input
-                                    type="text"
-                                    value={memberFormData.github}
-                                    onChange={(e) => setMemberFormData({ ...memberFormData, github: e.target.value })}
-                                    className={inputClassName}
-                                    placeholder="GitHub URL"
-                                  />
-                               </div>
-                             </>
-                           )}
-                        </div>
+                  {memberFormData.category === 'Student Executives' && (
+                    <>
+                      <div>
+                        <label className={labelClassName}>Student ID</label>
+                        <input
+                          type="text"
+                          value={memberFormData.student_id}
+                          onChange={(e) => setMemberFormData({ ...memberFormData, student_id: e.target.value })}
+                          className={inputClassName}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          value={memberFormData.facebook}
+                          onChange={(e) => setMemberFormData({ ...memberFormData, facebook: e.target.value })}
+                          className={inputClassName}
+                          placeholder="Facebook URL"
+                        />
+                          <input
+                          type="text"
+                          value={memberFormData.linkedin}
+                          onChange={(e) => setMemberFormData({ ...memberFormData, linkedin: e.target.value })}
+                          className={inputClassName}
+                          placeholder="LinkedIn URL"
+                        />
+                          <input
+                          type="text"
+                          value={memberFormData.github}
+                          onChange={(e) => setMemberFormData({ ...memberFormData, github: e.target.value })}
+                          className={inputClassName}
+                          placeholder="GitHub URL"
+                        />
+                      </div>
+                    </>
+                  )}
+              </div>
 
-                        <div className="space-y-4 pt-4 border-t border-white/5">
-                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Previous Roles</h3>
-                           <div className="flex gap-2">
-                              <input
-                                value={roleYear}
-                                onChange={(e) => setRoleYear(e.target.value)}
-                                className={`${inputClassName} w-24`}
-                                placeholder="Year"
-                              />
-                              <input
-                                value={roleTitle}
-                                onChange={(e) => setRoleTitle(e.target.value)}
-                                className={inputClassName}
-                                placeholder="Role (e.g. Treasurer)"
-                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
-                              />
-                              <button type="button" onClick={handleAddRole} className="px-4 bg-purple-600 rounded-xl text-white font-bold hover:bg-purple-500 transition-colors">Add</button>
-                           </div>
-                           <div className="space-y-2">
-                              {memberFormData.previous_roles.map((role, idx) => (
-                                 <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
-                                    <span className="text-sm text-gray-300"><span className="text-purple-400 font-bold">{role.year}</span> - {role.role}</span>
-                                    <button type="button" onClick={() => handleRemoveRole(idx)} className="text-red-400 hover:text-red-300"><XMarkIcon className="w-4 h-4"/></button>
-                                 </div>
-                              ))}
-                           </div>
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Previous Roles</h3>
+                  <div className="flex gap-2">
+                    <input
+                      value={roleYear}
+                      onChange={(e) => setRoleYear(e.target.value)}
+                      className={`${inputClassName} w-24`}
+                      placeholder="Year"
+                    />
+                    <input
+                      value={roleTitle}
+                      onChange={(e) => setRoleTitle(e.target.value)}
+                      className={inputClassName}
+                      placeholder="Role (e.g. Treasurer)"
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddRole())}
+                    />
+                    <button type="button" onClick={handleAddRole} className="px-4 bg-purple-600 rounded-xl text-white font-bold hover:bg-purple-500 transition-colors">Add</button>
+                  </div>
+                  <div className="space-y-2">
+                    {memberFormData.previous_roles.map((role, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
+                          <span className="text-sm text-gray-300"><span className="text-purple-400 font-bold">{role.year}</span> - {role.role}</span>
+                          <button type="button" onClick={() => handleRemoveRole(idx)} className="text-red-400 hover:text-red-300"><XMarkIcon className="w-4 h-4"/></button>
                         </div>
+                    ))}
+                  </div>
+              </div>
 
-                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                            <input 
-                              type="checkbox" 
-                              checked={memberFormData.is_published} 
-                              onChange={(e) => setMemberFormData({ ...memberFormData, is_published: e.target.checked })}
-                              className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent" 
-                            />
-                            <span className="text-gray-300 font-medium text-sm">Publish member immediately</span>
-                        </label>
-                    </form>
-                </div>
-                
-                 <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
-                   <button
-                      type="submit"
-                      form="member-form"
-                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                    >
-                     {editingMember ? 'Update Member' : 'Add Member'}
-                   </button>
-                </div>
-             </div>
-           </div>
-         </div>
-      )}
+              <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={memberFormData.is_published}
+                    onChange={(e) => setMemberFormData({ ...memberFormData, is_published: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent"
+                  />
+                  <span className="text-gray-300 font-medium text-sm">Publish member immediately</span>
+              </label>
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {editingMember ? 'Update Member' : 'Add Member'}
+              </button>
+          </form>
+        </div>
+      </Modal>
 
       <AdminHelpButton
         title="👥 Committee Manager"

@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import AdminHelpButton from '@/components/AdminHelpButton';
 import AnimatedToggle from '@/components/AnimatedToggle';
+import Modal from '@/components/Modal';
 import { 
   getActiveTournament, 
+  createTournament,
   updateTournament, 
   toggleTournamentStatus,
   updateTournamentGame,
@@ -333,7 +335,43 @@ export default function TournamentManagementPage() {
   }
 
   if (!tournament) {
-     return <div className="text-white">No active tournament found.</div>;
+     return (
+        <div className="flex flex-col items-center justify-center min-h-[600px] text-center space-y-6 animate-fadeIn">
+            <div className="w-24 h-24 bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
+                <TrophyIcon className="w-12 h-12 text-purple-400" />
+            </div>
+            <h2 className="text-3xl font-bold text-white">No Active Tournament Found</h2>
+            <p className="text-gray-400 max-w-md">Get started by launching a new tournament season. This will be the main event displayed on your website.</p>
+            <button
+                onClick={async () => {
+                    const confirmCreate = confirm("Ready to launch a new tournament season?");
+                    if (confirmCreate) {
+                        try {
+                            setLoading(true);
+                            await createTournament({
+                                ...formData,
+                                name: "New Tournament Season",
+                                status: "closed",
+                                date: new Date().toISOString().split('T')[0],
+                                time: "10:00 AM",
+                                venue: "TBD",
+                                total_prize_pool: "TBD",
+                                registration_deadline: new Date().toISOString().split('T')[0]
+                            });
+                            await loadTournament();
+                        } catch (e) {
+                            console.error(e);
+                            alert("Failed to create tournament");
+                            setLoading(false);
+                        }
+                    }
+                }}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:scale-105 transition-transform shadow-lg shadow-purple-500/25"
+            >
+                Create New Tournament
+            </button>
+        </div>
+     );
   }
 
   return (
@@ -729,92 +767,81 @@ export default function TournamentManagementPage() {
         )}
       </div>
 
-      {/* Slide-over Game Form */}
-      {gameFormOpen && (
-         <div className="fixed inset-0 z-50 overflow-hidden">
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setGameFormOpen(false)} />
-           <div className="absolute inset-y-0 right-0 max-w-2xl w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
-              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
-                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    {editingGame ? <PencilSquareIcon className="w-5 h-5 text-blue-500" /> : <PlusIcon className="w-5 h-5 text-green-500" />}
-                    {editingGame ? 'Edit Game' : 'Add New Game'}
-                 </h2>
-                 <button onClick={() => setGameFormOpen(false)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white"><XMarkIcon className="w-6 h-6" /></button>
+      {/* Game Modal */}
+      <Modal
+        isOpen={gameFormOpen}
+        onClose={() => setGameFormOpen(false)}
+        title={editingGame ? 'Edit Game' : 'Add New Game'}
+      >
+        <div className="space-y-6">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Game Details</h3>
+              <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClassName}>Game Name</label>
+                    <input type="text" value={gameFormData.game_name} onChange={e => setGameFormData({...gameFormData, game_name: e.target.value})} className={inputClassName} placeholder="Valorant" />
+                  </div>
+                  <div>
+                    <label className={labelClassName}>Category</label>
+                    <select value={gameFormData.category} onChange={e => setGameFormData({...gameFormData, category: e.target.value as any})} className={inputClassName}>
+                        <option value="pc" className="bg-gray-800">PC</option>
+                        <option value="mobile" className="bg-gray-800">Mobile</option>
+                        <option value="casual" className="bg-gray-800">Casual</option>
+                    </select>
+                  </div>
               </div>
-              
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                 {/* Basic Info */}
-                 <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Game Details</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                       <div>
-                          <label className={labelClassName}>Game Name</label>
-                          <input type="text" value={gameFormData.game_name} onChange={e => setGameFormData({...gameFormData, game_name: e.target.value})} className={inputClassName} placeholder="Valorant" />
-                       </div>
-                       <div>
-                          <label className={labelClassName}>Category</label>
-                          <select value={gameFormData.category} onChange={e => setGameFormData({...gameFormData, category: e.target.value as any})} className={inputClassName}>
-                             <option value="pc" className="bg-gray-800">PC</option>
-                             <option value="mobile" className="bg-gray-800">Mobile</option>
-                             <option value="casual" className="bg-gray-800">Casual</option>
-                          </select>
-                       </div>
-                    </div>
-                    <div>
-                        <label className={labelClassName}>Game Logo URL</label>
-                        <input type="text" value={gameFormData.game_logo} onChange={e => setGameFormData({...gameFormData, game_logo: e.target.value})} className={inputClassName} placeholder="https://..." />
-                    </div>
-                 </div>
-
-                 {/* Competition Specs */}
-                 <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Competition Specs</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                       <div>
-                          <label className={labelClassName}>Prize Pool</label>
-                          <input type="text" value={gameFormData.prize_pool} onChange={e => setGameFormData({...gameFormData, prize_pool: e.target.value})} className={inputClassName} placeholder="10,000 BDT" />
-                       </div>
-                        <div>
-                           <label className={labelClassName}>Team Size</label>
-                           <input type="text" value={gameFormData.team_size} onChange={e => setGameFormData({...gameFormData, team_size: e.target.value})} className={inputClassName} placeholder="5v5" />
-                        </div>
-                        <div>
-                           <label className={labelClassName}>Registration Fee (BDT)</label>
-                           <input type="text" value={gameFormData.registration_fee} onChange={e => setGameFormData({...gameFormData, registration_fee: e.target.value})} className={inputClassName} placeholder="500 BDT" />
-                        </div>
-                        <div>
-                           <label className={labelClassName}>Format</label>
-                          <input type="text" value={gameFormData.format} onChange={e => setGameFormData({...gameFormData, format: e.target.value})} className={inputClassName} placeholder="Single Elimination" />
-                       </div>
-                        <div>
-                          <label className={labelClassName}>Max Participants</label>
-                          <input type="text" value={gameFormData.max_participants} onChange={e => setGameFormData({...gameFormData, max_participants: e.target.value})} className={inputClassName} placeholder="64 Teams" />
-                       </div>
-                    </div>
-                 </div>
-
-                 {/* Links */}
-                 <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Links</h3>
-                     <div>
-                        <label className={labelClassName}>Registration Link (Slug or URL)</label>
-                        <input type="text" value={gameFormData.registration_link} onChange={e => setGameFormData({...gameFormData, registration_link: e.target.value})} className={inputClassName} placeholder="/register/valorant" />
-                    </div>
-                     <div>
-                        <label className={labelClassName}>Rulebook URL</label>
-                        <input type="text" value={gameFormData.rulebook_link} onChange={e => setGameFormData({...gameFormData, rulebook_link: e.target.value})} className={inputClassName} placeholder="https://docs.google.com/..." />
-                    </div>
-                 </div>
+              <div>
+                  <label className={labelClassName}>Game Logo URL</label>
+                  <input type="text" value={gameFormData.game_logo} onChange={e => setGameFormData({...gameFormData, game_logo: e.target.value})} className={inputClassName} placeholder="https://..." />
               </div>
+            </div>
 
-              <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
-                 <button onClick={handleSaveGame} className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:scale-[1.02] transition-transform">
-                    {editingGame ? 'Save Changes' : 'Create Game'}
-                 </button>
+            {/* Competition Specs */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Competition Specs</h3>
+              <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClassName}>Prize Pool</label>
+                    <input type="text" value={gameFormData.prize_pool} onChange={e => setGameFormData({...gameFormData, prize_pool: e.target.value})} className={inputClassName} placeholder="10,000 BDT" />
+                  </div>
+                  <div>
+                      <label className={labelClassName}>Team Size</label>
+                      <input type="text" value={gameFormData.team_size} onChange={e => setGameFormData({...gameFormData, team_size: e.target.value})} className={inputClassName} placeholder="5v5" />
+                  </div>
+                  <div>
+                      <label className={labelClassName}>Registration Fee (BDT)</label>
+                      <input type="text" value={gameFormData.registration_fee} onChange={e => setGameFormData({...gameFormData, registration_fee: e.target.value})} className={inputClassName} placeholder="500 BDT" />
+                  </div>
+                  <div>
+                      <label className={labelClassName}>Format</label>
+                    <input type="text" value={gameFormData.format} onChange={e => setGameFormData({...gameFormData, format: e.target.value})} className={inputClassName} placeholder="Single Elimination" />
+                  </div>
+                  <div>
+                    <label className={labelClassName}>Max Participants</label>
+                    <input type="text" value={gameFormData.max_participants} onChange={e => setGameFormData({...gameFormData, max_participants: e.target.value})} className={inputClassName} placeholder="64 Teams" />
+                  </div>
               </div>
-           </div>
-         </div>
-      )}
+            </div>
+
+            {/* Links */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Links</h3>
+                <div>
+                  <label className={labelClassName}>Registration Link (Slug or URL)</label>
+                  <input type="text" value={gameFormData.registration_link} onChange={e => setGameFormData({...gameFormData, registration_link: e.target.value})} className={inputClassName} placeholder="/register/valorant" />
+              </div>
+                <div>
+                  <label className={labelClassName}>Rulebook URL</label>
+                  <input type="text" value={gameFormData.rulebook_link} onChange={e => setGameFormData({...gameFormData, rulebook_link: e.target.value})} className={inputClassName} placeholder="https://docs.google.com/..." />
+              </div>
+            </div>
+
+            <button onClick={handleSaveGame} className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:scale-[1.02] transition-transform">
+              {editingGame ? 'Save Changes' : 'Create Game'}
+            </button>
+        </div>
+      </Modal>
 
       <AdminHelpButton
          title="🏆 Tournament Manager"

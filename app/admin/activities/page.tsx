@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminHelpButton from '@/components/AdminHelpButton';
+import Modal from '@/components/Modal';
 import {
   getAllActivities,
   createActivity,
@@ -410,237 +411,219 @@ export default function AdminActivitiesPage() {
         </div>
       )}
 
-      {/* Slide-over Form */}
-      {isFormOpen && (
-         <div className="fixed inset-0 z-50 overflow-hidden">
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseForm} />
-           <div className="absolute inset-y-0 right-0 max-w-2xl w-full flex">
-             <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
-                <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
-                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                     <CalendarIcon className="w-5 h-5 text-purple-500" />
-                     {editingActivity ? 'Edit Activity' : 'New Activity'}
-                   </h2>
-                   <button onClick={handleCloseForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-                     <XMarkIcon className="w-6 h-6" />
-                   </button>
+      {/* Modal Form */}
+      <Modal
+        isOpen={isFormOpen}
+        onClose={handleCloseForm}
+        title={editingActivity ? 'Edit Activity' : 'New Activity'}
+      >
+        <form id="activity-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Info */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Basic Info</h3>
+            <div>
+              <label className={labelClassName}>Activity Title *</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: editingActivity ? formData.slug : generateSlug(e.target.value) })}
+                className={inputClassName}
+                required
+              />
+            </div>
+            <div>
+              <label className={labelClassName}>Slug (URL Friendly) *</label>
+              <input
+                type="text"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                className={`${inputClassName} opacity-70`}
+                disabled={!!editingActivity}
+                required
+              />
+            </div>
+            <div>
+              <label className={labelClassName}>Short Description (2 lines max)</label>
+              <textarea
+                value={formData.short_description || ''}
+                onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                className={inputClassName}
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className={labelClassName}>Full Description *</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className={`${inputClassName} h-32`}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Logistics */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Logistics</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClassName}>Date *</label>
+                <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className={inputClassName} required />
+              </div>
+              <div>
+                <label className={labelClassName}>Time *</label>
+                <input type="text" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} className={inputClassName} placeholder="10:00 AM" required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClassName}>Venue *</label>
+                <input type="text" value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })} className={inputClassName} placeholder="Room 202 / Online" required />
+              </div>
+              <div>
+                <label className={labelClassName}>Max Participants</label>
+                <input type="number" value={formData.participants} onChange={(e) => setFormData({ ...formData, participants: e.target.value })} className={inputClassName} placeholder="0 for unlimited" />
+              </div>
+            </div>
+          </div>
+
+          {/* Media */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Media & Links</h3>
+            <div>
+              <label className={labelClassName}>Banner Image URL</label>
+              <div className="space-y-3">
+                <input type="text" value={formData.banner_image_url || ''} onChange={handleImageUrlChange} className={inputClassName} placeholder="/events/banner.jpg" />
+                {imagePreview && (
+                  <div className="relative w-full h-40 bg-black/40 rounded-xl overflow-hidden border border-white/10">
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" onError={() => setImagePreview('')} />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div>
+              <label className={labelClassName}>Facebook Post Link</label>
+              <input type="url" value={formData.facebook_post_url || ''} onChange={(e) => setFormData({ ...formData, facebook_post_url: e.target.value })} className={inputClassName} placeholder="https://facebook.com/..." />
+            </div>
+          </div>
+
+          {/* Organization */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Organization</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClassName}>Category</label>
+                <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className={inputClassName}>
+                  {categories.map(cat => <option key={cat} value={cat} className="bg-gray-900">{cat}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelClassName}>Status</label>
+                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className={inputClassName}>
+                  <option value="upcoming" className="bg-gray-900">Upcoming</option>
+                  <option value="ongoing" className="bg-gray-900">Ongoing</option>
+                  <option value="past" className="bg-gray-900">Past</option>
+                  <option value="recurring" className="bg-gray-900">Recurring</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className={labelClassName}>Tags</label>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                  className={inputClassName}
+                  placeholder="Add tag..."
+                />
+                <button type="button" onClick={handleAddTag} className="px-4 bg-purple-600 rounded-xl font-bold text-white hover:bg-purple-500">Add</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {formData.tags.map((tag, index) => (
+                  <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-sm font-medium text-purple-300 flex items-center gap-2 border border-white/5">
+                    {tag}
+                    <button type="button" onClick={() => handleRemoveTag(index)} className="hover:text-white"><XMarkIcon className="w-3 h-3" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Sponsors */}
+            <div>
+              <label className={labelClassName}>Associated Sponsors</label>
+              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-3 bg-black/20 rounded-xl border border-white/5">
+                {sponsors.map(sponsor => (
+                  <label key={sponsor.id} className="flex items-center space-x-3 text-gray-300 cursor-pointer p-2 hover:bg-white/5 rounded-lg transition-colors">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={selectedSponsors.includes(sponsor.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedSponsors([...selectedSponsors, sponsor.id]);
+                          else setSelectedSponsors(selectedSponsors.filter(id => id !== sponsor.id));
+                        }}
+                        className="peer sr-only"
+                      />
+                      <div className="w-5 h-5 border-2 border-gray-600 rounded peer-checked:bg-purple-600 peer-checked:border-purple-600 transition-all flex items-center justify-center">
+                        <CheckCircleIcon className="w-4 h-4 text-white opacity-0 peer-checked:opacity-100" />
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium">{sponsor.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Guests */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2 flex justify-between items-center">
+              Specific Guests
+              <button type="button" onClick={addGuest} className="text-xs text-purple-400 hover:text-purple-300">+ Add Guest</button>
+            </h3>
+            {formData.guests.map((guest, index) => (
+              <div key={index} className="p-4 bg-black/20 rounded-xl border border-white/5 space-y-3 relative">
+                <button type="button" onClick={() => removeGuest(index)} className="absolute top-2 right-2 text-gray-500 hover:text-red-400"><XMarkIcon className="w-4 h-4" /></button>
+                <div className="grid grid-cols-2 gap-3">
+                  <input type="text" value={guest.name} onChange={(e) => handleGuestChange(index, 'name', e.target.value)} placeholder="Name" className={inputClassName} />
+                  <input type="text" value={guest.designation} onChange={(e) => handleGuestChange(index, 'designation', e.target.value)} placeholder="Designation" className={inputClassName} />
                 </div>
-                
-                <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                    <form id="activity-form" onSubmit={handleSubmit} className="space-y-6">
-                        {/* Basic Info */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Basic Info</h3>
-                            <div>
-                                <label className={labelClassName}>Activity Title *</label>
-                                <input
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: editingActivity ? formData.slug : generateSlug(e.target.value) })}
-                                    className={inputClassName}
-                                    required
-                                />
-                            </div>
-                             <div>
-                                <label className={labelClassName}>Slug (URL Friendly) *</label>
-                                <input
-                                    type="text"
-                                    value={formData.slug}
-                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                    className={`${inputClassName} opacity-70`}
-                                    disabled={!!editingActivity}
-                                    required
-                                />
-                            </div>
-                             <div>
-                                <label className={labelClassName}>Short Description (2 lines max)</label>
-                                <textarea
-                                    value={formData.short_description || ''}
-                                    onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                                    className={inputClassName}
-                                    rows={2}
-                                />
-                            </div>
-                            <div>
-                                <label className={labelClassName}>Full Description *</label>
-                                <textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className={`${inputClassName} h-32`}
-                                    required
-                                />
-                            </div>
-                        </div>
+                <input type="text" value={guest.photo} onChange={(e) => handleGuestChange(index, 'photo', e.target.value)} placeholder="Photo URL" className={inputClassName} />
+              </div>
+            ))}
+            {formData.guests.length === 0 && <p className="text-gray-500 text-sm italic">No specific guests added.</p>}
+          </div>
 
-                         {/* Logistics */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Logistics</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClassName}>Date *</label>
-                                    <input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className={inputClassName} required />
-                                </div>
-                                <div>
-                                    <label className={labelClassName}>Time *</label>
-                                    <input type="text" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} className={inputClassName} placeholder="10:00 AM" required />
-                                </div>
-                            </div>
-                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClassName}>Venue *</label>
-                                    <input type="text" value={formData.venue} onChange={(e) => setFormData({ ...formData, venue: e.target.value })} className={inputClassName} placeholder="Room 202 / Online" required />
-                                </div>
-                                <div>
-                                    <label className={labelClassName}>Max Participants</label>
-                                    <input type="number" value={formData.participants} onChange={(e) => setFormData({ ...formData, participants: e.target.value })} className={inputClassName} placeholder="0 for unlimited" />
-                                </div>
-                            </div>
-                        </div>
+          {/* Toggles */}
+          <div className="flex items-center gap-6 p-4 bg-white/5 rounded-xl border border-white/5">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative">
+                <input type="checkbox" checked={formData.is_published} onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })} className="sr-only peer" />
+                <div className="w-10 h-6 bg-gray-700 rounded-full peer-checked:bg-green-600 transition-all peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+              </div>
+              <span className="text-gray-300 font-medium">Publish</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative">
+                <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })} className="sr-only peer" />
+                <div className="w-10 h-6 bg-gray-700 rounded-full peer-checked:bg-purple-600 transition-all peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+              </div>
+              <span className="text-gray-300 font-medium">Featured</span>
+            </label>
+          </div>
 
-                        {/* Media */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Media & Links</h3>
-                             <div>
-                                <label className={labelClassName}>Banner Image URL</label>
-                                <div className="space-y-3">
-                                    <input type="text" value={formData.banner_image_url || ''} onChange={handleImageUrlChange} className={inputClassName} placeholder="/events/banner.jpg" />
-                                    {imagePreview && (
-                                        <div className="relative w-full h-40 bg-black/40 rounded-xl overflow-hidden border border-white/10">
-                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" onError={() => setImagePreview('')} />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                             <div>
-                                <label className={labelClassName}>Facebook Post Link</label>
-                                <input type="url" value={formData.facebook_post_url || ''} onChange={(e) => setFormData({ ...formData, facebook_post_url: e.target.value })} className={inputClassName} placeholder="https://facebook.com/..." />
-                            </div>
-                        </div>
-
-                         {/* Organization */}
-                        <div className="space-y-4">
-                             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2">Organization</h3>
-                             <div className="grid grid-cols-2 gap-4">
-                                 <div>
-                                    <label className={labelClassName}>Category</label>
-                                    <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className={inputClassName}>
-                                        {categories.map(cat => <option key={cat} value={cat} className="bg-gray-900">{cat}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className={labelClassName}>Status</label>
-                                     <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })} className={inputClassName}>
-                                        <option value="upcoming" className="bg-gray-900">Upcoming</option>
-                                        <option value="ongoing" className="bg-gray-900">Ongoing</option>
-                                        <option value="past" className="bg-gray-900">Past</option>
-                                        <option value="recurring" className="bg-gray-900">Recurring</option>
-                                    </select>
-                                </div>
-                             </div>
-
-                             {/* Tags */}
-                             <div>
-                                <label className={labelClassName}>Tags</label>
-                                <div className="flex gap-2 mb-2">
-                                    <input 
-                                        type="text" 
-                                        value={tagInput} 
-                                        onChange={(e) => setTagInput(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                                        className={inputClassName}
-                                        placeholder="Add tag..."
-                                    />
-                                    <button type="button" onClick={handleAddTag} className="px-4 bg-purple-600 rounded-xl font-bold text-white hover:bg-purple-500">Add</button>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {formData.tags.map((tag, index) => (
-                                        <span key={index} className="px-3 py-1 bg-white/10 rounded-full text-sm font-medium text-purple-300 flex items-center gap-2 border border-white/5">
-                                            {tag}
-                                            <button type="button" onClick={() => handleRemoveTag(index)} className="hover:text-white"><XMarkIcon className="w-3 h-3" /></button>
-                                        </span>
-                                    ))}
-                                </div>
-                             </div>
-
-                             {/* Sponsors */}
-                             <div>
-                                <label className={labelClassName}>Associated Sponsors</label>
-                                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto custom-scrollbar p-3 bg-black/20 rounded-xl border border-white/5">
-                                    {sponsors.map(sponsor => (
-                                        <label key={sponsor.id} className="flex items-center space-x-3 text-gray-300 cursor-pointer p-2 hover:bg-white/5 rounded-lg transition-colors">
-                                            <div className="relative">
-                                                 <input
-                                                    type="checkbox"
-                                                    checked={selectedSponsors.includes(sponsor.id)}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) setSelectedSponsors([...selectedSponsors, sponsor.id]);
-                                                        else setSelectedSponsors(selectedSponsors.filter(id => id !== sponsor.id));
-                                                    }}
-                                                    className="peer sr-only"
-                                                />
-                                                <div className="w-5 h-5 border-2 border-gray-600 rounded peer-checked:bg-purple-600 peer-checked:border-purple-600 transition-all flex items-center justify-center">
-                                                    <CheckCircleIcon className="w-4 h-4 text-white opacity-0 peer-checked:opacity-100" />
-                                                </div>
-                                            </div>
-                                            <span className="text-sm font-medium">{sponsor.name}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                             </div>
-                        </div>
-
-                         {/* Guests */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-2 flex justify-between items-center">
-                                Specific Guests
-                                <button type="button" onClick={addGuest} className="text-xs text-purple-400 hover:text-purple-300">+ Add Guest</button>
-                            </h3>
-                            {formData.guests.map((guest, index) => (
-                                <div key={index} className="p-4 bg-black/20 rounded-xl border border-white/5 space-y-3 relative">
-                                    <button type="button" onClick={() => removeGuest(index)} className="absolute top-2 right-2 text-gray-500 hover:text-red-400"><XMarkIcon className="w-4 h-4" /></button>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <input type="text" value={guest.name} onChange={(e) => handleGuestChange(index, 'name', e.target.value)} placeholder="Name" className={inputClassName} />
-                                        <input type="text" value={guest.designation} onChange={(e) => handleGuestChange(index, 'designation', e.target.value)} placeholder="Designation" className={inputClassName} />
-                                    </div>
-                                    <input type="text" value={guest.photo} onChange={(e) => handleGuestChange(index, 'photo', e.target.value)} placeholder="Photo URL" className={inputClassName} />
-                                </div>
-                            ))}
-                            {formData.guests.length === 0 && <p className="text-gray-500 text-sm italic">No specific guests added.</p>}
-                        </div>
-                        
-                        {/* Toggles */}
-                        <div className="flex items-center gap-6 p-4 bg-white/5 rounded-xl border border-white/5">
-                             <label className="flex items-center gap-3 cursor-pointer">
-                                <div className="relative">
-                                    <input type="checkbox" checked={formData.is_published} onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })} className="sr-only peer" />
-                                    <div className="w-10 h-6 bg-gray-700 rounded-full peer-checked:bg-green-600 transition-all peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                </div>
-                                <span className="text-gray-300 font-medium">Publish</span>
-                             </label>
-                             <label className="flex items-center gap-3 cursor-pointer">
-                                <div className="relative">
-                                    <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })} className="sr-only peer" />
-                                    <div className="w-10 h-6 bg-gray-700 rounded-full peer-checked:bg-purple-600 transition-all peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                </div>
-                                <span className="text-gray-300 font-medium">Featured</span>
-                             </label>
-                        </div>
-                    </form>
-                </div>
-                
-                <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
-                   <button
-                      type="submit"
-                      form="activity-form"
-                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                    >
-                     {editingActivity ? 'Update Activity' : 'Create Activity'}
-                   </button>
-                </div>
-             </div>
-           </div>
-         </div>
-      )}
+          <button
+            type="submit"
+            className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            {editingActivity ? 'Update Activity' : 'Create Activity'}
+          </button>
+        </form>
+      </Modal>
 
       <AdminHelpButton
         title="📅 Activities & Events Manager"
