@@ -441,16 +441,16 @@ export default function EmailManagementPage() {
                 </div>
                 <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-2 custom-scrollbar">
                   {participants.map((p, idx) => (
-                    <label key={`${p.email}-${idx}`} className="flex flex-wrap sm:flex-nowrap items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30">
+                    <label key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30 w-full">
                       <input
                         type="checkbox"
                         checked={selectedParticipants.has(p.email)}
                         onChange={() => toggleParticipant(p.email)}
                         className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700 flex-shrink-0"
                       />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-white font-medium truncate block">{p.name || 'Participant'}</span>
-                        <span className="text-gray-400 text-sm truncate block">{p.email}</span>
+                      <div className="flex-1 min-w-0 grid grid-cols-1">
+                        <span className="text-white font-medium truncate">{p.name || 'Participant'}</span>
+                        <span className="text-gray-400 text-sm truncate">{p.email}</span>
                       </div>
                     </label>
                   ))}

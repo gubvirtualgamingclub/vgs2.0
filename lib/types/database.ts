@@ -236,8 +236,7 @@ export interface RegistrationForm {
   is_active: boolean;
   registration_deadline?: string;
   registration_fee?: string;
-  banner_url?: string;
-  organizer_logo_url?: string;
+  club_logo_url?: string;
   tournament_logo_url?: string;
   game_logo_url?: string;
   // Enhanced Design Fields
