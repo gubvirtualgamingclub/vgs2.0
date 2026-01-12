@@ -125,46 +125,50 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setIsOpen(true);
+          setIsOpen(!isOpen);
         }}
-        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 group"
+        className={`
+          fixed bottom-6 right-6 z-[60]
+          bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700
+          text-white p-3 rounded-full shadow-2xl
+          transition-all duration-300 hover:scale-110
+          flex items-center justify-center
+          ${isOpen ? 'rotate-90' : 'rotate-0'}
+        `}
         title="Page Instructions"
-        aria-label="Open Help Instructions"
+        aria-label="Toggle Help Instructions"
       >
-        <QuestionMarkCircleIcon className="w-6 h-6" /> 
+        {isOpen ? <XMarkIcon className="w-6 h-6" /> : <QuestionMarkCircleIcon className="w-6 h-6" />}
       </button>
 
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" 
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
-          }}
-          role="dialog"
-          aria-modal="true"
-        >
+        <>
+          {/* Backdrop for mobile only */}
           <div 
-            className="bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-purple-500/30 flex flex-col"
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] md:hidden"
+            onClick={() => setIsOpen(false)}
+          />
+
+          <div
+            className="
+              fixed bottom-24 right-6 z-50
+              w-[calc(100vw-3rem)] max-w-sm md:max-w-md
+              bg-gray-800 rounded-2xl shadow-2xl border border-purple-500/30
+              flex flex-col max-h-[70vh] animate-fadeIn
+            "
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between flex-shrink-0">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-t-2xl flex items-center justify-between flex-shrink-0">
               <div className="flex items-center space-x-3">
-                <div className="bg-white/20 p-2 rounded-lg">
-                  <QuestionMarkCircleIcon className="w-6 h-6 text-white" />
+                <div className="bg-white/20 p-1.5 rounded-lg">
+                  <QuestionMarkCircleIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">{title}</h2>
-                  <p className="text-purple-100 text-sm">Page Instructions & Guide</p>
+                  <h2 className="text-lg font-bold text-white leading-tight">{title}</h2>
+                  <p className="text-purple-100 text-xs">Page Instructions</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
-                aria-label="Close"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
             </div>
 
             {/* Content Container */}
@@ -279,17 +283,8 @@ export default function AdminHelpButton({ title, instructions, tips, actions }: 
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="bg-gray-800 px-6 py-4 border-t border-gray-700 flex justify-end flex-shrink-0">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Close
-              </button>
-            </div>
           </div>
-        </div>
+        </>
       )}
 
       <style jsx global>{`

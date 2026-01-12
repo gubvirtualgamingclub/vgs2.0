@@ -441,6 +441,24 @@ export async function getActiveTournament() {
 }
 
 /**
+ * Create a new tournament
+ */
+export async function createTournament(tournament: Omit<Tournament, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('tournament')
+    .insert([tournament])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating tournament:', error);
+    throw error;
+  }
+
+  return data as Tournament;
+}
+
+/**
  * Update the tournament
  */
 export async function updateTournament(id: string, updates: Partial<Omit<Tournament, 'id' | 'created_at'>>) {

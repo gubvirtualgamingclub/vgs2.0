@@ -1,6 +1,7 @@
 'use client';
 
 import AdminHelpButton from '@/components/AdminHelpButton';
+import Modal from '@/components/Modal';
 import { useState, useEffect } from 'react';
 import {
   getAllSponsors,
@@ -409,285 +410,267 @@ export default function AdminSponsorsPage() {
         </div>
       )}
 
-      {/* Slide-over Form Overlay */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseForm} />
-          <div className="absolute inset-y-0 right-0 max-w-2xl w-full flex">
-            <div className="w-full bg-gray-900 border-l border-white/10 shadow-2xl flex flex-col animate-slideRight">
-              <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-gray-900/50 backdrop-blur-xl z-10">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  {editingSponsor ? <PencilIcon className="w-5 h-5 text-purple-500" /> : <PlusIcon className="w-5 h-5 text-purple-500" />}
-                  {editingSponsor ? 'Edit Partner' : 'Add New Partner'}
-                </h2>
-                <button onClick={handleCloseForm} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-                  <XMarkIcon className="w-6 h-6" />
-                </button>
+      {/* Modal Form */}
+      <Modal
+        isOpen={isFormOpen}
+        onClose={handleCloseForm}
+        title={editingSponsor ? 'Edit Partner' : 'Add New Partner'}
+      >
+        <form id="sponsor-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Info */}
+          <div className="space-y-4">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Basic Information</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className={labelClassName}>Partner Name *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className={inputClassName}
+                    placeholder="e.g. Acme Corp"
+                  />
+                </div>
+
+                  <div className="md:col-span-2">
+                  <label className={labelClassName}>Logo URL *</label>
+                  <div className="flex gap-4">
+                    <input
+                        type="text"
+                        value={formData.logo}
+                        onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
+                        required
+                        className={inputClassName}
+                        placeholder="https://..."
+                    />
+                      <div className="w-12 h-12 bg-black/40 rounded-lg border border-white/10 flex-shrink-0 flex items-center justify-center p-1">
+                        {formData.logo ? (
+                          <img src={formData.logo} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+                        ) : <div className="text-xs text-gray-600">Img</div>}
+                      </div>
+                  </div>
+                </div>
               </div>
-
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                <form id="sponsor-form" onSubmit={handleSubmit} className="space-y-6">
-                    {/* Basic Info */}
-                    <div className="space-y-4">
-                       <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Basic Information</h3>
-                       
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="md:col-span-2">
-                            <label className={labelClassName}>Partner Name *</label>
-                            <input
-                              type="text"
-                              value={formData.name}
-                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                              required
-                              className={inputClassName}
-                              placeholder="e.g. Acme Corp"
-                            />
-                          </div>
-                          
-                           <div className="md:col-span-2">
-                            <label className={labelClassName}>Logo URL *</label>
-                            <div className="flex gap-4">
-                              <input
-                                  type="text"
-                                  value={formData.logo}
-                                  onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                                  required
-                                  className={inputClassName}
-                                  placeholder="https://..."
-                              />
-                               <div className="w-12 h-12 bg-black/40 rounded-lg border border-white/10 flex-shrink-0 flex items-center justify-center p-1">
-                                  {formData.logo ? (
-                                    <img src={formData.logo} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
-                                  ) : <div className="text-xs text-gray-600">Img</div>}
-                               </div>
-                            </div>
-                          </div>
-                       </div>
-                    </div>
-                  
-                    {/* Type & Classification */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Classification</h3>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                               <label className={labelClassName}>Partner Type</label>
-                               <select
-                                  value={formData.type}
-                                  onChange={(e) => setFormData({ 
-                                    ...formData, 
-                                    type: e.target.value as any, 
-                                    sponsor_types: e.target.value === 'collaborator' ? [] : formData.sponsor_types,
-                                    collaborator_types: e.target.value === 'sponsor' ? [] : formData.collaborator_types
-                                  })}
-                                  className={inputClassName}
-                                >
-                                  <option value="sponsor" className="bg-gray-800">Sponsor</option>
-                                  <option value="collaborator" className="bg-gray-800">Collaborator</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                               <label className={labelClassName}>Order Index</label>
-                               <input
-                                  type="number"
-                                  value={formData.display_order}
-                                  onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                                  className={inputClassName}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Dynamic Categories based on Type */}
-                        <div className="bg-black/20 rounded-xl p-4 border border-white/5">
-                            <label className="block text-sm font-medium text-gray-300 mb-3">Categories</label>
-                            <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
-                                {(formData.type === 'sponsor' ? [
-                                    { value: 'title_sponsor', label: 'Title Sponsor' },
-                                    { value: 'platinum_sponsor', label: 'Platinum Sponsor' },
-                                    { value: 'gold_sponsor', label: 'Gold Sponsor' },
-                                    { value: 'silver_sponsor', label: 'Silver Sponsor' },
-                                    { value: 'official_sponsor', label: 'Official Sponsor' },
-                                    { value: 'co_sponsor', label: 'Co-Sponsor' },
-                                    { value: 'technology_partner', label: 'Technology Partner' },
-                                    { value: 'venue_partner', label: 'Venue Partner' },
-                                    { value: 'other', label: 'Other' },
-                                ] : [
-                                    { value: 'academic_collaborator', label: 'Academic Collaborator' },
-                                    { value: 'research_collaborator', label: 'Research Collaborator' },
-                                    { value: 'industry_collaborator', label: 'Industry Collaborator' },
-                                    { value: 'technical_collaborator', label: 'Technical Collaborator' },
-                                    { value: 'event_collaborator', label: 'Event Collaborator' },
-                                    { value: 'student_organization', label: 'Student Organization' },
-                                    { value: 'other', label: 'Other' },
-                                ]).map(option => (
-                                    <label key={option.value} className="flex items-center space-x-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
-                                        <div className="relative flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.type === 'sponsor' 
-                                                    ? formData.sponsor_types.includes(option.value) 
-                                                    : formData.collaborator_types.includes(option.value)
-                                                }
-                                                onChange={(e) => {
-                                                    const currentTypes = formData.type === 'sponsor' ? formData.sponsor_types : formData.collaborator_types;
-                                                    const newTypes = e.target.checked
-                                                        ? [...currentTypes, option.value]
-                                                        : currentTypes.filter(t => t !== option.value);
-                                                    
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        [prev.type === 'sponsor' ? 'sponsor_types' : 'collaborator_types']: newTypes,
-                                                        custom_type_name: !e.target.checked && option.value === 'other' ? '' : prev.custom_type_name
-                                                    }));
-                                                }}
-                                                className="peer w-5 h-5 border-2 border-gray-500 rounded text-purple-600 focus:ring-purple-500/50 bg-transparent checked:bg-purple-600 checked:border-purple-600 transition-all"
-                                            />
-                                        </div>
-                                        <span className="text-gray-300 text-sm peer-checked:text-white">{option.label}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                        
-                        {(formData.sponsor_types.includes('other') || formData.collaborator_types.includes('other')) && (
-                          <div className="animate-fadeIn">
-                             <label className={labelClassName}>Custom Category Name</label>
-                             <input
-                                type="text"
-                                value={formData.custom_type_name}
-                                onChange={(e) => setFormData({ ...formData, custom_type_name: e.target.value })}
-                                className={inputClassName}
-                                placeholder="e.g. Strategic Partner"
-                              />
-                          </div>
-                        )}
-                    </div>
-
-                    {/* Sponsored Events */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
-                        <label className={labelClassName}>Sponsored Events / History</label>
-                        <div className="bg-black/20 rounded-xl p-4 border border-white/5">
-                            <div className="flex gap-2 mb-3">
-                                <input
-                                    type="text"
-                                    placeholder="Add event name (e.g. VGS Winter Cup 2024)"
-                                    className={inputClassName}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            const val = e.currentTarget.value.trim();
-                                            if (val && !formData.events.includes(val)) {
-                                                setFormData({ ...formData, events: [...formData.events, val] });
-                                                e.currentTarget.value = '';
-                                            }
-                                        }
-                                    }}
-                                    id="event-input"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const input = document.getElementById('event-input') as HTMLInputElement;
-                                        const val = input.value.trim();
-                                        if (val && !formData.events.includes(val)) {
-                                            setFormData({ ...formData, events: [...formData.events, val] });
-                                            input.value = '';
-                                        }
-                                    }}
-                                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/10"
-                                >
-                                    Add
-                                </button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {formData.events.map((event, idx) => (
-                                    <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-200 rounded-full text-xs font-medium flex items-center gap-2 border border-purple-500/30">
-                                        {event}
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, events: formData.events.filter((_, i) => i !== idx) })}
-                                            className="hover:text-white transition-colors"
-                                        >
-                                            <XMarkIcon className="w-3 h-3" />
-                                        </button>
-                                    </span>
-                                ))}
-                                {formData.events.length === 0 && (
-                                    <span className="text-gray-500 text-sm italic">No specific events added yet.</span>
-                                )}
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">Tag the specific events this partner has supported.</p>
-                        </div>
-                    </div>
-
-                    {/* Details */}
-                    <div className="space-y-4 pt-4 border-t border-white/5">
-                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Details</h3>
-                        
-                        <div>
-                             <label className={labelClassName}>Website</label>
-                              <div className="relative">
-                                <GlobeAltIcon className="absolute left-4 top-3.5 w-5 h-5 text-gray-500" />
-                                <input
-                                  type="url"
-                                  value={formData.website}
-                                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                                  className={`${inputClassName} pl-12`}
-                                  placeholder="https://example.com"
-                                />
-                             </div>
-                        </div>
-
-                         <div>
-                             <label className={labelClassName}>Description</label>
-                             <textarea
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                rows={3}
-                                className={inputClassName}
-                                placeholder="Brief description..."
-                             />
-                        </div>
-                    </div>
-
-                    {/* Settings */}
-                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                        <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                            <input 
-                              type="checkbox" 
-                              checked={formData.is_published} 
-                              onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                              className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent" 
-                            />
-                            <span className="text-gray-300 font-medium text-sm">Published</span>
-                        </label>
-                         <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                            <input 
-                              type="checkbox" 
-                              checked={formData.is_featured} 
-                              onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                              className="w-5 h-5 rounded border-gray-500 text-yellow-500 focus:ring-yellow-500 bg-transparent" 
-                            />
-                            <span className="text-gray-300 font-medium text-sm">Featured</span>
-                        </label>
-                    </div>
-                </form>
-              </div>
-
-              <div className="p-6 border-t border-white/10 bg-gray-900 z-10">
-                 <button
-                    type="submit"
-                    form="sponsor-form"
-                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                  >
-                   {editingSponsor ? 'Save Changes' : 'Create Partner'}
-                 </button>
-              </div>
-            </div>
           </div>
-        </div>
-      )}
+
+          {/* Type & Classification */}
+          <div className="space-y-4 pt-4 border-t border-white/5">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Classification</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                  <div>
+                      <label className={labelClassName}>Partner Type</label>
+                      <select
+                        value={formData.type}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          type: e.target.value as any,
+                          sponsor_types: e.target.value === 'collaborator' ? [] : formData.sponsor_types,
+                          collaborator_types: e.target.value === 'sponsor' ? [] : formData.collaborator_types
+                        })}
+                        className={inputClassName}
+                      >
+                        <option value="sponsor" className="bg-gray-800">Sponsor</option>
+                        <option value="collaborator" className="bg-gray-800">Collaborator</option>
+                      </select>
+                  </div>
+                  
+                  <div>
+                      <label className={labelClassName}>Order Index</label>
+                      <input
+                        type="number"
+                        value={formData.display_order}
+                        onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
+                        className={inputClassName}
+                      />
+                  </div>
+              </div>
+
+              {/* Dynamic Categories based on Type */}
+              <div className="bg-black/20 rounded-xl p-4 border border-white/5">
+                  <label className="block text-sm font-medium text-gray-300 mb-3">Categories</label>
+                  <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                      {(formData.type === 'sponsor' ? [
+                          { value: 'title_sponsor', label: 'Title Sponsor' },
+                          { value: 'platinum_sponsor', label: 'Platinum Sponsor' },
+                          { value: 'gold_sponsor', label: 'Gold Sponsor' },
+                          { value: 'silver_sponsor', label: 'Silver Sponsor' },
+                          { value: 'official_sponsor', label: 'Official Sponsor' },
+                          { value: 'co_sponsor', label: 'Co-Sponsor' },
+                          { value: 'technology_partner', label: 'Technology Partner' },
+                          { value: 'venue_partner', label: 'Venue Partner' },
+                          { value: 'other', label: 'Other' },
+                      ] : [
+                          { value: 'academic_collaborator', label: 'Academic Collaborator' },
+                          { value: 'research_collaborator', label: 'Research Collaborator' },
+                          { value: 'industry_collaborator', label: 'Industry Collaborator' },
+                          { value: 'technical_collaborator', label: 'Technical Collaborator' },
+                          { value: 'event_collaborator', label: 'Event Collaborator' },
+                          { value: 'student_organization', label: 'Student Organization' },
+                          { value: 'other', label: 'Other' },
+                      ]).map(option => (
+                          <label key={option.value} className="flex items-center space-x-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+                              <div className="relative flex items-center">
+                                  <input
+                                      type="checkbox"
+                                      checked={formData.type === 'sponsor'
+                                          ? formData.sponsor_types.includes(option.value)
+                                          : formData.collaborator_types.includes(option.value)
+                                      }
+                                      onChange={(e) => {
+                                          const currentTypes = formData.type === 'sponsor' ? formData.sponsor_types : formData.collaborator_types;
+                                          const newTypes = e.target.checked
+                                              ? [...currentTypes, option.value]
+                                              : currentTypes.filter(t => t !== option.value);
+
+                                          setFormData(prev => ({
+                                              ...prev,
+                                              [prev.type === 'sponsor' ? 'sponsor_types' : 'collaborator_types']: newTypes,
+                                              custom_type_name: !e.target.checked && option.value === 'other' ? '' : prev.custom_type_name
+                                          }));
+                                      }}
+                                      className="peer w-5 h-5 border-2 border-gray-500 rounded text-purple-600 focus:ring-purple-500/50 bg-transparent checked:bg-purple-600 checked:border-purple-600 transition-all"
+                                  />
+                              </div>
+                              <span className="text-gray-300 text-sm peer-checked:text-white">{option.label}</span>
+                          </label>
+                      ))}
+                  </div>
+              </div>
+
+              {(formData.sponsor_types.includes('other') || formData.collaborator_types.includes('other')) && (
+                <div className="animate-fadeIn">
+                    <label className={labelClassName}>Custom Category Name</label>
+                    <input
+                      type="text"
+                      value={formData.custom_type_name}
+                      onChange={(e) => setFormData({ ...formData, custom_type_name: e.target.value })}
+                      className={inputClassName}
+                      placeholder="e.g. Strategic Partner"
+                    />
+                </div>
+              )}
+          </div>
+
+          {/* Sponsored Events */}
+          <div className="space-y-4 pt-4 border-t border-white/5">
+              <label className={labelClassName}>Sponsored Events / History</label>
+              <div className="bg-black/20 rounded-xl p-4 border border-white/5">
+                  <div className="flex gap-2 mb-3">
+                      <input
+                          type="text"
+                          placeholder="Add event name (e.g. VGS Winter Cup 2024)"
+                          className={inputClassName}
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const val = e.currentTarget.value.trim();
+                                  if (val && !formData.events.includes(val)) {
+                                      setFormData({ ...formData, events: [...formData.events, val] });
+                                      e.currentTarget.value = '';
+                                  }
+                              }
+                          }}
+                          id="event-input"
+                      />
+                      <button
+                          type="button"
+                          onClick={() => {
+                              const input = document.getElementById('event-input') as HTMLInputElement;
+                              const val = input.value.trim();
+                              if (val && !formData.events.includes(val)) {
+                                  setFormData({ ...formData, events: [...formData.events, val] });
+                                  input.value = '';
+                              }
+                          }}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/10"
+                      >
+                          Add
+                      </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                      {formData.events.map((event, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-purple-500/20 text-purple-200 rounded-full text-xs font-medium flex items-center gap-2 border border-purple-500/30">
+                              {event}
+                              <button
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, events: formData.events.filter((_, i) => i !== idx) })}
+                                  className="hover:text-white transition-colors"
+                              >
+                                  <XMarkIcon className="w-3 h-3" />
+                              </button>
+                          </span>
+                      ))}
+                      {formData.events.length === 0 && (
+                          <span className="text-gray-500 text-sm italic">No specific events added yet.</span>
+                      )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Tag the specific events this partner has supported.</p>
+              </div>
+          </div>
+
+          {/* Details */}
+          <div className="space-y-4 pt-4 border-t border-white/5">
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Details</h3>
+
+              <div>
+                    <label className={labelClassName}>Website</label>
+                    <div className="relative">
+                      <GlobeAltIcon className="absolute left-4 top-3.5 w-5 h-5 text-gray-500" />
+                      <input
+                        type="url"
+                        value={formData.website}
+                        onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                        className={`${inputClassName} pl-12`}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+              </div>
+
+                <div>
+                    <label className={labelClassName}>Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
+                      className={inputClassName}
+                      placeholder="Brief description..."
+                    />
+              </div>
+          </div>
+
+          {/* Settings */}
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+              <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_published}
+                    onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-500 text-purple-600 focus:ring-purple-500 bg-transparent"
+                  />
+                  <span className="text-gray-300 font-medium text-sm">Published</span>
+              </label>
+                <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                    className="w-5 h-5 rounded border-gray-500 text-yellow-500 focus:ring-yellow-500 bg-transparent"
+                  />
+                  <span className="text-gray-300 font-medium text-sm">Featured</span>
+              </label>
+          </div>
+
+            <button
+              type="submit"
+              className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-6"
+            >
+              {editingSponsor ? 'Save Changes' : 'Create Partner'}
+            </button>
+        </form>
+      </Modal>
 
       {/* Admin Help */}
       <AdminHelpButton
