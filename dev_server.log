@@ -1,0 +1,35 @@
+
+> vgs-2-0@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 2.9s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1036ms (72 modules)
+ ○ Compiling /tournaments ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled /tournaments in 10.2s (734 modules)
+ ⨯ lib/supabase.ts (8:9) @ eval
+ ⨯ Error: Missing Supabase environment variables. Please check your .env.local file.
+    at eval (./lib/supabase.ts:11:11)
+    at (ssr)/./lib/supabase.ts (/app/.next/server/app/tournaments/page.js:237:1)
+    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
+    at eval (./lib/supabase-queries.ts:85:67)
+    at (ssr)/./lib/supabase-queries.ts (/app/.next/server/app/tournaments/page.js:226:1)
+    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
+    at eval (./app/tournaments/page.tsx:10:79)
+    at (ssr)/./app/tournaments/page.tsx (/app/.next/server/app/tournaments/page.js:138:1)
+    at Object.__webpack_require__ [as require] (/app/.next/server/webpack-runtime.js:33:42)
+digest: "4026326222"
+[0m [90m  6 |[39m[0m
+[0m [90m  7 |[39m [36mif[39m ([33m![39msupabaseUrl [33m||[39m [33m![39msupabaseAnonKey) {[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m   [36mthrow[39m [36mnew[39m [33mError[39m([0m
+[0m [90m    |[39m         [31m[1m^[22m[39m[0m
+[0m [90m  9 |[39m     [32m'Missing Supabase environment variables. Please check your .env.local file.'[39m[0m
+[0m [90m 10 |[39m   )[33m;[39m[0m
+[0m [90m 11 |[39m }[0m
+ GET /tournaments 500 in 11658ms
+ ✓ Compiled in 1445ms (371 modules)
