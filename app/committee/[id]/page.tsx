@@ -63,55 +63,56 @@ export default async function CommitteeMemberDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 font-sans selection:bg-purple-500/30">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans selection:bg-purple-500/30 transition-colors duration-300">
       {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0">
-         <div className="absolute inset-0 bg-[#050505]"></div>
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(88,28,135,0.15),transparent_70%)]"></div>
-         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+      <div className="fixed inset-0 z-0 pointer-events-none">
+         <div className="absolute inset-0 bg-gray-50 dark:bg-[#050505] transition-colors duration-300"></div>
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(120,50,200,0.05),transparent_70%)] dark:bg-[radial-gradient(circle_at_50%_0%,rgba(88,28,135,0.15),transparent_70%)]"></div>
+         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-10"></div>
       </div>
 
       <div className="relative z-10">
-         {/* Navigation Badge */}
-         <nav className="absolute top-8 left-6 md:left-12 z-50">
-            <Link 
-               href={year ? `/committee?year=${year}` : '/committee'}
-               className="group flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/5 rounded-full transition-all hover:border-purple-500/30"
-            >
-               <svg className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-               <span className="text-sm font-medium text-gray-300 group-hover:text-white">Back to Committee</span>
-            </Link>
-         </nav>
 
-         {/* Hero Profile Section */}
-         <section className="pt-32 pb-20 px-6">
-            <div className="max-w-6xl mx-auto grid md:grid-cols-[1.2fr,2fr] gap-12 items-start">
+         <div className="max-w-7xl mx-auto px-6 pt-24 pb-8">
+            {/* Navigation Badge */}
+            <nav className="mb-8">
+                <Link
+                href={year ? `/committee?year=${year}` : '/committee'}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 backdrop-blur-md border border-gray-200 dark:border-white/5 rounded-full transition-all hover:border-purple-500/30 shadow-sm hover:shadow-md"
+                >
+                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">Back to Committee</span>
+                </Link>
+            </nav>
+
+            {/* Hero Profile Section */}
+            <div className="grid md:grid-cols-[1.2fr,2fr] gap-12 items-start">
                
                {/* Left Column: Avatar & Identity Card */}
                <div className="space-y-6">
                   {/* Photo Card */}
                   <div className="relative group perspective-1000">
-                     <div className={`absolute inset-0 bg-gradient-to-br ${isFaculty ? 'from-cyan-500 to-blue-600' : 'from-purple-600 to-pink-600'} rounded-3xl blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700`}></div>
+                     <div className={`absolute inset-0 bg-gradient-to-br ${isFaculty ? 'from-cyan-400 to-blue-500 dark:from-cyan-500 dark:to-blue-600' : 'from-purple-500 to-pink-500 dark:from-purple-600 dark:to-pink-600'} rounded-3xl blur-2xl opacity-10 dark:opacity-20 group-hover:opacity-30 dark:group-hover:opacity-40 transition-opacity duration-700`}></div>
                      
-                     <div className="relative bg-[#0f1016] p-4 rounded-3xl border border-white/10 group-hover:border-white/20 transition-colors shadow-2xl">
-                        <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden relative">
+                     <div className="relative bg-white dark:bg-[#0f1016] p-4 rounded-3xl border border-gray-200 dark:border-white/10 group-hover:border-gray-300 dark:group-hover:border-white/20 transition-all shadow-xl dark:shadow-2xl hover:shadow-2xl">
+                        <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden relative bg-gray-100 dark:bg-gray-900">
                            {member.photo ? (
                               <img src={member.photo} alt={member.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                            ) : (
-                              <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                                 <span className="text-8xl font-black text-white/10">{member.name.charAt(0)}</span>
+                              <div className="w-full h-full bg-gray-50 dark:bg-white/5 flex items-center justify-center">
+                                 <span className="text-8xl font-black text-gray-200 dark:text-white/10">{member.name.charAt(0)}</span>
                               </div>
                            )}
                            {/* Overlay Gradient */}
-                           <div className="absolute inset-0 bg-gradient-to-t from-[#0f1016] via-transparent to-transparent opacity-60"></div>
+                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent dark:from-[#0f1016] dark:opacity-60"></div>
                         </div>
                      </div>
                   </div>
 
                   {/* Identity / Stats Card (New) */}
-                  <div className="bg-[#0f1016] p-6 rounded-2xl border border-white/10 shadow-xl backdrop-blur-sm">
+                  <div className="bg-white dark:bg-[#0f1016] p-6 rounded-2xl border border-gray-200 dark:border-white/10 shadow-lg dark:shadow-xl backdrop-blur-sm">
                      <div className="flex items-center justify-between mb-6">
-                        <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Identity</span>
+                        <span className="text-xs font-mono text-gray-500 dark:text-gray-500 uppercase tracking-widest">Identity</span>
                         <div className="flex gap-2">
                            {member.student_id && <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>}
                         </div>
@@ -121,26 +122,26 @@ export default async function CommitteeMemberDetailPage({
                         {/* Student ID */}
                         {member.student_id ? (
                            <div>
-                              <div className="text-xs text-gray-400 mb-1">Student ID</div>
-                              <div className="font-mono text-xl text-white font-bold tracking-wider">{member.student_id}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Student ID</div>
+                              <div className="font-mono text-xl text-gray-900 dark:text-white font-bold tracking-wider">{member.student_id}</div>
                            </div>
                         ) : (
                            <div>
-                              <div className="text-xs text-gray-400 mb-1">Role Type</div>
-                              <div className="font-mono text-xl text-white font-bold tracking-wider">{isFaculty ? 'FACULTY' : 'EXECUTIVE'}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Role Type</div>
+                              <div className="font-mono text-xl text-gray-900 dark:text-white font-bold tracking-wider">{isFaculty ? 'FACULTY' : 'EXECUTIVE'}</div>
                            </div>
                         )}
 
-                        <div className="h-px bg-white/5"></div>
+                        <div className="h-px bg-gray-100 dark:bg-white/5"></div>
 
                         {/* Social Acts */}
                         <div>
-                           <div className="text-xs text-gray-400 mb-3">Connect</div>
+                           <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">Connect</div>
                            <div className="flex gap-3">
                               {member.linkedin && <SocialButton href={member.linkedin} type="linkedin" />}
                               {member.github && <SocialButton href={member.github} type="github" />}
                               {member.email && <SocialButton href={`mailto:${member.email}`} type="email" />}
-                              {!member.linkedin && !member.github && !member.email && <span className="text-gray-600 text-sm italic">No social links provided</span>}
+                              {!member.linkedin && !member.github && !member.email && <span className="text-gray-500 dark:text-gray-600 text-sm italic">No social links provided</span>}
                            </div>
                         </div>
                      </div>
@@ -151,19 +152,21 @@ export default async function CommitteeMemberDetailPage({
                <div className="space-y-10 pt-4">
                   <div>
                      <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-4 ${
-                        isFaculty ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30' : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                        isFaculty
+                        ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30'
+                        : 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/30'
                      }`}>
                         {member.category}
                      </span>
-                     <h1 className="text-5xl md:text-7xl font-black text-white mb-4 leading-tight">
+                     <h1 className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white mb-4 leading-tight">
                         {member.name}
                      </h1>
-                     <p className="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500 font-medium">
+                     <p className="text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-600 to-gray-900 dark:from-gray-200 dark:to-gray-500">
                         {member.designation}
                      </p>
                   </div>
 
-                  <div className="prose prose-invert prose-lg text-gray-400 leading-relaxed border-l-2 border-white/10 pl-6">
+                  <div className="prose prose-lg text-gray-600 dark:text-gray-400 leading-relaxed border-l-2 border-gray-200 dark:border-white/10 pl-6 dark:prose-invert">
                      <p>{generateAboutText()}</p>
                   </div>
 
@@ -171,11 +174,11 @@ export default async function CommitteeMemberDetailPage({
                   {member.previous_roles && member.previous_roles.length > 0 && !isFaculty && (
                      <div className="relative mt-12">
                          {/* Card Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-transparent rounded-2xl -m-6 z-0 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent dark:from-purple-900/10 dark:to-transparent rounded-2xl -m-6 z-0 pointer-events-none"></div>
                         
                         <div className="relative z-10">
-                           <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
-                              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                           <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 text-purple-600 border border-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30">
                                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                               </span>
                               Career Trajectory
@@ -183,16 +186,16 @@ export default async function CommitteeMemberDetailPage({
                            
                            <div className="relative space-y-0">
                               {/* Vertical Line */}
-                              <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-purple-500 via-purple-500/30 to-transparent"></div>
+                              <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gradient-to-b from-purple-400 via-purple-300 to-transparent dark:from-purple-500 dark:via-purple-500/30"></div>
 
                               {/* Current Role */}
                               <div className="relative pl-12 pb-10 group">
-                                 <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-[#050505] border-2 border-purple-500 flex items-center justify-center z-10 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                                 <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-white dark:bg-[#050505] border-2 border-purple-500 flex items-center justify-center z-10 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.3)] dark:shadow-[0_0_15px_rgba(168,85,247,0.4)]">
                                     <div className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-pulse"></div>
                                  </div>
-                                 <div className="bg-[#0f1016] border border-purple-500/30 p-5 rounded-xl transition-all duration-300 group-hover:border-purple-500/60 group-hover:shadow-[0_5px_20px_-5px_rgba(168,85,247,0.2)]">
-                                    <h4 className="text-white font-bold text-lg">{member.designation}</h4>
-                                    <p className="text-purple-400 text-sm font-mono mt-1 font-bold tracking-wide">CURRENT • {year || 'NOW'}</p>
+                                 <div className="bg-white dark:bg-[#0f1016] border border-purple-200 dark:border-purple-500/30 p-5 rounded-xl transition-all duration-300 group-hover:border-purple-400 dark:group-hover:border-purple-500/60 shadow-lg dark:shadow-none group-hover:shadow-purple-500/10 dark:group-hover:shadow-[0_5px_20px_-5px_rgba(168,85,247,0.2)]">
+                                    <h4 className="text-gray-900 dark:text-white font-bold text-lg">{member.designation}</h4>
+                                    <p className="text-purple-600 dark:text-purple-400 text-sm font-mono mt-1 font-bold tracking-wide">CURRENT • {year || 'NOW'}</p>
                                  </div>
                               </div>
 
@@ -202,11 +205,11 @@ export default async function CommitteeMemberDetailPage({
                                  const roleYear = typeof roleItem === 'object' ? roleItem.year : null;
                                  
                                  return (
-                                    <div key={idx} className="relative pl-12 pb-8 last:pb-0 group opacity-70 hover:opacity-100 transition-opacity">
-                                       <div className="absolute left-[6px] top-1.5 w-5 h-5 rounded-full bg-[#050505] border-2 border-gray-600 z-10 group-hover:border-white transition-colors"></div>
+                                    <div key={idx} className="relative pl-12 pb-8 last:pb-0 group opacity-80 hover:opacity-100 transition-opacity">
+                                       <div className="absolute left-[6px] top-1.5 w-5 h-5 rounded-full bg-white dark:bg-[#050505] border-2 border-gray-400 dark:border-gray-600 z-10 group-hover:border-gray-600 dark:group-hover:border-white transition-colors"></div>
                                        
-                                       <div className="bg-[#0f1016] border border-white/5 p-4 rounded-xl hover:bg-white/5 transition-all">
-                                          <h4 className="text-gray-300 font-medium text-lg">{roleTitle}</h4>
+                                       <div className="bg-white dark:bg-[#0f1016] border border-gray-200 dark:border-white/5 p-4 rounded-xl hover:border-gray-300 dark:hover:bg-white/5 transition-all shadow-sm">
+                                          <h4 className="text-gray-700 dark:text-gray-300 font-medium text-lg">{roleTitle}</h4>
                                           {roleYear && <p className="text-gray-500 text-sm font-mono mt-1">{roleYear}</p>}
                                        </div>
                                     </div>
@@ -218,7 +221,7 @@ export default async function CommitteeMemberDetailPage({
                   )}
                </div>
             </div>
-         </section>
+         </div>
       </div>
     </div>
   );

@@ -2,56 +2,51 @@
 > vgs-2-0@0.1.0 dev
 > next dev
 
+ ⚠ Port 3000 is in use, trying 3001 instead.
   ▲ Next.js 14.2.33
-  - Local:        http://localhost:3000
-
- ✓ Starting...
- ✓ Ready in 2.7s
- ○ Compiling /middleware ...
- ✓ Compiled /middleware in 648ms (72 modules)
- ○ Compiling / ...
+  - Local:        http://localhost:3001
+  - Environments:  ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 670ms (72 modules)
+ ○ Compiling /committee ...
 [baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
- ✓ Compiled / in 9.8s (740 modules)
- ⨯ lib/supabase.ts (8:9) @ eval
- ⨯ Error: Missing Supabase environment variables. Please check your .env.local file.
-    at eval (./lib/supabase.ts:11:11)
-    at (ssr)/./lib/supabase.ts (/app/.next/server/app/page.js:237:1)
-    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
-    at eval (./lib/supabase-queries.ts:85:67)
-    at (ssr)/./lib/supabase-queries.ts (/app/.next/server/app/page.js:226:1)
-    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
-    at eval (./app/page.tsx:13:79)
-    at (ssr)/./app/page.tsx (/app/.next/server/app/page.js:138:1)
-    at Object.__webpack_require__ [as require] (/app/.next/server/webpack-runtime.js:33:42)
-digest: "2195463728"
-[0m [90m  6 |[39m[0m
-[0m [90m  7 |[39m [36mif[39m ([33m![39msupabaseUrl [33m||[39m [33m![39msupabaseAnonKey) {[0m
-[0m[31m[1m>[22m[39m[90m  8 |[39m   [36mthrow[39m [36mnew[39m [33mError[39m([0m
-[0m [90m    |[39m         [31m[1m^[22m[39m[0m
-[0m [90m  9 |[39m     [32m'Missing Supabase environment variables. Please check your .env.local file.'[39m[0m
-[0m [90m 10 |[39m   )[33m;[39m[0m
-[0m [90m 11 |[39m }[0m
- GET / 500 in 11391ms
- ✓ Compiled in 1664ms (374 modules)
- ○ Compiling /contact-us ...
- ✓ Compiled /contact-us in 756ms (716 modules)
- ⨯ lib/supabase.ts (8:9) @ eval
- ⨯ Error: Missing Supabase environment variables. Please check your .env.local file.
-    at eval (./lib/supabase.ts:11:11)
-    at (ssr)/./lib/supabase.ts (/app/.next/server/app/contact-us/page.js:237:1)
-    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
-    at eval (./lib/supabase-queries.ts:85:67)
-    at (ssr)/./lib/supabase-queries.ts (/app/.next/server/app/contact-us/page.js:226:1)
-    at __webpack_require__ (/app/.next/server/webpack-runtime.js:33:42)
-    at eval (./app/contact-us/page.tsx:10:79)
-    at (ssr)/./app/contact-us/page.tsx (/app/.next/server/app/contact-us/page.js:127:1)
-    at Object.__webpack_require__ [as require] (/app/.next/server/webpack-runtime.js:33:42)
-digest: "4180120313"
-[0m [90m  6 |[39m[0m
-[0m [90m  7 |[39m [36mif[39m ([33m![39msupabaseUrl [33m||[39m [33m![39msupabaseAnonKey) {[0m
-[0m[31m[1m>[22m[39m[90m  8 |[39m   [36mthrow[39m [36mnew[39m [33mError[39m([0m
-[0m [90m    |[39m         [31m[1m^[22m[39m[0m
-[0m [90m  9 |[39m     [32m'Missing Supabase environment variables. Please check your .env.local file.'[39m[0m
-[0m [90m 10 |[39m   )[33m;[39m[0m
-[0m [90m 11 |[39m }[0m
- GET /contact-us 500 in 1029ms
+ ✓ Compiled /committee in 8.6s (740 modules)
+ GET /committee 200 in 9995ms
+ ✓ Compiled in 1591ms (374 modules)
+ ○ Compiling /committee/[id] ...
+ ✓ Compiled /committee/[id] in 4.5s (802 modules)
+Error fetching committee member: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '    at node:internal/deps/undici/undici:14900:13\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async getCommitteeMemberById (webpack-internal:///(rsc)/./lib/supabase-queries.ts:846:29)\n' +
+    '    at async CommitteeMemberDetailPage (webpack-internal:///(rsc)/./app/committee/[id]/page.tsx:21:20)',
+  hint: '',
+  code: ''
+}
+ ⨯ {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '    at node:internal/deps/undici/undici:14900:13\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async getCommitteeMemberById (webpack-internal:///(rsc)/./lib/supabase-queries.ts:846:29)\n' +
+    '    at async CommitteeMemberDetailPage (webpack-internal:///(rsc)/./app/committee/[id]/page.tsx:21:20)',
+  hint: '',
+  code: '',
+  digest: '3736018080'
+}
+ ⨯ {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '    at node:internal/deps/undici/undici:14900:13\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+    '    at async getCommitteeMemberById (webpack-internal:///(rsc)/./lib/supabase-queries.ts:846:29)\n' +
+    '    at async CommitteeMemberDetailPage (webpack-internal:///(rsc)/./app/committee/[id]/page.tsx:21:20)',
+  hint: '',
+  code: '',
+  digest: '3736018080'
+}
+ GET /committee/123-dummy-id 200 in 5372ms
+ ✓ Compiled in 909ms (816 modules)
+ GET /committee/mock-user 200 in 193ms
+ ✓ Compiled in 1260ms (816 modules)
