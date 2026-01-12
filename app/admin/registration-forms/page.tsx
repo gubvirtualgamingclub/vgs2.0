@@ -63,7 +63,8 @@ export default function RegistrationFormsAdmin() {
     is_active: false,
     registration_fee: '',
     registration_deadline: '',
-    club_logo_url: '',
+    banner_url: '',
+    organizer_logo_url: '',
     tournament_logo_url: '',
     game_logo_url: '',
     hero_image_url: '',
@@ -72,27 +73,6 @@ export default function RegistrationFormsAdmin() {
     accent_color: '#3B82F6',
     heading_font: 'default',
     body_font: 'default',
-    tournament_details: {
-      about: '',
-      key_features: [] as string[],
-      prize_pool_highlights: '',
-    },
-    game_details: {
-      description: '',
-      game_image_url: '',
-    },
-    schedule: {
-      tournament_start: '',
-      tournament_end: '',
-    },
-    rules_and_regulations: {
-      summary: '',
-      rulebook_url: '',
-    },
-    show_tournament_section: false,
-    show_game_details_section: false,
-    show_schedule_section: false,
-    show_rules_section: false,
   });
 
   const [formFields, setFormFields] = useState<FormField[]>([]);
@@ -177,7 +157,8 @@ export default function RegistrationFormsAdmin() {
         is_active: form.is_active,
         registration_fee: form.registration_fee || '',
         registration_deadline: form.registration_deadline ? new Date(form.registration_deadline).toISOString().slice(0, 16) : '',
-        club_logo_url: form.club_logo_url || '',
+        banner_url: form.banner_url || '',
+        organizer_logo_url: form.organizer_logo_url || '',
         tournament_logo_url: form.tournament_logo_url || '',
         game_logo_url: form.game_logo_url || '',
         hero_image_url: form.hero_image_url || '',
@@ -186,14 +167,6 @@ export default function RegistrationFormsAdmin() {
         accent_color: form.accent_color || '#3B82F6',
         heading_font: form.heading_font || 'default',
         body_font: form.body_font || 'default',
-        tournament_details: form.tournament_details || { about: '', key_features: [], prize_pool_highlights: '' } as any,
-        game_details: form.game_details || { description: '', game_image_url: '' } as any,
-        schedule: form.schedule || { tournament_start: '', tournament_end: '' } as any,
-        rules_and_regulations: form.rules_and_regulations || { summary: '', rulebook_url: '' } as any,
-        show_tournament_section: form.show_tournament_section ?? false,
-        show_game_details_section: form.show_game_details_section ?? false,
-        show_schedule_section: form.show_schedule_section ?? false,
-        show_rules_section: form.show_rules_section ?? false,
       });
       setFormFields(form.form_fields || []);
     } else {
@@ -207,7 +180,8 @@ export default function RegistrationFormsAdmin() {
         is_active: false,
         registration_fee: '',
         registration_deadline: '',
-        club_logo_url: '',
+        banner_url: '',
+        organizer_logo_url: '',
         tournament_logo_url: '',
         game_logo_url: '',
         hero_image_url: '',
@@ -216,14 +190,6 @@ export default function RegistrationFormsAdmin() {
         accent_color: '#3B82F6',
         heading_font: 'default',
         body_font: 'default',
-        tournament_details: { about: '', key_features: [], prize_pool_highlights: '' },
-        game_details: { description: '', game_image_url: '' },
-        schedule: { tournament_start: '', tournament_end: '' },
-        rules_and_regulations: { summary: '', rulebook_url: '' },
-        show_tournament_section: false,
-        show_game_details_section: false,
-        show_schedule_section: false,
-        show_rules_section: false,
       });
       setFormFields([]);
     }
@@ -363,7 +329,7 @@ export default function RegistrationFormsAdmin() {
              {[1,2].map(i => <div key={i} className="h-24 w-64 bg-white/5 rounded-xl"></div>)}
            </div>
         ) : paymentMethods.length === 0 ? (
-           <div className="text-gray-500 italic">No payment methods configured. Click "Payment Methods" to add one.</div>
+           <div className="text-gray-500 italic">No payment methods configured. Click &quot;Payment Methods&quot; to add one.</div>
         ) : (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {paymentMethods.map(method => (

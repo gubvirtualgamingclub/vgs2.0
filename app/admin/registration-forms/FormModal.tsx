@@ -25,7 +25,7 @@ export default function FormModal({
   onDeleteField,
   isEditing,
 }: FormModalProps) {
-  const [activeTab, setActiveTab] = useState<'basic' | 'design' | 'content' | 'fields'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'design' | 'fields'>('basic');
 
   const handleSave = async () => {
     try {
@@ -48,7 +48,7 @@ export default function FormModal({
 
         {/* Tabs */}
         <div className="flex gap-2 px-6 py-3 bg-gray-700/50 border-b border-gray-700 overflow-x-auto">
-          {['basic', 'design', 'content', 'fields'].map((tab) => (
+          {['basic', 'design', 'fields'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -60,7 +60,6 @@ export default function FormModal({
             >
               {tab === 'basic' && '📝 Basic'}
               {tab === 'design' && '🎨 Design'}
-              {tab === 'content' && '📄 Content'}
               {tab === 'fields' && '📋 Fields'}
             </button>
           ))}
@@ -136,6 +135,24 @@ export default function FormModal({
                 <p className="text-xs text-gray-400 mt-1">Google Apps Script Web App URL for data collection</p>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-2">Banner URL (Top of Form)</label>
+                <input
+                  type="text"
+                  value={formData.banner_url || ''}
+                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  placeholder="https://... or /images/banner.jpg"
+                />
+                {formData.banner_url && (
+                  <img
+                    src={formData.banner_url}
+                    alt="Banner Preview"
+                    className="mt-2 w-full h-24 object-cover rounded-lg"
+                  />
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Registration Fee (BDT)</label>
@@ -179,7 +196,26 @@ export default function FormModal({
             <div className="space-y-4">
               <div className="border-t border-gray-700 pt-4 mt-4">
                 <h3 className="text-lg font-semibold mb-3">Logos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Organizer Logo</label>
+                    <input
+                      type="text"
+                      value={formData.organizer_logo_url}
+                      onChange={(e) =>
+                        setFormData({ ...formData, organizer_logo_url: e.target.value })
+                      }
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                      placeholder="https://... or /logos/club.png"
+                    />
+                    {formData.organizer_logo_url && (
+                      <img
+                        src={formData.organizer_logo_url}
+                        alt="Organizer"
+                        className="mt-2 h-16 object-contain bg-white/5 rounded p-2"
+                      />
+                    )}
+                  </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Tournament Logo</label>
                     <input
@@ -217,219 +253,6 @@ export default function FormModal({
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* CONTENT TAB */}
-          {activeTab === 'content' && (
-            <div className="space-y-4">
-              {/* Tournament Details */}
-              <div className="border border-gray-700 rounded-lg p-4">
-                <label className="flex items-center gap-2 mb-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.show_tournament_section}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        show_tournament_section: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4"
-                  />
-                  <span className="font-semibold">Show Tournament Information Section</span>
-                </label>
-
-                {formData.show_tournament_section && (
-                  <div className="space-y-3 ml-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">About Tournament</label>
-                      <textarea
-                        value={formData.tournament_details?.about || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            tournament_details: {
-                              ...formData.tournament_details,
-                              about: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        rows={3}
-                        placeholder="Describe the tournament..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Key Features (one per line)</label>
-                      <textarea
-                        value={formData.tournament_details?.key_features?.join('\n') || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            tournament_details: {
-                              ...formData.tournament_details,
-                              key_features: e.target.value
-                                .split('\n')
-                                .filter((f) => f.trim()),
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        rows={3}
-                        placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Prize Pool Highlights</label>
-                      <input
-                        type="text"
-                        value={formData.tournament_details?.prize_pool_highlights || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            tournament_details: {
-                              ...formData.tournament_details,
-                              prize_pool_highlights: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        placeholder="Prize pool details..."
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Game Details */}
-              <div className="border border-gray-700 rounded-lg p-4">
-                <label className="flex items-center gap-2 mb-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.show_game_details_section}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        show_game_details_section: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4"
-                  />
-                  <span className="font-semibold">Show Game Details Section</span>
-                </label>
-
-                {formData.show_game_details_section && (
-                  <div className="space-y-3 ml-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Game Description</label>
-                      <textarea
-                        value={formData.game_details?.description || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            game_details: {
-                              ...formData.game_details,
-                              description: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        rows={3}
-                        placeholder="Describe the game..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Game Image URL</label>
-                      <input
-                        type="text"
-                        value={formData.game_details?.game_image_url || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            game_details: {
-                              ...formData.game_details,
-                              game_image_url: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        placeholder="https://... or /images/game.jpg"
-                      />
-                      {formData.game_details?.game_image_url && (
-                        <img
-                          src={formData.game_details.game_image_url}
-                          alt="Game"
-                          className="mt-2 w-full h-40 object-cover rounded-lg"
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Rules & Regulations */}
-              <div className="border border-gray-700 rounded-lg p-4">
-                <label className="flex items-center gap-2 mb-3">
-                  <input
-                    type="checkbox"
-                    checked={formData.show_rules_section}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        show_rules_section: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4"
-                  />
-                  <span className="font-semibold">Show Rules & Regulations Section</span>
-                </label>
-
-                {formData.show_rules_section && (
-                  <div className="space-y-3 ml-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Rules Summary</label>
-                      <textarea
-                        value={formData.rules_and_regulations?.summary || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            rules_and_regulations: {
-                              ...formData.rules_and_regulations,
-                              summary: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        rows={3}
-                        placeholder="Describe the rules..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Full Rulebook URL</label>
-                      <input
-                        type="url"
-                        value={formData.rules_and_regulations?.rulebook_url || ''}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            rules_and_regulations: {
-                              ...formData.rules_and_regulations,
-                              rulebook_url: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                        placeholder="https://... or /documents/rulebook.pdf"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}

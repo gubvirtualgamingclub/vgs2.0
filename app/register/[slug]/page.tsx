@@ -182,13 +182,10 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
     const hasError = error && error.trim() !== '';
 
     // Premium Input Styles with enhanced glassmorphism
-    const baseInputClass = `w-full px-5 py-4 bg-gradient-to-br from-white/[0.08] to-white/[0.02] border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-400/50 focus:bg-white/10 transition-all duration-500 outline-none backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] ${hasError ? 'border-red-500/50 ring-2 ring-red-500/20' : 'hover:border-white/25 hover:bg-white/[0.06]'}`;
+    const baseInputClass = `w-full px-5 py-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300 outline-none shadow-lg hover:bg-white/[0.08] hover:border-white/20 ${hasError ? 'border-red-500/50 ring-2 ring-red-500/20' : ''}`;
 
     return (
         <div className="relative group animate-fadeInUp" style={{ animationDelay: `${Math.random() * 0.1}s` }}>
-            {/* Glow effect on focus */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/0 via-purple-600/0 to-pink-600/0 rounded-2xl blur-xl transition-all duration-500 group-focus-within:from-purple-600/20 group-focus-within:via-pink-600/20 group-focus-within:to-purple-600/20" />
-            
             <div className="relative">
                 {field.type === 'textarea' ? (
                      <textarea
@@ -319,24 +316,32 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
 
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-12 md:py-20">
             
-            {/* Header Logos - Floating Animation */}
-            <div className="flex justify-center items-center gap-8 mb-16 animate-float">
-                {form.club_logo_url && (
+            {/* Banner Image */}
+            {form.banner_url && (
+                <div className="mb-12 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative group">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                    <img src={form.banner_url} alt="Form Banner" className="w-full h-48 md:h-64 object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                </div>
+            )}
+
+            {/* Header Logos */}
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 mb-12">
+                {form.organizer_logo_url && (
                     <div className="relative group">
-                        <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
-                        <img src={form.club_logo_url} className="h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" />
+                        <div className="absolute -inset-2 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <img src={form.organizer_logo_url} className="h-16 md:h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" alt="Organizer" />
                     </div>
                 )}
                 {form.tournament_logo_url && (
                     <div className="relative group">
-                        <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-20 blur-2xl animate-pulse"></div>
-                        <img src={form.tournament_logo_url} className="h-28 w-auto object-contain relative z-10 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-transform hover:scale-110" />
+                        <div className="absolute -inset-4 bg-purple-600/30 rounded-full blur-2xl animate-pulse" />
+                        <img src={form.tournament_logo_url} className="h-24 md:h-32 w-auto object-contain relative z-10 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-transform hover:scale-105" alt="Tournament" />
                     </div>
                 )}
                 {form.game_logo_url && (
                      <div className="relative group">
-                        <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-0 group-hover:opacity-20 blur-xl transition-opacity"></div>
-                        <img src={form.game_logo_url} className="h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" />
+                        <div className="absolute -inset-2 bg-blue-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <img src={form.game_logo_url} className="h-16 md:h-20 w-auto object-contain relative z-10 transition-transform hover:scale-110" alt="Game" />
                     </div>
                 )}
             </div>
@@ -543,102 +548,36 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
             </div>
         </div>
 
-        {/* Success Popup - Premium Animated Circular Checkmark */}
+        {/* Success Popup - Redesigned Premium */}
         {submitted && (
-             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-fadeIn">
-                <div className="bg-gradient-to-b from-[#111] to-[#0a0a0a] border border-green-500/20 p-12 rounded-[2.5rem] text-center max-w-lg w-full shadow-[0_0_150px_rgba(34,197,94,0.15)] relative overflow-hidden animate-scaleIn">
-                     {/* Animated Background Rings */}
-                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                         <div className="w-[300px] h-[300px] rounded-full border border-green-500/5 animate-ping-slow" />
-                         <div className="absolute w-[400px] h-[400px] rounded-full border border-green-500/5 animate-ping-slower" />
-                     </div>
-                     
-                     {/* Confetti Particles */}
-                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                         {[...Array(12)].map((_, i) => (
-                             <div
-                                 key={i}
-                                 className="absolute w-2 h-2 rounded-full animate-confetti"
-                                 style={{
-                                     left: `${10 + (i * 7)}%`,
-                                     top: '-10%',
-                                     backgroundColor: ['#22c55e', '#a855f7', '#ec4899', '#3b82f6'][i % 4],
-                                     animationDelay: `${i * 0.1}s`,
-                                     animationDuration: `${2 + Math.random()}s`
-                                 }}
-                             />
-                         ))}
-                     </div>
-                     
-                     <div className="relative z-10">
-                         {/* Animated Circular Checkmark */}
-                         <div className="w-32 h-32 mx-auto mb-8 relative">
-                             {/* Outer Glow */}
-                             <div className="absolute inset-0 rounded-full bg-green-500/20 blur-2xl animate-pulse" />
-                             
-                             {/* SVG Circle + Checkmark Animation */}
-                             <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
-                                 {/* Background Circle */}
-                                 <circle
-                                     cx="50" cy="50" r="45"
-                                     fill="none"
-                                     stroke="rgba(34, 197, 94, 0.1)"
-                                     strokeWidth="4"
-                                 />
-                                 {/* Animated Circle */}
-                                 <circle
-                                     cx="50" cy="50" r="45"
-                                     fill="none"
-                                     stroke="url(#gradient)"
-                                     strokeWidth="4"
-                                     strokeLinecap="round"
-                                     strokeDasharray="283"
-                                     strokeDashoffset="283"
-                                     className="animate-drawCircle"
-                                 />
-                                 <defs>
-                                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                         <stop offset="0%" stopColor="#22c55e" />
-                                         <stop offset="50%" stopColor="#10b981" />
-                                         <stop offset="100%" stopColor="#22c55e" />
-                                     </linearGradient>
-                                 </defs>
+             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl animate-fadeIn">
+                <div className="bg-[#0a0a0a] border border-purple-500/30 p-12 rounded-[2rem] text-center max-w-xl w-full shadow-[0_0_100px_rgba(168,85,247,0.2)] relative overflow-hidden animate-scaleIn">
+                     {/* Background Glow */}
+                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-purple-500/20 blur-[100px]" />
+
+                     <div className="relative z-10 flex flex-col items-center">
+                         {/* Animated Checkmark Circle */}
+                         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(168,85,247,0.5)] animate-bounce-gentle">
+                             <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                              </svg>
-                             
-                             {/* Checkmark SVG - Animated Draw */}
-                             <svg className="absolute inset-0 w-32 h-32" viewBox="0 0 100 100">
-                                 <path
-                                     d="M30 52 L45 67 L70 35"
-                                     fill="none"
-                                     stroke="#22c55e"
-                                     strokeWidth="5"
-                                     strokeLinecap="round"
-                                     strokeLinejoin="round"
-                                     strokeDasharray="60"
-                                     strokeDashoffset="60"
-                                     className="animate-drawCheck"
-                                 />
-                             </svg>
-                             
-                             {/* Center Glow */}
-                             <div className="absolute inset-8 rounded-full bg-gradient-to-br from-green-400/20 to-emerald-600/20 animate-pulse" />
                          </div>
                          
-                         <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 mb-4 uppercase tracking-wide animate-fadeInUp" style={{ animationDelay: '0.5s' }}>Registration Successful!</h2>
-                         <p className="text-gray-400 mb-8 text-lg animate-fadeInUp" style={{ animationDelay: '0.6s' }}>Your seat has been reserved. Good luck, Soldier! 🎮</p>
+                         <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-wider">Registration Received</h2>
+                         <p className="text-gray-400 mb-6 text-lg leading-relaxed">
+                            Our Executives will check and verify your information and you will get a confirmation email within <span className="text-purple-400 font-bold">72Hrs</span>.
+                         </p>
                          
-                         <div className="p-5 bg-gradient-to-r from-green-900/20 to-emerald-900/20 rounded-2xl border border-green-500/20 mb-8 animate-fadeInUp" style={{ animationDelay: '0.7s' }}>
-                             <p className="text-xs text-gray-500 uppercase tracking-widest mb-2">Transaction ID</p>
-                             <p className="text-2xl font-mono font-bold text-green-400 tracking-widest">{transactionId}</p>
+                         <div className="w-full bg-white/5 border border-white/10 rounded-xl p-4 mb-8">
+                             <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Transaction Reference</p>
+                             <p className="text-xl font-mono font-bold text-white tracking-widest">{transactionId}</p>
                          </div>
 
                          <button 
                              onClick={() => window.location.reload()} 
-                             className="group relative px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold uppercase tracking-wide rounded-2xl transition-all duration-300 w-full overflow-hidden animate-fadeInUp" 
-                             style={{ animationDelay: '0.8s' }}
+                             className="w-full py-4 bg-white text-black font-bold uppercase tracking-wide rounded-xl hover:bg-gray-200 transition-colors"
                          >
-                             <span className="relative z-10">Register Another Team</span>
-                             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                             Return to Form
                          </button>
                      </div>
                 </div>
