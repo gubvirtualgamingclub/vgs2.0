@@ -455,9 +455,9 @@ export default function Home() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
                {sponsors.length > 0 ? sponsors.map((sponsor, i) => (
-                  <div key={i} className="group relative bg-slate-50 dark:bg-[#0f0f10] border border-slate-200 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500 dark:hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl hover:shadow-purple-200/50 dark:hover:shadow-2xl dark:hover:shadow-cyan-900/10">
+                  <div key={i} className="group relative bg-[#0f0f10] border border-white/5 rounded-2xl p-6 flex flex-col items-center hover:border-cyan-500/30 transition-all duration-500 hover:-translate-y-1 shadow-lg dark:shadow-none hover:shadow-2xl hover:shadow-cyan-900/10">
                       {/* Hover Glow */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-purple-100/50 dark:from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                      <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
                       
                       {/* Logo Area */}
                       <div className="relative z-10 w-full h-32 flex items-center justify-center mb-6 p-2">
@@ -470,18 +470,18 @@ export default function Home() {
 
                       {/* Info & Tags */}
                       <div className="relative z-10 w-full text-center">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">{sponsor.name}</h3>
+                          <h3 className="text-lg font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">{sponsor.name}</h3>
                           
                           {/* Event Tags */}
                           {sponsor.events && sponsor.events.length > 0 ? (
                              <div className="flex flex-wrap justify-center gap-2">
                                 {sponsor.events.slice(0, 3).map((event, idx) => (
-                                   <span key={idx} className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 rounded-md border border-gray-200 dark:border-white/5 group-hover:border-gray-300 dark:group-hover:border-white/10 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
+                                   <span key={idx} className="px-2 py-1 bg-white/5 text-xs text-gray-400 rounded-md border border-white/5 group-hover:border-white/10 group-hover:bg-white/10 transition-colors">
                                       {event}
                                    </span>
                                 ))}
                                 {sponsor.events.length > 3 && (
-                                   <span className="px-2 py-1 bg-gray-100 dark:bg-white/5 text-xs text-gray-600 dark:text-gray-400 rounded-md border border-gray-200 dark:border-white/5">
+                                   <span className="px-2 py-1 bg-white/5 text-xs text-gray-400 rounded-md border border-white/5">
                                       +{sponsor.events.length - 3}
                                    </span>
                                 )}
@@ -494,8 +494,8 @@ export default function Home() {
                )) : (
                   // Placeholders
                   [1,2,3,4].map(i => (
-                     <div key={i} className="h-64 bg-gray-100 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/5 flex items-center justify-center animate-pulse">
-                        <span className="text-xs text-gray-500 dark:text-gray-600 font-bold uppercase tracking-widest">Partner Slot</span>
+                     <div key={i} className="h-64 bg-gray-900/40 rounded-2xl border border-white/5 flex items-center justify-center animate-pulse">
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">Partner Slot</span>
                      </div>
                   ))
                )}
