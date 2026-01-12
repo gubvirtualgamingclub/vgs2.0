@@ -206,7 +206,10 @@ export default function EmailManagementPage() {
       setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size }); // Assume all failed on api error
       setMessage({ type: 'error', text: `Server Error: ${error.message}` });
     } finally {
-       // Note: setSending(false) is handled by the overlay onComplete callback
+       // Ensure overlay closes if error occurs before setting result
+       if (!sendResult) {
+           setTimeout(() => setSending(false), 2000);
+       }
     }
   }
 
