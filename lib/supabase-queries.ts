@@ -2,7 +2,7 @@
 // All functions include error handling and type safety
 
 import { supabase } from './supabase';
-import type { Update, Activity, Tournament, Sponsor, Committee, CommitteeMember, SiteSetting, Game, GameEvent, GameHistory } from './types/database';
+import type { Update, Activity, Tournament, Sponsor, Committee, CommitteeMember, SiteSetting, Game, GameEvent, GameHistory, TournamentSchedule, TournamentResult } from './types/database';
 import { withCache, CACHE_TTL, cache } from './cache';
 
 // ============================================
@@ -607,12 +607,128 @@ export async function getTournamentWithGames() {
     return null;
   }
 
-  const games = await getTournamentGames(tournament.id);
+  const [games, schedules, results] = await Promise.all([
+    getTournamentGames(tournament.id),
+    tournament.show_schedule ? getTournamentSchedules(tournament.id) : Promise.resolve([]),
+    tournament.show_results ? getTournamentResults(tournament.id) : Promise.resolve([])
+  ]);
   
   return {
     ...tournament,
-    games
+    games,
+    schedules,
+    results
   };
+}
+
+// ============================================
+// TOURNAMENT SCHEDULES CRUD OPERATIONS
+// ============================================
+
+export async function getTournamentSchedules(tournamentId: string) {
+  const { data, error } = await supabase
+    .from('tournament_schedules')
+    .select('*, game:game_id(game_name)')
+    .eq('tournament_id', tournamentId)
+    .eq('is_active', true)
+    .order('match_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching tournament schedules:', error);
+    return [];
+  }
+
+  return data as (TournamentSchedule & { game?: { game_name: string } })[];
+}
+
+export async function createTournamentSchedule(schedule: Omit<TournamentSchedule, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('tournament_schedules')
+    .insert([schedule])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating schedule:', error);
+    throw error;
+  }
+  return data as TournamentSchedule;
+}
+
+export async function updateTournamentSchedule(id: string, updates: Partial<TournamentSchedule>) {
+  const { data, error } = await supabase
+    .from('tournament_schedules')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating schedule:', error);
+    throw error;
+  }
+  return data as TournamentSchedule;
+}
+
+export async function deleteTournamentSchedule(id: string) {
+  const { error } = await supabase.from('tournament_schedules').delete().eq('id', id);
+  if (error) throw error;
+  return true;
+}
+
+// ============================================
+// TOURNAMENT RESULTS CRUD OPERATIONS
+// ============================================
+
+export async function getTournamentResults(tournamentId: string) {
+  const { data, error } = await supabase
+    .from('tournament_results')
+    .select('*, game:game_id(game_name)')
+    .eq('tournament_id', tournamentId)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching tournament results:', error);
+    return [];
+  }
+
+  return data as (TournamentResult & { game?: { game_name: string } })[];
+}
+
+export async function createTournamentResult(result: Omit<TournamentResult, 'id' | 'created_at' | 'updated_at'>) {
+  const { data, error } = await supabase
+    .from('tournament_results')
+    .insert([result])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating result:', error);
+    throw error;
+  }
+  return data as TournamentResult;
+}
+
+export async function updateTournamentResult(id: string, updates: Partial<TournamentResult>) {
+  const { data, error } = await supabase
+    .from('tournament_results')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating result:', error);
+    throw error;
+  }
+  return data as TournamentResult;
+}
+
+export async function deleteTournamentResult(id: string) {
+  const { error } = await supabase.from('tournament_results').delete().eq('id', id);
+  if (error) throw error;
+  return true;
 }
 
 // ============================================

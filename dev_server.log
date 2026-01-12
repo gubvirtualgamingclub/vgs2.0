@@ -33,3 +33,8 @@ digest: "4026326222"
 [0m [90m 11 |[39m }[0m
  GET /tournaments 500 in 11658ms
  ✓ Compiled in 1445ms (371 modules)
+ ✓ Compiled in 4.6s (357 modules)
+ ✓ Compiled in 2s (371 modules)
+ ✓ Compiled in 1343ms (371 modules)
+ ✓ Compiled in 1025ms (371 modules)
+ ✓ Compiled in 2.8s (371 modules)
