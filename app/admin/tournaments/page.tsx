@@ -34,7 +34,8 @@ import {
   VideoCameraIcon,
   TrashIcon,
   TableCellsIcon,
-  ClockIcon
+  ClockIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline';
 
 export default function TournamentManagementPage() {
@@ -44,7 +45,7 @@ export default function TournamentManagementPage() {
   const [results, setResults] = useState<TournamentResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'info' | 'games' | 'glimpses' | 'hub'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'games' | 'glimpses' | 'hub' | 'rules'>('info');
   
   // Tournament form state - REMOVED BANNER
   const [formData, setFormData] = useState({
@@ -63,7 +64,9 @@ export default function TournamentManagementPage() {
     status: 'closed' as 'open' | 'closed',
     registration_status: 'closed' as 'open' | 'closed',
     show_schedule: false,
-    show_results: false
+    show_results: false,
+    rules_content: '',
+    show_rules: false
   });
 
   // Organizations state
@@ -130,7 +133,9 @@ export default function TournamentManagementPage() {
           status: tournamentData.status,
           registration_status: tournamentData.registration_status || 'closed',
           show_schedule: tournamentData.show_schedule || false,
-          show_results: tournamentData.show_results || false
+          show_results: tournamentData.show_results || false,
+          rules_content: tournamentData.rules_content || '',
+          show_rules: tournamentData.show_rules || false
         });
         setOrganizers(tournamentData.organizers || []);
         setCoOrganizers(tournamentData.co_organizers || []);
@@ -517,6 +522,7 @@ export default function TournamentManagementPage() {
             { id: 'info', icon: TrophyIcon, label: 'Tournament Info' },
             { id: 'games', icon: BuildingOffice2Icon, label: `Games (${games.length})` },
             { id: 'hub', icon: TableCellsIcon, label: 'Hub & Schedule' },
+            { id: 'rules', icon: BookOpenIcon, label: 'Rules' },
             { id: 'glimpses', icon: PhotoIcon, label: 'Previous Glimpses' },
         ].map((tab) => (
             <button
@@ -885,6 +891,58 @@ export default function TournamentManagementPage() {
                  ))}
               </div>
            </div>
+        )}
+
+        {/* RULES TAB */}
+        {activeTab === 'rules' && (
+             <div className="p-6 lg:p-8 space-y-8">
+                {/* Header with Toggle */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-6 rounded-2xl border border-white/5">
+                    <div>
+                        <h2 className="text-2xl font-bold text-white">Tournament Rules</h2>
+                        <p className="text-gray-400">Set up the official rules and regulations for the event</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="text-right">
+                             <h3 className="text-white font-bold text-sm">Show Rules Page</h3>
+                             <p className="text-xs text-gray-400">{formData.show_rules ? 'Visible to public' : 'Hidden from public'}</p>
+                        </div>
+                        <AnimatedToggle isOn={formData.show_rules} onToggle={() => setFormData({ ...formData, show_rules: !formData.show_rules })} />
+                    </div>
+                </div>
+
+                {/* Editor */}
+                <div className="space-y-4">
+                    <label className={labelClassName}>Rules Content (HTML Supported)</label>
+                    <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl text-xs text-blue-300 flex items-start gap-3">
+                       <div className="mt-0.5"><BookOpenIcon className="w-4 h-4" /></div>
+                       <div>
+                           <strong className="block mb-1 text-sm text-blue-200">Formatting Guidelines:</strong>
+                           <ul className="list-disc list-inside space-y-1 opacity-80">
+                               <li>Use <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code> for headings.</li>
+                               <li>Use <code>&lt;ul&gt;</code>, <code>&lt;li&gt;</code> for lists.</li>
+                               <li>Use <code>w-full</code> or percentage widths for tables/images to ensure mobile responsiveness.</li>
+                               <li>You can paste formatted HTML directly from other editors.</li>
+                           </ul>
+                       </div>
+                    </div>
+                    <textarea
+                        value={formData.rules_content}
+                        onChange={(e) => setFormData({ ...formData, rules_content: e.target.value })}
+                        className={`${inputClassName} font-mono text-sm leading-relaxed`}
+                        rows={20}
+                        placeholder="<h1>General Rules</h1><p>1.1 Player Eligibility...</p>"
+                    />
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-6 border-t border-white/10 flex justify-end">
+                    <button onClick={handleSaveTournament} disabled={saving} className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:scale-[1.02] transition-transform shadow-lg shadow-purple-500/20 flex items-center gap-2">
+                        {saving ? <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" /> : <CheckCircleIcon className="w-6 h-6" />}
+                        Save Rules
+                    </button>
+                </div>
+             </div>
         )}
 
         {/* HUB & SCHEDULE TAB */}

@@ -82,6 +82,8 @@ export interface Tournament {
   registration_status?: 'open' | 'closed';
   show_schedule?: boolean;
   show_results?: boolean;
+  rules_content?: string;
+  show_rules?: boolean;
   created_at: string;
   updated_at: string;
 }
