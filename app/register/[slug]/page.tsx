@@ -150,18 +150,12 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
       sheetData['Payment Method'] = data.payment_method;
       sheetData['Transaction ID'] = data.transaction_id;
 
-      // Create a hybrid payload compatible with both the Old Script (flat structure) and New Script (action/data)
-      const payload = {
-        ...sheetData, // For Old Script: exposes keys like "Team Name" at root
-        action: 'submit', // For New Script: identifies action
-        data: sheetData   // For New Script: contains data object
-      };
-
+      // Send flat payload for maximum compatibility with legacy scripts
+      // Content-Type header removed to ensure no-cors request is treated as simple/text/plain
       await fetch(sheetUrl, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(sheetData),
       });
     } catch (error) {
       console.error('Sheets error:', error);
