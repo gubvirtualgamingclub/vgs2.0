@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import type { EmailTemplate, EmailLog, Participant } from '@/lib/types/database';
 import AdminHelpButton from '@/components/AdminHelpButton';
 import EmailSendingOverlay from '@/components/EmailSendingOverlay';
-import { EyeIcon, ClipboardDocumentIcon, TrashIcon, UserGroupIcon, TableCellsIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, ClipboardDocumentIcon, TrashIcon, UserGroupIcon, TableCellsIcon, DocumentTextIcon, PlusIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 
 export default function EmailManagementPage() {
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'compose' | 'templates' | 'history'>('compose');
   
   // Templates state
@@ -18,7 +19,13 @@ export default function EmailManagementPage() {
   // Compose state
   const [inputMode, setInputMode] = useState<'sheet' | 'manual'>('sheet');
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
-  const [manualInput, setManualInput] = useState('');
+
+  // Manual Entry State
+  const [manualName, setManualName] = useState('');
+  const [manualEmail, setManualEmail] = useState('');
+  const [manualInput, setManualInput] = useState(''); // Bulk text area
+  const [showBulkImport, setShowBulkImport] = useState(false);
+
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedParticipants, setSelectedParticipants] = useState<Set<string>>(new Set());
   const [subject, setSubject] = useState('');
@@ -35,6 +42,12 @@ export default function EmailManagementPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [sendResult, setSendResult] = useState<{ sent: number; total: number; failed: number } | null>(null);
 
+  useEffect(() => {
+    setMounted(true);
+    fetchTemplates();
+    fetchEmailLogs();
+  }, []);
+
   // Auto-hide message after 5 seconds
   useEffect(() => {
     if (message) {
@@ -44,11 +57,6 @@ export default function EmailManagementPage() {
       return () => clearTimeout(timer);
     }
   }, [message]);
-
-  useEffect(() => {
-    fetchTemplates();
-    fetchEmailLogs();
-  }, []);
 
   async function fetchTemplates() {
     try {
@@ -103,6 +111,31 @@ export default function EmailManagementPage() {
     }
   }
 
+  function addManualParticipant() {
+    if (!manualEmail || !manualEmail.includes('@')) {
+      setMessage({ type: 'error', text: 'Please enter a valid email address' });
+      return;
+    }
+
+    const newParticipant = {
+      name: manualName.trim() || 'Participant',
+      email: manualEmail.trim()
+    };
+
+    // Check for duplicate
+    if (participants.some(p => p.email.toLowerCase() === newParticipant.email.toLowerCase())) {
+      setMessage({ type: 'error', text: 'This email is already in the list' });
+      return;
+    }
+
+    setParticipants(prev => [...prev, newParticipant]);
+    setSelectedParticipants(prev => new Set(prev).add(newParticipant.email));
+
+    setManualName('');
+    setManualEmail('');
+    setMessage({ type: 'success', text: 'Participant added' });
+  }
+
   function parseManualInput() {
     if (!manualInput.trim()) return;
 
@@ -121,9 +154,8 @@ export default function EmailManagementPage() {
 
       if (parts.length >= 2) {
         name = parts[0].trim();
-        email = parts.slice(1).join(',').trim(); // Join rest in case name has commas? No, usually email is last. Assume Name, Email
+        email = parts.slice(1).join(',').trim();
       } else {
-        // Just email?
         email = trimmed;
         name = 'Participant';
       }
@@ -138,13 +170,11 @@ export default function EmailManagementPage() {
 
     if (newParticipants.length > 0) {
       setParticipants(prev => {
-        // Merge without duplicates based on email
-        const existingEmails = new Set(prev.map(p => p.email));
-        const filteredNew = newParticipants.filter(p => !existingEmails.has(p.email));
+        const existingEmails = new Set(prev.map(p => p.email.toLowerCase()));
+        const filteredNew = newParticipants.filter(p => !existingEmails.has(p.email.toLowerCase()));
         return [...prev, ...filteredNew];
       });
       
-      // Auto-select new
       setSelectedParticipants(prev => {
         const newSet = new Set(prev);
         newParticipants.forEach(p => newSet.add(p.email));
@@ -152,12 +182,12 @@ export default function EmailManagementPage() {
       });
 
       setMessage({ type: 'success', text: `Added ${newParticipants.length} participants.` });
-      setManualInput(''); // Clear input
+      setManualInput('');
+      setShowBulkImport(false);
     }
     
     if (errors.length > 0) {
       console.warn('Parsing errors:', errors);
-      // Maybe show errors somewhere?
       if (newParticipants.length === 0) {
         setMessage({ type: 'error', text: 'No valid emails found.' });
       }
@@ -176,7 +206,7 @@ export default function EmailManagementPage() {
     }
 
     setSending(true);
-    setSendResult({ sent: 0, total: selectedParticipants.size, failed: 0 }); // Init progress
+    setSendResult({ sent: 0, total: selectedParticipants.size, failed: 0 });
     setMessage(null);
 
     try {
@@ -195,18 +225,25 @@ export default function EmailManagementPage() {
         })
       });
 
-      const data = await response.json();
+      // Handle non-JSON responses (e.g., 500 HTML error pages)
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+      } else {
+        throw new Error('Server returned a non-JSON response. Check server logs.');
+      }
 
       if (!response.ok) throw new Error(data.error || 'Failed to send emails');
 
       setSendResult(data.summary);
-      fetchEmailLogs(); // Refresh logs immediately
+      fetchEmailLogs();
 
     } catch (error: any) {
-      setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size }); // Assume all failed on api error
-      setMessage({ type: 'error', text: `Server Error: ${error.message}` });
+      console.error('Send email error:', error);
+      setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size });
+      setMessage({ type: 'error', text: `Error: ${error.message}` });
     } finally {
-       // Ensure overlay closes if error occurs before setting result
        if (!sendResult) {
            setTimeout(() => setSending(false), 2000);
        }
@@ -218,6 +255,15 @@ export default function EmailManagementPage() {
     if (newSelected.has(email)) newSelected.delete(email);
     else newSelected.add(email);
     setSelectedParticipants(newSelected);
+  }
+
+  function removeParticipant(email: string) {
+    setParticipants(prev => prev.filter(p => p.email !== email));
+    if (selectedParticipants.has(email)) {
+      const newSelected = new Set(selectedParticipants);
+      newSelected.delete(email);
+      setSelectedParticipants(newSelected);
+    }
   }
 
   function toggleAll() {
@@ -293,7 +339,6 @@ export default function EmailManagementPage() {
     }
   }
 
-  // Copy template content functionality
   const copyTemplateContent = (template: EmailTemplate) => {
     navigator.clipboard.writeText(template.html_content).then(() => {
         setMessage({ type: 'success', text: '📋 Template HTML copied to clipboard!' });
@@ -307,10 +352,14 @@ export default function EmailManagementPage() {
       setSelectedParticipants(new Set());
       setGoogleSheetUrl('');
       setManualInput('');
+      setManualName('');
+      setManualEmail('');
       setSubject('');
       setHtmlContent('');
       setSendResult(null);
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/50 to-pink-900/30 p-6">
@@ -319,10 +368,6 @@ export default function EmailManagementPage() {
         progress={sendResult || { sent: 0, total: 0, failed: 0 }}
         onComplete={() => {
             setSending(false);
-            if (sendResult?.failed === 0) {
-                // Clear form on perfect success only? Or keep to allow resend?
-                // Let's keep it but show a clear button.
-            }
         }}
       />
 
@@ -406,27 +451,74 @@ export default function EmailManagementPage() {
                     </button>
                   </div>
               ) : (
-                  <div className="animate-fadeIn">
-                      <p className="text-gray-400 text-sm mb-2">Paste emails or enter manually (Format: "Name, Email" or just "Email" per line)</p>
-                      <textarea 
-                          value={manualInput}
-                          onChange={(e) => setManualInput(e.target.value)}
-                          placeholder="John Doe, john@example.com&#10;Jane Smith, jane@test.com&#10;admin@vgs.com"
-                          className="w-full h-32 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 font-mono text-sm mb-3"
-                      />
-                      <button
-                        onClick={parseManualInput}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
-                      >
-                          Add to List
-                      </button>
+                  <div className="animate-fadeIn space-y-4">
+                      {/* Handy Manual Entry Form */}
+                      <div className="flex flex-col md:flex-row gap-3 items-end">
+                        <div className="flex-1 w-full">
+                          <label className="block text-xs text-gray-400 mb-1">Name (Optional)</label>
+                          <input
+                            type="text"
+                            value={manualName}
+                            onChange={(e) => setManualName(e.target.value)}
+                            placeholder="John Doe"
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                            onKeyDown={(e) => e.key === 'Enter' && addManualParticipant()}
+                          />
+                        </div>
+                        <div className="flex-1 w-full">
+                          <label className="block text-xs text-gray-400 mb-1">Email (Required)</label>
+                          <input
+                            type="email"
+                            value={manualEmail}
+                            onChange={(e) => setManualEmail(e.target.value)}
+                            placeholder="john@example.com"
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                            onKeyDown={(e) => e.key === 'Enter' && addManualParticipant()}
+                          />
+                        </div>
+                        <button
+                          onClick={addManualParticipant}
+                          className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 h-[42px]"
+                        >
+                          <PlusIcon className="w-5 h-5" /> Add
+                        </button>
+                      </div>
+
+                      {/* Bulk Import Toggle */}
+                      <div>
+                        <button
+                          onClick={() => setShowBulkImport(!showBulkImport)}
+                          className="text-sm text-gray-400 hover:text-white flex items-center gap-1"
+                        >
+                           {showBulkImport ? <ChevronUpIcon className="w-4 h-4"/> : <ChevronDownIcon className="w-4 h-4"/>}
+                           {showBulkImport ? 'Hide Bulk Import' : 'Show Bulk Import (Paste List)'}
+                        </button>
+
+                        {showBulkImport && (
+                          <div className="mt-3 animate-fadeIn">
+                            <p className="text-gray-400 text-sm mb-2">Paste emails or enter manually (Format: "Name, Email" or just "Email" per line)</p>
+                            <textarea
+                                value={manualInput}
+                                onChange={(e) => setManualInput(e.target.value)}
+                                placeholder="John Doe, john@example.com&#10;Jane Smith, jane@test.com"
+                                className="w-full h-32 px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 font-mono text-sm mb-3"
+                            />
+                            <button
+                              onClick={parseManualInput}
+                              className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors"
+                            >
+                                Process Bulk List
+                            </button>
+                          </div>
+                        )}
+                      </div>
                   </div>
               )}
             </div>
 
             {/* Participants List */}
             {participants.length > 0 && (
-              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 animate-slideDown">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 animate-fade-in-down">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-white flex items-center gap-2">
                     <UserGroupIcon className="w-6 h-6 text-purple-400" />
@@ -441,18 +533,25 @@ export default function EmailManagementPage() {
                 </div>
                 <div className="max-h-60 overflow-y-auto overflow-x-hidden space-y-1 pr-2 custom-scrollbar">
                   {participants.map((p, idx) => (
-                    <label key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-purple-500/30 w-full">
+                    <div key={`${p.email}-${idx}`} className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-purple-500/30 w-full group">
                       <input
                         type="checkbox"
                         checked={selectedParticipants.has(p.email)}
                         onChange={() => toggleParticipant(p.email)}
-                        className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700 flex-shrink-0"
+                        className="w-5 h-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-700 flex-shrink-0 cursor-pointer"
                       />
-                      <div className="flex-1 min-w-0 grid grid-cols-1">
+                      <div className="flex-1 min-w-0 grid grid-cols-1 cursor-pointer" onClick={() => toggleParticipant(p.email)}>
                         <span className="text-white font-medium truncate">{p.name || 'Participant'}</span>
                         <span className="text-gray-400 text-sm truncate">{p.email}</span>
                       </div>
-                    </label>
+                      <button
+                        onClick={() => removeParticipant(p.email)}
+                        className="p-1 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -647,39 +746,32 @@ export default function EmailManagementPage() {
       <AdminHelpButton
         title="📧 Email Campaign Manager"
         instructions={[
-          "**Step 1 - Add Participants**: Choose between Google Sheets (bulk) or Manual Entry mode.",
+          "**Step 1 - Add Participants**: Use Manual Entry for quick adds or Google Sheets for bulk import.",
           "**Step 2 - Compose Content**: Write your subject line and HTML email body.",
           "**Step 3 - Send Campaign**: Review recipients and click 'Send Campaign' to dispatch emails.",
           "**Templates**: Save frequently used email designs for quick reuse.",
           "**History Tab**: Track all sent campaigns with delivery status and timestamps."
         ]}
         tips={[
-          "**Google Sheets Setup**: Your sheet MUST be publicly accessible (Anyone with the link can view).",
-          "**Required Columns**: Sheet must have headers named exactly `Name` and `Email` (case-sensitive).",
+          "**Handy Entry**: You can press 'Enter' in the input fields to quickly add a participant.",
           "**Preview Before Sending**: Always click the 'Eye' icon to preview your HTML before sending.",
           "**Rate Limiting**: System sends max ~50 emails/minute to avoid SMTP throttling.",
           "**Variables**: Use `{{name}}` and `{{email}}` in your content - they auto-replace per recipient."
         ]}
         actions={[
+           {
+            title: "✍️ Manual Entry",
+            description: "Simply type the Name and Email and click Add (or press Enter). The list below will update."
+           },
           {
             title: "📊 Google Sheets Format",
             description: 
               "Your spreadsheet must have these exact column headers:\n\n`Name` | `Email`\n`John Doe` | `john@example.com`\n`Jane Smith` | `jane@test.com`\n\n**Share Settings**: File → Share → General Access → 'Anyone with the link'"
           },
           {
-            title: "✍️ Manual Entry Format",
-            description:
-              "Enter one participant per line in CSV format:\n\n`John Doe, john@example.com`\n`Jane Smith, jane@test.com`\n\nOr just emails (Name will default to 'Participant'):\n\n`admin@vgs.com`\n`support@vgs.com`"
-          },
-          {
             title: "🎨 Template Variables",
             description: 
               "Personalize emails with dynamic placeholders:\n\n**Input**: `Hello {{name}}, welcome to VGS!`\n**Output**: `Hello John Doe, welcome to VGS!`\n\n**Available Variables**:\n- `{{name}}` → Recipient's full name\n- `{{email}}` → Recipient's email address"
-          },
-          {
-            title: "📝 HTML Email Tips",
-            description:
-              "**Do's**:\n- Use inline CSS styles\n- Keep images under 600px width\n- Test on multiple email clients\n\n**Don'ts**:\n- Avoid JavaScript (blocked by clients)\n- Don't use external stylesheets\n- Avoid complex layouts"
           }
         ]}
       />

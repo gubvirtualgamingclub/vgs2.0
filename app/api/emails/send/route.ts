@@ -31,10 +31,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify email configuration
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    // Verify email configuration (masked logging)
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASSWORD;
+
+    if (!emailUser || !emailPass) {
+      console.error('Email configuration missing in .env.local');
       return NextResponse.json(
-        { error: 'Email configuration missing. Please set EMAIL_USER and EMAIL_PASSWORD in .env.local' },
+        { error: 'Email configuration missing. Please check server logs.' },
         { status: 500 }
       );
     }
@@ -45,8 +49,8 @@ export async function POST(request: NextRequest) {
       port: parseInt(process.env.EMAIL_PORT || '587'),
       secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        user: emailUser,
+        pass: emailPass,
       },
     });
 
@@ -57,8 +61,8 @@ export async function POST(request: NextRequest) {
       console.error('SMTP connection failed:', verifyError);
       return NextResponse.json(
         { 
-          error: `Email server connection failed: ${verifyError.message}. Check your EMAIL_* settings in .env.local`,
-          details: 'Make sure you are using an App Password if you have 2FA enabled on Gmail'
+          error: `Email server connection failed. Please check server configuration.`,
+          details: process.env.NODE_ENV === 'development' ? verifyError.message : undefined
         },
         { status: 500 }
       );
@@ -69,7 +73,8 @@ export async function POST(request: NextRequest) {
     for (const recipient of recipients) {
       try {
         // Replace {{name}} placeholder with actual name
-        const personalizedContent = htmlContent.replace(/\{\{name\}\}/g, recipient.name);
+        const personalizedContent = htmlContent.replace(/\{\{name\}\}/g, recipient.name || 'Participant');
+        const plainText = personalizedContent.replace(/<[^>]*>/g, '');
         
         // Add anti-spam headers and improve deliverability
         await transporter.sendMail({
@@ -77,7 +82,7 @@ export async function POST(request: NextRequest) {
           to: recipient.email,
           subject: subject,
           html: personalizedContent,
-          text: personalizedContent.replace(/<[^>]*>/g, ''), // Plain text version
+          text: plainText,
           replyTo: process.env.EMAIL_USER,
           // Anti-spam headers
           headers: {
@@ -141,11 +146,12 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error sending emails:', error);
+    console.error('Error sending emails (Catch All):', error);
+    // Ensure we always return a valid JSON response even for unexpected errors
     return NextResponse.json(
       { 
-        error: `Failed to send emails: ${error.message}. Please check your EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD in .env.local`,
-        details: error.message 
+        error: `Internal Server Error during email dispatch.`,
+        details: process.env.NODE_ENV === 'development' ? error.message : 'Check server logs'
       },
       { status: 500 }
     );
