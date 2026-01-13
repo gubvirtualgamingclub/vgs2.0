@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 // Dynamic imports for animations
 const ScrollAnimation = dynamic(
   () => import('@/components/ScrollAnimations').then(mod => mod.ScrollAnimation),
-  { ssr: false }
+  { ssr: true }
 );
 const ScrollProgressBar = dynamic(
   () => import('@/components/ScrollAnimations').then(mod => mod.ScrollProgressBar),
@@ -19,7 +19,7 @@ const GamingCursor = dynamic(
 );
 const FloatingIcons = dynamic(
   () => import('@/components/ScrollAnimations').then(mod => mod.FloatingIcons),
-  { ssr: false }
+  { ssr: true }
 );
 
 interface Contributor {
@@ -66,7 +66,7 @@ const contributors: Contributor[] = [
     studentId: "231902005",
     role: "Lead Developer & Technical Architect",
     period: "Phase 2 - Current",
-    avatar: "/members/md-sazib.png",
+    avatar: "https://wkgqhjpfurumsfcbvkyq.supabase.co/storage/v1/object/public/Committee%20Members/Md_Sazib.png",
     contributions: [
       "Transformed the initial concept into a fully functional, modern web application",
       "Engineered comprehensive features with advanced animations and interactions",

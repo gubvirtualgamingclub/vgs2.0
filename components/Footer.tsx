@@ -19,7 +19,7 @@ const developerInfo = [
     github: 'https://github.com/sudostealth',
     linkedin: 'https://linkedin.com/in/immdsazib',
     email: 'mdsazib.cse@gmail.com',
-    photo: '/members/md-sazib.png',
+    photo: 'https://wkgqhjpfurumsfcbvkyq.supabase.co/storage/v1/object/public/Committee%20Members/Md_Sazib.png',
   },
 ];
 
