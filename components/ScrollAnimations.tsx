@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, ReactNode } from 'react';
+import { useEffect, useRef, useState, ReactNode } from 'react';
 
 interface ScrollAnimationProps {
   children: ReactNode;
@@ -196,20 +196,35 @@ export function GamingCursor() {
 }
 
 // Floating gaming icons background
+const ICONS = ['🎮', '🕹️', '👾', '🎯', '⚡', '🏆', '🎪', '🎨', '🎭', '🎬'];
+
 export function FloatingIcons() {
-  const icons = ['🎮', '🕹️', '👾', '🎯', '⚡', '🏆', '🎪', '🎨', '🎭', '🎬'];
+  const [positions, setPositions] = useState<Array<{left: string, top: string, delay: string, duration: string}>>([]);
+
+  useEffect(() => {
+    setPositions(
+      ICONS.map(() => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 5}s`,
+        duration: `${15 + Math.random() * 10}s`
+      }))
+    );
+  }, []); // Only run once on mount (client-side)
   
+  if (positions.length === 0) return null; // Don't render until positions are set
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {icons.map((icon, index) => (
+      {ICONS.map((icon, index) => (
         <div
           key={index}
           className="absolute text-4xl opacity-10 animate-float"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${15 + Math.random() * 10}s`
+            left: positions[index]?.left || '0%',
+            top: positions[index]?.top || '0%',
+            animationDelay: positions[index]?.delay || '0s',
+            animationDuration: positions[index]?.duration || '20s'
           }}
         >
           {icon}
