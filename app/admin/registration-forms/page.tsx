@@ -12,6 +12,7 @@ import {
   deleteRegistrationForm,
   toggleFormStatus,
   getSubmissionCount,
+  setupSheetHeaders,
 } from '@/lib/registration-api';
 import {
   getPaymentMethods,
@@ -219,10 +220,18 @@ export default function RegistrationFormsAdmin() {
         registration_deadline: formData.registration_deadline || null,
       };
 
+      let savedForm;
       if (editingForm) {
-        await updateRegistrationForm(editingForm.id, payload);
+        savedForm = await updateRegistrationForm(editingForm.id, payload);
       } else {
-        await createRegistrationForm(payload);
+        savedForm = await createRegistrationForm(payload);
+      }
+
+      // Auto-configure Sheet Headers if URL is provided
+      if (formData.google_sheet_url && formData.google_sheet_url.includes('script.google.com')) {
+        const fieldLabels = formFields.map(f => f.label);
+        await setupSheetHeaders(formData.google_sheet_url, fieldLabels);
+        // We don't block UI for this, but could show a toast if we had one
       }
 
       setFormModalOpen(false);
@@ -500,9 +509,9 @@ export default function RegistrationFormsAdmin() {
         ]}
         actions={[
           {
-            title: "💻 Google Apps Script Setup",
+            title: "💻 Google Apps Script Setup (Enhanced)",
             description: 
-              "1. Open your Google Sheet → Extensions → Apps Script.\n2. Paste the code below.\n3. Deploy → New Deployment → Type: Web App → Access: Anyone.\n4. Copy the `Web App URL` and paste it in the form settings.\n\n```javascript\nfunction doPost(e){try{var doc=SpreadsheetApp.getActiveSpreadsheet();var sheet=doc.getActiveSheet();var data=JSON.parse(e.postData.contents);var headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];var nextRow=sheet.getLastRow()+1;var newRow=[];headers.forEach(function(header){newRow.push(data[header]||'')});sheet.getRange(nextRow,1,1,newRow.length).setValues([newRow]);return ContentService.createTextOutput(JSON.stringify({'result':'success','row':nextRow})).setMimeType(ContentService.MimeType.JSON)}catch(e){return ContentService.createTextOutput(JSON.stringify({'result':'error','error':e})).setMimeType(ContentService.MimeType.JSON)}}```"
+              "This script allows the system to automatically create headers and save data.\n\n1. Open your Google Sheet → Extensions → Apps Script.\n2. **Delete everything** and paste the code below.\n3. Deploy → New Deployment → Type: Web App → Execute as: **Me** → Access: **Anyone**.\n4. Copy the `Web App URL` and paste it in the form settings.\n\n```javascript\nfunction doPost(e){var p=JSON.parse(e.postData.contents);var s=SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();if(p.action=='setup_headers'){s.clear();s.appendRow(p.fields);s.getRange(1,1,1,p.fields.length).setFontWeight('bold').setBackground('#eee');return r({'result':'success'})}else{var h=s.getRange(1,1,1,s.getLastColumn()).getValues()[0];var row=[];var d=p.data||{};h.forEach(function(k){row.push(d[k]||'')});s.appendRow(row);return r({'result':'success'})}}function r(d){return ContentService.createTextOutput(JSON.stringify(d)).setMimeType(ContentService.MimeType.JSON)}```"
           }
         ]}
       />
