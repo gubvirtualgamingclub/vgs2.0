@@ -138,33 +138,47 @@ export async function getSubmissionCount(formId: string): Promise<number> {
 // Google Sheets Integration
 // ============================================
 
+export async function setupSheetHeaders(googleSheetUrl: string, fields: string[]): Promise<boolean> {
+  try {
+    // Note: googleSheetUrl here refers to the Web App URL, not the Sheet URL
+    const response = await fetch(googleSheetUrl, {
+      method: 'POST',
+      mode: 'no-cors', // Important for client-side calls to Apps Script
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'setup_headers',
+        fields: ['Submission ID', 'Date', ...fields, 'Payment Method', 'Transaction ID', 'Status']
+      }),
+    });
+    return true;
+  } catch (error) {
+    console.error('Error setting up sheet headers:', error);
+    return false;
+  }
+}
+
 export async function sendToGoogleSheets(
-  googleSheetUrl: string,
-  data: Record<string, any>
+  googleSheetUrl: string, // This must be the Web App URL
+  data: Record<string, any>,
+  formFields: any[] = [] // Optional context to order fields if needed
 ): Promise<boolean> {
   try {
-    // Extract the sheet ID from the URL
-    const sheetIdMatch = googleSheetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    if (!sheetIdMatch) {
-      throw new Error('Invalid Google Sheets URL');
+    // Ensure we are using the Web App URL
+    if (!googleSheetUrl.includes('script.google.com')) {
+      console.warn('Invalid Apps Script URL provided');
+      return false;
     }
 
-    // For Google Sheets integration, you'll need to:
-    // 1. Set up Google Apps Script as a Web App
-    // 2. Use the Apps Script URL here
+    await fetch(googleSheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'submit',
+        data: data
+      }),
+    });
     
-    // This is a placeholder - you'll need to implement the actual API call
-    // based on your Google Apps Script setup
-    
-    // Example implementation would be:
-    // const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data),
-    // });
-    
-    // For now, we'll return true as the data is stored in Supabase
-    // The actual Google Sheets integration will be set up separately
     return true;
   } catch (error) {
     console.error('Error sending to Google Sheets:', error);

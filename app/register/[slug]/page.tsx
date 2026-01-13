@@ -154,7 +154,10 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sheetData),
+        body: JSON.stringify({
+          action: 'submit',
+          data: sheetData
+        }),
       });
     } catch (error) {
       console.error('Sheets error:', error);
