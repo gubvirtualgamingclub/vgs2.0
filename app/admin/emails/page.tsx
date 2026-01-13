@@ -234,7 +234,12 @@ export default function EmailManagementPage() {
         throw new Error('Server returned a non-JSON response. Check server logs.');
       }
 
-      if (!response.ok) throw new Error(data.error || 'Failed to send emails');
+      if (!response.ok) {
+        // If details exist (from our custom error handler), append them
+        const errorMsg = data.error || 'Failed to send emails';
+        const details = data.details ? ` ${data.details}` : '';
+        throw new Error(errorMsg + details);
+      }
 
       setSendResult(data.summary);
       fetchEmailLogs();
@@ -242,7 +247,7 @@ export default function EmailManagementPage() {
     } catch (error: any) {
       console.error('Send email error:', error);
       setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size });
-      setMessage({ type: 'error', text: `Error: ${error.message}` });
+      setMessage({ type: 'error', text: `${error.message}` });
     } finally {
        if (!sendResult) {
            setTimeout(() => setSending(false), 2000);
