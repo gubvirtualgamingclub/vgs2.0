@@ -150,14 +150,18 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
       sheetData['Payment Method'] = data.payment_method;
       sheetData['Transaction ID'] = data.transaction_id;
 
+      // Create a hybrid payload compatible with both the Old Script (flat structure) and New Script (action/data)
+      const payload = {
+        ...sheetData, // For Old Script: exposes keys like "Team Name" at root
+        action: 'submit', // For New Script: identifies action
+        data: sheetData   // For New Script: contains data object
+      };
+
       await fetch(sheetUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'submit',
-          data: sheetData
-        }),
+        body: JSON.stringify(payload),
       });
     } catch (error) {
       console.error('Sheets error:', error);
