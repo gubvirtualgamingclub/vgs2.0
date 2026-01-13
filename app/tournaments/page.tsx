@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { getTournamentWithGames } from '@/lib/supabase-queries';
 import { Tournament, TournamentGame, Organization } from '@/lib/types/database';
 import Image from 'next/image';
+import RulesModal from '@/components/RulesModal';
 
 // Dynamic imports
 const ScrollProgressBar = dynamic(
@@ -651,6 +652,7 @@ export default function TournamentsPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<'all' | 'casual' | 'mobile' | 'pc'>('all');
   const [isHubOpen, setIsHubOpen] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   useEffect(() => {
     fetchTournament();
@@ -739,23 +741,42 @@ export default function TournamentsPage() {
       <FloatingIcons />
 
       {/* --- LIVE CENTER BUTTON (Top Right) --- */}
-      {tournament.status === 'open' && (tournament.show_schedule || tournament.show_results) && (
-          <div className="fixed top-24 right-4 z-50 animate-bounce-in">
-              <button
-                onClick={() => setIsHubOpen(true)}
-                className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-purple-500/50 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:bg-purple-900/80 transition-all hover:scale-105"
-              >
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
-                  <span className="font-bold text-white text-sm uppercase tracking-wider">Live Center</span>
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                  </div>
-              </button>
-          </div>
-      )}
+      <div className="fixed top-24 right-4 z-50 flex flex-col gap-4 items-end">
+          {tournament.status === 'open' && (tournament.show_schedule || tournament.show_results) && (
+              <div className="animate-bounce-in">
+                  <button
+                    onClick={() => setIsHubOpen(true)}
+                    className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-purple-500/50 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:bg-purple-900/80 transition-all hover:scale-105"
+                  >
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                      </span>
+                      <span className="font-bold text-white text-sm uppercase tracking-wider">Live Center</span>
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                      </div>
+                  </button>
+              </div>
+          )}
+
+          {/* RULES BUTTON */}
+          {tournament.show_rules && (
+              <div className="animate-fade-in-left">
+                  <button
+                    onClick={() => setIsRulesOpen(true)}
+                    className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-blue-500/50 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:bg-blue-900/80 transition-all hover:scale-105"
+                  >
+                      <span className="font-bold text-white text-sm uppercase tracking-wider">Rule Book</span>
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                      </div>
+                  </button>
+              </div>
+          )}
+      </div>
 
       <TournamentHubModal
         isOpen={isHubOpen}
@@ -763,6 +784,12 @@ export default function TournamentsPage() {
         schedules={tournament.schedules || []}
         results={tournament.results || []}
         games={tournament.games}
+      />
+
+      <RulesModal
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
+        content={tournament.rules_content || ''}
       />
 
       {/* --- HERO SECTION --- */}
