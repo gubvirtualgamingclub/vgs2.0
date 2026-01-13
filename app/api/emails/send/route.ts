@@ -59,10 +59,22 @@ export async function POST(request: NextRequest) {
       await transporter.verify();
     } catch (verifyError: any) {
       console.error('SMTP connection failed:', verifyError);
+
+      const errorMessage = verifyError.message || '';
+      let userFriendlyError = 'Email server connection failed.';
+      let userDetails = 'Please check server logs.';
+
+      // Check for specific Gmail Auth Error (535 5.7.8)
+      if (errorMessage.includes('535') && errorMessage.includes('5.7.8')) {
+        userFriendlyError = 'Authentication Failed: Invalid credentials.';
+        userDetails = 'If using Gmail, you MUST use an "App Password" if 2FA is enabled. Your regular password will not work.';
+      }
+
       return NextResponse.json(
         { 
-          error: `Email server connection failed. Please check server configuration.`,
-          details: process.env.NODE_ENV === 'development' ? verifyError.message : undefined
+          error: userFriendlyError,
+          details: userDetails,
+          raw: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         },
         { status: 500 }
       );
