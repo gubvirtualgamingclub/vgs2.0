@@ -179,7 +179,7 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
     }
   }
 
-  function renderField(field: FormField) {
+  function renderField(field: FormField, index: number) {
     const value = formData[field.id];
     const error = errors[field.id];
     const hasError = error && error.trim() !== '';
@@ -188,7 +188,7 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
     const baseInputClass = `w-full px-5 py-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 focus:bg-white/10 transition-all duration-300 outline-none shadow-lg hover:bg-white/[0.08] hover:border-white/20 ${hasError ? 'border-red-500/50 ring-2 ring-red-500/20' : ''}`;
 
     return (
-        <div className="relative group animate-fadeInUp" style={{ animationDelay: `${Math.random() * 0.1}s` }}>
+        <div className="relative group animate-fadeInUp" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="relative">
                 {field.type === 'textarea' ? (
                      <textarea
@@ -394,9 +394,9 @@ export default function RegistrationPage({ params }: { params: { slug: string } 
                 {currentStep === 1 ? (
                     <div className="space-y-8 animate-fadeIn">
                         <div className="grid grid-cols-1 gap-8">
-                             {form.form_fields.map((field) => (
+                             {form.form_fields.map((field, index) => (
                                 <div key={field.id} className="relative">
-                                     {renderField(field)}
+                                     {renderField(field, index)}
                                 </div>
                              ))}
                         </div>

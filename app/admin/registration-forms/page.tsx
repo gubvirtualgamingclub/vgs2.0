@@ -213,8 +213,17 @@ export default function RegistrationFormsAdmin() {
         return;
       }
 
+      // Explicitly construct payload to avoid sending legacy or undefined fields
+      const {
+        // @ts-ignore - Exclude potential legacy fields if they exist in state
+        banner_url,
+        // @ts-ignore
+        organizer_logo_url,
+        ...cleanData
+      } = formData;
+
       const payload: any = {
-        ...formData,
+        ...cleanData,
         game_slug: formData.game_slug || generateSlug(formData.game_name),
         form_fields: formFields,
         registration_deadline: formData.registration_deadline || null,
