@@ -271,6 +271,84 @@ export default function EmailManagementPage() {
     try {
       const selectedRecipients = participants.filter(p => selectedParticipants.has(p.email));
 
+      // ----------------------------------------------------------------
+      // BRANCH: EMAILJS (Client-Side Sending)
+      // ----------------------------------------------------------------
+      if (emailProvider === 'emailjs') {
+        // 1. Fetch Config
+        const configRes = await fetch('/api/emails/config');
+        const config = await configRes.json();
+
+        if (!config.serviceId || !config.publicKey) {
+             throw new Error('EmailJS Service ID or Public Key missing in environment.');
+        }
+
+        const results = [];
+        let successCount = 0;
+        let failCount = 0;
+
+        // 2. Client-Side Loop
+        for (const recipient of selectedRecipients) {
+            try {
+                const payload = {
+                    service_id: config.serviceId,
+                    template_id: emailJsTemplateId,
+                    user_id: config.publicKey,
+                    template_params: {
+                        name: recipient.name || 'Participant',
+                        email: recipient.email,
+                        subject: subject,
+                        message: htmlContent,
+                        content: htmlContent
+                    }
+                };
+
+                const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    results.push({ name: recipient.name, email: recipient.email, sent: true });
+                    successCount++;
+                } else {
+                    const txt = await res.text();
+                    console.error(`EmailJS Send Error for ${recipient.email}:`, txt);
+                    results.push({ name: recipient.name, email: recipient.email, sent: false, error: txt });
+                    failCount++;
+                }
+            } catch (err: any) {
+                console.error(`EmailJS Net Error for ${recipient.email}:`, err);
+                results.push({ name: recipient.name, email: recipient.email, sent: false, error: err.message });
+                failCount++;
+            }
+            // Update UI progress live
+            setSendResult({ sent: successCount, failed: failCount, total: selectedParticipants.size });
+        }
+
+        // 3. Log Results to Backend
+        await fetch('/api/emails/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'log_only',
+                results,
+                recipients: selectedRecipients,
+                subject,
+                templateId: selectedTemplate?.id,
+                googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
+                sentBy: 'admin@vgs.com'
+            })
+        });
+
+        fetchEmailLogs();
+        return;
+      }
+
+      // ----------------------------------------------------------------
+      // BRANCH: GOOGLE SMTP (Server-Side Sending)
+      // ----------------------------------------------------------------
       const response = await fetch('/api/emails/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -300,26 +378,6 @@ export default function EmailManagementPage() {
         const errorMsg = data.error || 'Failed to send emails';
         const details = data.details ? ` ${data.details}` : '';
         throw new Error(errorMsg + details);
-      }
-
-      // Check for specific errors in individual emails (e.g. EmailJS failures)
-      if (data.results && data.results.length > 0) {
-        const failures = data.results.filter((r: any) => !r.sent);
-        if (failures.length > 0) {
-           console.group('Email Sending Failures');
-           failures.forEach((fail: any) => {
-             console.error(`Failed to send to ${fail.email}:`, fail.error);
-           });
-           console.groupEnd();
-
-           if (failures.length === data.results.length) {
-             // If all failed, show the first error message to the user if generic
-             const firstError = failures[0].error;
-             if (firstError) {
-               console.warn('All emails failed. First error:', firstError);
-             }
-           }
-        }
       }
 
       setSendResult(data.summary);
