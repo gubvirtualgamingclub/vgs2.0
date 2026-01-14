@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import * as nodemailer from 'nodemailer';
 
 /**
@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     let serviceProvider = requestedServiceProvider;
     if (!serviceProvider) {
       // Fallback: Fetch global setting
-      const { data: setting } = await supabase
+      // Use supabaseAdmin to ensure we can read settings even if RLS is strict
+      const { data: setting } = await supabaseAdmin
         .from('site_settings')
         .select('setting_value')
         .eq('setting_key', 'email_service_provider')
@@ -241,7 +242,8 @@ async function finalizeAndLog(results: any[], recipients: any[], templateId: any
                    successCount === recipients.length ? 'success' : 'partial';
 
     // Log the email sending activity
-    const { error: logError } = await supabase
+    // Use supabaseAdmin to bypass RLS for logging
+    const { error: logError } = await supabaseAdmin
       .from('email_logs')
       .insert([{
         template_id: templateId || null,
