@@ -19,6 +19,10 @@ export default function RulesModal({ isOpen, onClose, content }: RulesModalProps
             document.body.style.overflow = 'unset';
             return () => clearTimeout(timer);
         }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, [isOpen]);
 
     if (!isVisible && !isOpen) return null;

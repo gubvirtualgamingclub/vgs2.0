@@ -442,19 +442,12 @@ function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previo
                         </div>
                     </div>
 
-                    {/* Bento Grid Layout */}
-                    <div key={activeEventIndex} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 auto-rows-[250px] gap-4 animate-fade-in-up">
-                            {activeEvent.images.map((img, idx) => (
+                    {/* Responsive Grid Layout (Honeycomb Style) */}
+                    <div key={activeEventIndex} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-fade-in-up">
+                        {activeEvent.images.map((img, idx) => (
                             <div
                                 key={idx}
-                                className={`
-                                    relative group rounded-3xl overflow-hidden cursor-pointer border border-gray-200 dark:border-white/5
-                                    transition-all duration-500 hover:scale-[1.01] hover:shadow-2xl hover:shadow-purple-500/20 hover:z-10 hover:border-purple-500/50
-                                    ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}
-                                    ${idx === 1 ? 'md:col-span-1 md:row-span-2' : ''}
-                                    ${idx === 2 ? 'md:col-span-1 md:row-span-1' : ''}
-                                    ${idx > 2 ? 'md:col-span-1 md:row-span-1' : ''}
-                                `}
+                                className="relative group aspect-square rounded-2xl overflow-hidden cursor-pointer border border-gray-200 dark:border-white/5 bg-gray-100 dark:bg-white/5 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/20 hover:border-purple-500/50"
                                 onClick={() => setSelectedImage(img)}
                             >
                                 <Image
@@ -465,9 +458,16 @@ function GlimpseGallery({ glimpses }: { glimpses: NonNullable<Tournament['previo
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
 
-                                {/* Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                                    <span className="text-white text-xs font-mono uppercase tracking-widest border-l-2 border-purple-500 pl-3">View Fullsize</span>
+                                {/* Hex/Tech Overlay Effect */}
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                        </svg>
+                                    </div>
+                                    <span className="absolute bottom-4 left-4 text-white text-xs font-mono uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300 border-l-2 border-purple-500 pl-3">
+                                        View
+                                    </span>
                                 </div>
                             </div>
                         ))}
@@ -740,44 +740,6 @@ export default function TournamentsPage() {
       <GamingCursor />
       <FloatingIcons />
 
-      {/* --- LIVE CENTER BUTTON (Top Right) --- */}
-      <div className="fixed top-24 right-4 z-50 flex flex-col gap-4 items-end">
-          {tournament.status === 'open' && (tournament.show_schedule || tournament.show_results) && (
-              <div className="animate-bounce-in">
-                  <button
-                    onClick={() => setIsHubOpen(true)}
-                    className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-purple-500/50 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:bg-purple-900/80 transition-all hover:scale-105"
-                  >
-                      <span className="relative flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                      </span>
-                      <span className="font-bold text-white text-sm uppercase tracking-wider">Live Center</span>
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                      </div>
-                  </button>
-              </div>
-          )}
-
-          {/* RULES BUTTON */}
-          {tournament.show_rules && (
-              <div className="animate-fade-in-left">
-                  <button
-                    onClick={() => setIsRulesOpen(true)}
-                    className="group flex items-center gap-3 pl-4 pr-2 py-2 bg-black/80 backdrop-blur-md border border-blue-500/50 rounded-full shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:bg-blue-900/80 transition-all hover:scale-105"
-                  >
-                      <span className="font-bold text-white text-sm uppercase tracking-wider">Rule Book</span>
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                          </svg>
-                      </div>
-                  </button>
-              </div>
-          )}
-      </div>
-
       <TournamentHubModal
         isOpen={isHubOpen}
         onClose={() => setIsHubOpen(false)}
@@ -886,6 +848,39 @@ export default function TournamentsPage() {
              <svg className="w-8 h-8 text-gray-400 dark:text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
          </div>
       </section>
+
+      {/* --- ACTION BAR --- */}
+      <div className="sticky top-0 z-40 bg-white/80 dark:bg-[#0b0f19]/80 backdrop-blur-xl border-y border-gray-200 dark:border-white/5 py-4 transition-all">
+          <div className="max-w-7xl mx-auto px-4 flex justify-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
+
+              {/* LIVE CENTER BUTTON */}
+              {tournament.status === 'open' && (tournament.show_schedule || tournament.show_results) && (
+                  <button
+                    onClick={() => setIsHubOpen(true)}
+                    className="group flex items-center gap-3 px-6 py-3 bg-gray-900 dark:bg-purple-900/20 border border-purple-500/30 rounded-full hover:bg-purple-900/40 hover:border-purple-500/60 transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                      </span>
+                      <span className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Live Center</span>
+                  </button>
+              )}
+
+              {/* RULES BUTTON */}
+              {tournament.show_rules && (
+                  <button
+                    onClick={() => setIsRulesOpen(true)}
+                    className="group flex items-center gap-3 px-6 py-3 bg-white dark:bg-blue-900/20 border border-gray-200 dark:border-blue-500/30 rounded-full hover:bg-gray-50 dark:hover:bg-blue-900/40 hover:border-blue-500/60 transition-all hover:scale-105 whitespace-nowrap"
+                  >
+                      <span className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wider">Rules and Regulation</span>
+                      <svg className="w-4 h-4 text-gray-900 dark:text-white group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                  </button>
+              )}
+          </div>
+      </div>
 
       {/* --- REGISTRATION COUNTDOWN --- */}
       <section className="relative z-20 py-24 px-4 bg-gray-50 dark:bg-[#0b0f19]">
