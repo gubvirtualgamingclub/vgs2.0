@@ -776,6 +776,12 @@ export default function TournamentManagementPage() {
                     <div>
                         <h2 className="text-2xl font-bold text-white">Previous Glimpses</h2>
                         <p className="text-gray-400">Manage galleries for past events</p>
+
+                        {/* Guidelines */}
+                        <div className="mt-2 flex items-center gap-2 text-xs text-blue-400 bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20 max-w-fit">
+                            <span className="font-bold">💡 Tip:</span>
+                            <span>Best results with Square (1:1) images. Recommended 800x800px.</span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-3 w-full md:w-auto">
                         <input 
