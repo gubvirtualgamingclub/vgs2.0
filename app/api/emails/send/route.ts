@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
       googleSheetUrl,
       sentBy,
       serviceProvider: requestedServiceProvider, // 'google_smtp' | 'emailjs'
-      emailJsTemplateId // Required if using EmailJS
+      emailJsTemplateId, // Required if using EmailJS
+      action, // 'send' (default) or 'log_only'
+      results: providedResults // If action is log_only, these are the results to log
     } = await request.json();
 
     if (!recipients || recipients.length === 0) {
@@ -24,6 +26,16 @@ export async function POST(request: NextRequest) {
         { error: 'No recipients selected' },
         { status: 400 }
       );
+    }
+
+    // ---------------------------------------------------------
+    // BRANCH: LOG ONLY (Client-side sending completed)
+    // ---------------------------------------------------------
+    if (action === 'log_only') {
+      if (!providedResults) {
+        return NextResponse.json({ error: 'No results provided for logging' }, { status: 400 });
+      }
+      return await finalizeAndLog(providedResults, recipients, templateId, googleSheetUrl, subject, sentBy);
     }
 
     // Determine Service Provider
