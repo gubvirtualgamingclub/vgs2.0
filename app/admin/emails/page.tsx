@@ -1,16 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import type { EmailTemplate, EmailLog, Participant } from '@/lib/types/database';
 import AdminHelpButton from '@/components/AdminHelpButton';
 import EmailSendingOverlay from '@/components/EmailSendingOverlay';
-import { EyeIcon, ClipboardDocumentIcon, TrashIcon, UserGroupIcon, TableCellsIcon, DocumentTextIcon, PlusIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, ClipboardDocumentIcon, TrashIcon, UserGroupIcon, TableCellsIcon, DocumentTextIcon, PlusIcon, ChevronDownIcon, ChevronUpIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 
 export default function EmailManagementPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'compose' | 'templates' | 'history'>('compose');
   
+  // Settings
+  const [emailProvider, setEmailProvider] = useState<'google_smtp' | 'emailjs'>('google_smtp');
+  const [savingSettings, setSavingSettings] = useState(false);
+
   // Templates state
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
@@ -19,6 +24,9 @@ export default function EmailManagementPage() {
   // Compose state
   const [inputMode, setInputMode] = useState<'sheet' | 'manual'>('sheet');
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
+
+  // EmailJS Specific
+  const [emailJsTemplateId, setEmailJsTemplateId] = useState('');
 
   // Manual Entry State
   const [manualName, setManualName] = useState('');
@@ -46,6 +54,7 @@ export default function EmailManagementPage() {
     setMounted(true);
     fetchTemplates();
     fetchEmailLogs();
+    fetchSettings();
   }, []);
 
   // Auto-hide message after 5 seconds
@@ -57,6 +66,48 @@ export default function EmailManagementPage() {
       return () => clearTimeout(timer);
     }
   }, [message]);
+
+  async function fetchSettings() {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('setting_value')
+        .eq('setting_key', 'email_service_provider')
+        .single();
+
+      if (data) {
+        setEmailProvider(data.setting_value as any);
+      } else if (!error) {
+        // Default to google_smtp if not found (silent fail to default)
+        setEmailProvider('google_smtp');
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings:', err);
+    }
+  }
+
+  async function updateSettings(provider: 'google_smtp' | 'emailjs') {
+    setSavingSettings(true);
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({
+            setting_key: 'email_service_provider',
+            setting_value: provider,
+            description: 'Selected email service provider'
+        }, { onConflict: 'setting_key' });
+
+      if (error) throw error;
+
+      setEmailProvider(provider);
+      setMessage({ type: 'success', text: `Email provider switched to ${provider === 'google_smtp' ? 'Google SMTP' : 'EmailJS'}` });
+    } catch (err: any) {
+      console.error('Error updating settings:', err);
+      setMessage({ type: 'error', text: 'Failed to save setting' });
+    } finally {
+      setSavingSettings(false);
+    }
+  }
 
   async function fetchTemplates() {
     try {
@@ -200,9 +251,17 @@ export default function EmailManagementPage() {
       return;
     }
 
-    if (!subject || !htmlContent) {
-      setMessage({ type: 'error', text: 'Please enter subject and email content' });
-      return;
+    // Validation based on provider
+    if (emailProvider === 'google_smtp') {
+      if (!subject || !htmlContent) {
+        setMessage({ type: 'error', text: 'Please enter subject and email content' });
+        return;
+      }
+    } else if (emailProvider === 'emailjs') {
+      if (!emailJsTemplateId) {
+        setMessage({ type: 'error', text: 'Please enter EmailJS Template ID' });
+        return;
+      }
     }
 
     setSending(true);
@@ -217,11 +276,13 @@ export default function EmailManagementPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           recipients: selectedRecipients,
-          subject,
-          htmlContent,
+          subject, // Optional for EmailJS depending on template
+          htmlContent, // Optional for EmailJS depending on template
           templateId: selectedTemplate?.id,
           googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
-          sentBy: 'admin@vgs.com' 
+          sentBy: 'admin@vgs.com',
+          serviceProvider: emailProvider,
+          emailJsTemplateId: emailProvider === 'emailjs' ? emailJsTemplateId : undefined
         })
       });
 
@@ -417,6 +478,45 @@ export default function EmailManagementPage() {
         {/* Compose Tab */}
         {activeTab === 'compose' && (
           <div className="space-y-6">
+
+            {/* Provider Settings */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
+                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                     <Cog6ToothIcon className="w-6 h-6 text-gray-400" /> Sending Service
+                 </h2>
+                 <div className="flex gap-4">
+                     <button
+                        onClick={() => updateSettings('google_smtp')}
+                        disabled={savingSettings}
+                        className={`px-6 py-3 rounded-xl border font-bold transition-all ${emailProvider === 'google_smtp' ? 'bg-blue-600 border-blue-400 text-white shadow-lg scale-105' : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'}`}
+                     >
+                         Google SMTP
+                     </button>
+                     <button
+                        onClick={() => updateSettings('emailjs')}
+                        disabled={savingSettings}
+                        className={`px-6 py-3 rounded-xl border font-bold transition-all ${emailProvider === 'emailjs' ? 'bg-orange-600 border-orange-400 text-white shadow-lg scale-105' : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'}`}
+                     >
+                         EmailJS
+                     </button>
+                 </div>
+                 {emailProvider === 'emailjs' && (
+                     <div className="mt-4 p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                         <p className="text-orange-200 text-sm mb-2 font-semibold">EmailJS Configuration</p>
+                         <label className="block text-xs text-orange-300 mb-1">Template ID (from EmailJS Dashboard)</label>
+                         <input
+                            type="text"
+                            value={emailJsTemplateId}
+                            onChange={(e) => setEmailJsTemplateId(e.target.value)}
+                            placeholder="template_xxxxxx"
+                            className="w-full px-4 py-2 bg-gray-900/50 border border-orange-500/30 rounded text-white focus:outline-none focus:border-orange-500"
+                         />
+                         <p className="text-xs text-gray-400 mt-2">
+                             Note: Ensure <code>EMAILJS_SERVICE_ID</code>, <code>EMAILJS_PUBLIC_KEY</code>, and <code>EMAILJS_PRIVATE_KEY</code> are set in your environment variables.
+                         </p>
+                     </div>
+                 )}
+            </div>
             
             {/* Step 1: Participants */}
             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6">
@@ -609,6 +709,11 @@ export default function EmailManagementPage() {
                         HTML Supported • Variables: {'{{name}}, {{email}}'}
                     </div>
                   </div>
+                  {emailProvider === 'emailjs' && (
+                      <p className="text-xs text-orange-400">
+                          * When using EmailJS, this content is sent as variables <code>subject</code> and <code>message</code> to your template. Ensure your EmailJS template uses them if desired.
+                      </p>
+                  )}
                 </div>
               ) : (
                 <div className="bg-white rounded-lg overflow-hidden animate-fadeIn h-[400px] flex flex-col">
@@ -630,7 +735,7 @@ export default function EmailManagementPage() {
             <div className="sticky bottom-6 flex justify-end">
               <button
                 onClick={sendEmails}
-                disabled={sending || selectedParticipants.size === 0 || !subject || !htmlContent}
+                disabled={sending || selectedParticipants.size === 0 || (emailProvider === 'google_smtp' && (!subject || !htmlContent)) || (emailProvider === 'emailjs' && !emailJsTemplateId)}
                 className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-full text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed"
               >
                   <span className="flex items-center gap-2">
