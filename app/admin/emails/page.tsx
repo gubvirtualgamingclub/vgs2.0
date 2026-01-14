@@ -302,6 +302,26 @@ export default function EmailManagementPage() {
         throw new Error(errorMsg + details);
       }
 
+      // Check for specific errors in individual emails (e.g. EmailJS failures)
+      if (data.results && data.results.length > 0) {
+        const failures = data.results.filter((r: any) => !r.sent);
+        if (failures.length > 0) {
+           console.group('Email Sending Failures');
+           failures.forEach((fail: any) => {
+             console.error(`Failed to send to ${fail.email}:`, fail.error);
+           });
+           console.groupEnd();
+
+           if (failures.length === data.results.length) {
+             // If all failed, show the first error message to the user if generic
+             const firstError = failures[0].error;
+             if (firstError) {
+               console.warn('All emails failed. First error:', firstError);
+             }
+           }
+        }
+      }
+
       setSendResult(data.summary);
       fetchEmailLogs();
 
