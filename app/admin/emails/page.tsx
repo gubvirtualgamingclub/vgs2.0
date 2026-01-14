@@ -360,7 +360,7 @@ export default function EmailManagementPage() {
           googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
           sentBy: 'admin@vgs.com',
           serviceProvider: emailProvider,
-          emailJsTemplateId: emailProvider === 'emailjs' ? emailJsTemplateId : undefined
+          emailJsTemplateId: undefined
         })
       });
 
@@ -590,7 +590,7 @@ export default function EmailManagementPage() {
                             className="w-full px-4 py-2 bg-gray-900/50 border border-orange-500/30 rounded text-white focus:outline-none focus:border-orange-500"
                          />
                          <p className="text-xs text-gray-400 mt-2">
-                             Note: Ensure <code>EMAILJS_SERVICE_ID</code>, <code>EMAILJS_PUBLIC_KEY</code>, and <code>EMAILJS_PRIVATE_KEY</code> are set in your environment variables.
+                             Note: Ensure <code>EMAILJS_SERVICE_ID</code> and <code>EMAILJS_PUBLIC_KEY</code> are set in your environment variables.
                          </p>
                      </div>
                  )}
