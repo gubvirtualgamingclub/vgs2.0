@@ -10,8 +10,13 @@ interface EmailSendingOverlayProps {
 }
 
 export default function EmailSendingOverlay({ isSending, progress, onComplete }: EmailSendingOverlayProps) {
+  const [mounted, setMounted] = useState(false);
   const [show, setShow] = useState(false);
   const [animationStage, setAnimationStage] = useState<'sending' | 'success' | 'error'>('sending');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isSending) {
@@ -21,22 +26,27 @@ export default function EmailSendingOverlay({ isSending, progress, onComplete }:
       // Sending finished
       if (progress.failed === 0 && progress.sent > 0) {
         setAnimationStage('success');
-      } else {
-        setAnimationStage('error');
-      }
-      
-      // Auto close after delay if successful, or keep open if error
-      if (progress.failed === 0) {
+
+        // Auto close ONLY on success
         const timer = setTimeout(() => {
           setShow(false);
           onComplete();
-        }, 3000); // Show success for 3 seconds
+        }, 3000);
         return () => clearTimeout(timer);
+      } else {
+        setAnimationStage('error');
+        // DO NOT auto-close on error, wait for user to click
       }
     }
-  }, [isSending, progress, show, onComplete]);
+  }, [isSending, progress]); // Removed 'show' and 'onComplete' from dep array to avoid loops, though 'show' logic is tricky here
 
-  if (!show) return null;
+  // Handler for manual close
+  const handleClose = () => {
+    setShow(false);
+    onComplete();
+  };
+
+  if (!mounted || !show) return null;
 
   const percentage = progress.total > 0 ? Math.round(((progress.sent + progress.failed) / progress.total) * 100) : 0;
 
@@ -121,8 +131,8 @@ export default function EmailSendingOverlay({ isSending, progress, onComplete }:
               <p className="text-gray-400 text-sm mb-6">Check the error logs for details.</p>
               
               <button 
-                onClick={onComplete}
-                className="px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold transition-all"
+                onClick={handleClose}
+                className="px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold transition-all z-50 relative cursor-pointer"
               >
                 Close & Review
               </button>
