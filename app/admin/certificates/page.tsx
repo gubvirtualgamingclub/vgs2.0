@@ -20,6 +20,8 @@ export default function CertificatesPage() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
 
+  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'admin';
+
   // Action States
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -147,7 +149,7 @@ export default function CertificatesPage() {
                     <h1 className="text-3xl font-bold">Certificates</h1>
                     <p className="text-gray-400">Manage and issue certificates</p>
                 </div>
-                <Link href="/admin/certificates/generate" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center gap-2">
+                <Link href={`/${adminPath}/certificates/generate`} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center gap-2">
                     <PlusIcon className="w-5 h-5" /> Issue New
                 </Link>
             </div>

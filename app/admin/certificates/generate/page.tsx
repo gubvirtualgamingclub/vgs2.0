@@ -11,6 +11,7 @@ type Step = 'config' | 'recipients' | 'review';
 
 export default function GenerateCertificatePage() {
   const router = useRouter();
+  const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'admin';
   const [activeStep, setActiveStep] = useState<Step>('config');
   const [uploading, setUploading] = useState(false);
 
@@ -218,7 +219,7 @@ export default function GenerateCertificatePage() {
           }
 
           alert('Certificates generated successfully!');
-          router.push('/admin/certificates');
+          router.push(`/${adminPath}/certificates`);
       } catch (error: any) {
           console.error(error);
           alert('Generation failed: ' + error.message);
