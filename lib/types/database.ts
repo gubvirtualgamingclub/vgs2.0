@@ -384,8 +384,35 @@ export interface Participant {
   email: string;
 }
 
+// ============================================
+// Certificate Types
+// ============================================
+
+export interface Certificate {
+  id: string;
+  recipient_name: string;
+  recipient_email?: string;
+  certificate_type: 'appreciation' | 'participation';
+  event_name: string;
+  issue_date: string;
+  role?: string;
+  verification_code: string;
+  metadata?: {
+    signature1_url?: string;
+    signature2_url?: string;
+    signature1_name?: string;
+    signature2_name?: string;
+    signature1_title?: string;
+    signature2_title?: string;
+    description?: string; // Optional override text
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+
 // Database table names
-export type TableName = 'updates' | 'activities' | 'tournaments' | 'sponsors' | 'committees' | 'committee_members' | 'registration_forms' | 'registration_submissions' | 'site_settings' | 'activity_sponsors' | 'games' | 'game_events' | 'game_history' | 'email_templates' | 'email_logs' | 'payment_methods';
+export type TableName = 'updates' | 'activities' | 'tournaments' | 'sponsors' | 'committees' | 'committee_members' | 'registration_forms' | 'registration_submissions' | 'site_settings' | 'activity_sponsors' | 'games' | 'game_events' | 'game_history' | 'email_templates' | 'email_logs' | 'payment_methods' | 'certificates';
 
 // Union type for all database records
-export type DatabaseRecord = Update | Activity | Tournament | Sponsor | Committee | CommitteeMember | RegistrationForm | RegistrationSubmission | SiteSetting | ActivitySponsor | Game | GameHistory | EmailTemplate | EmailLog | PaymentMethod;
+export type DatabaseRecord = Update | Activity | Tournament | Sponsor | Committee | CommitteeMember | RegistrationForm | RegistrationSubmission | SiteSetting | ActivitySponsor | Game | GameHistory | EmailTemplate | EmailLog | PaymentMethod | Certificate;
