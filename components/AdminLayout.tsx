@@ -16,7 +16,8 @@ import {
   Cog6ToothIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline';
 
 const adminPath = process.env.NEXT_PUBLIC_ADMIN_SECRET_PATH || 'admin';
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'Games', href: `/${adminPath}/games`, icon: PuzzlePieceIcon },
   { name: 'Tournaments', href: `/${adminPath}/tournaments`, icon: TrophyIcon },
   { name: 'Registration', href: `/${adminPath}/registration-forms`, icon: ClipboardDocumentCheckIcon },
+  { name: 'Certificates', href: `/${adminPath}/certificates`, icon: AcademicCapIcon },
   { name: 'Emails', href: `/${adminPath}/emails`, icon: EnvelopeIcon },
   { name: 'Committee', href: `/${adminPath}/committee`, icon: UserGroupIcon },
   { name: 'Sponsors', href: `/${adminPath}/sponsors`, icon: CurrencyDollarIcon },
