@@ -241,6 +241,21 @@ export async function POST(request: NextRequest) {
     }
 
     if (skip_log) {
+      // For skip_log, if there is a failure, return the specific error details
+      // This is crucial for single-send debugging in the frontend loop
+      if (results.some(r => !r.sent)) {
+         return NextResponse.json({
+            success: true, // Request completed (even if email failed)
+            results,
+            error: results.find(r => !r.sent)?.error || 'Unknown sending error',
+            summary: {
+              total: recipients.length,
+              sent: results.filter((r: any) => r.sent).length,
+              failed: results.filter((r: any) => !r.sent).length
+            }
+         });
+      }
+
       return NextResponse.json({
         success: true,
         results,
