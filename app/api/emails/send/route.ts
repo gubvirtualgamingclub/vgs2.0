@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
       serviceProvider: requestedServiceProvider, // 'google_smtp' | 'emailjs'
       emailJsTemplateId, // Required if using EmailJS
       action, // 'send' (default) or 'log_only'
-      results: providedResults // If action is log_only, these are the results to log
+      results: providedResults, // If action is log_only, these are the results to log
+      skip_log // If true, skip DB logging (used for individual sends in client-side loop)
     } = await request.json();
 
     if (!recipients || recipients.length === 0) {
@@ -125,6 +126,18 @@ export async function POST(request: NextRequest) {
       }
 
       // Finalize and Log
+      if (skip_log) {
+        return NextResponse.json({
+          success: true,
+          results,
+          summary: {
+            total: recipients.length,
+            sent: results.filter((r: any) => r.sent).length,
+            failed: results.filter((r: any) => !r.sent).length
+          }
+        });
+      }
+
       return await finalizeAndLog(results, recipients, templateId, googleSheetUrl, subject, sentBy);
     }
 
@@ -204,13 +217,9 @@ export async function POST(request: NextRequest) {
           html: personalizedContent,
           text: plainText,
           replyTo: process.env.EMAIL_USER,
-          // Anti-spam headers
+          // Standard headers (Avoid bulk headers to prevent Gmail blocking)
           headers: {
             'X-Mailer': 'VGS Email System',
-            'X-Priority': '3',
-            'Importance': 'normal',
-            'X-MSMail-Priority': 'Normal',
-            'Precedence': 'bulk',
             'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`,
           }
         });
@@ -229,6 +238,18 @@ export async function POST(request: NextRequest) {
           error: error.message
         });
       }
+    }
+
+    if (skip_log) {
+      return NextResponse.json({
+        success: true,
+        results,
+        summary: {
+          total: recipients.length,
+          sent: results.filter((r: any) => r.sent).length,
+          failed: results.filter((r: any) => !r.sent).length
+        }
+      });
     }
 
     return await finalizeAndLog(results, recipients, templateId, googleSheetUrl, subject, sentBy);
