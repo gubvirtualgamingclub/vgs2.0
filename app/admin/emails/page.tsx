@@ -268,129 +268,132 @@ export default function EmailManagementPage() {
     setSendResult({ sent: 0, total: selectedParticipants.size, failed: 0 });
     setMessage(null);
 
+    const selectedRecipients = participants.filter(p => selectedParticipants.has(p.email));
+    const results: any[] = [];
+    let successCount = 0;
+    let failCount = 0;
+
     try {
-      const selectedRecipients = participants.filter(p => selectedParticipants.has(p.email));
+      // ----------------------------------------------------------------
+      // Common Loop Logic for Client-Side Throttling (Both Providers)
+      // ----------------------------------------------------------------
 
-      // ----------------------------------------------------------------
-      // BRANCH: EMAILJS (Client-Side Sending)
-      // ----------------------------------------------------------------
+      // Fetch EmailJS config once if needed
+      let emailJsConfig: any = null;
       if (emailProvider === 'emailjs') {
-        // 1. Fetch Config
-        const configRes = await fetch('/api/emails/config');
-        const config = await configRes.json();
-
-        if (!config.serviceId || !config.publicKey) {
+         const configRes = await fetch('/api/emails/config');
+         emailJsConfig = await configRes.json();
+         if (!emailJsConfig.serviceId || !emailJsConfig.publicKey) {
              throw new Error('EmailJS Service ID or Public Key missing in environment.');
+         }
+      }
+
+      for (const recipient of selectedRecipients) {
+        try {
+           let sent = false;
+           let errorMsg = '';
+
+           if (emailProvider === 'emailjs') {
+              // --- EmailJS Send ---
+              const payload = {
+                  service_id: emailJsConfig.serviceId,
+                  template_id: emailJsTemplateId,
+                  user_id: emailJsConfig.publicKey,
+                  template_params: {
+                      name: recipient.name || 'Participant',
+                      email: recipient.email,
+                      subject: subject,
+                      message: htmlContent,
+                      content: htmlContent
+                  }
+              };
+              const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+              });
+
+              if (res.ok) {
+                  sent = true;
+              } else {
+                  const txt = await res.text();
+                  errorMsg = txt;
+              }
+
+           } else {
+              // --- Google SMTP Send (via Backend) ---
+              // Call backend for a SINGLE recipient with skip_log=true
+              const res = await fetch('/api/emails/send', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      recipients: [recipient], // Array of 1
+                      subject,
+                      htmlContent,
+                      templateId: selectedTemplate?.id,
+                      sentBy: 'admin@vgs.com',
+                      serviceProvider: 'google_smtp',
+                      skip_log: true // Don't write to DB yet
+                  })
+              });
+
+              const data = await res.json();
+              if (res.ok && data.success && data.summary.sent === 1) {
+                  sent = true;
+              } else {
+                  errorMsg = data.error || (data.summary?.failed ? 'Failed to send' : 'Unknown error');
+              }
+           }
+
+           if (sent) {
+               results.push({ name: recipient.name, email: recipient.email, sent: true });
+               successCount++;
+           } else {
+               console.error(`Send Error (${emailProvider}) for ${recipient.email}:`, errorMsg);
+               results.push({ name: recipient.name, email: recipient.email, sent: false, error: errorMsg });
+               failCount++;
+           }
+
+        } catch (err: any) {
+            console.error(`Network/System Error for ${recipient.email}:`, err);
+            results.push({ name: recipient.name, email: recipient.email, sent: false, error: err.message });
+            failCount++;
         }
 
-        const results = [];
-        let successCount = 0;
-        let failCount = 0;
+        // Update UI
+        setSendResult({ sent: successCount, failed: failCount, total: selectedParticipants.size });
 
-        // 2. Client-Side Loop
-        for (const recipient of selectedRecipients) {
-            try {
-                const payload = {
-                    service_id: config.serviceId,
-                    template_id: emailJsTemplateId,
-                    user_id: config.publicKey,
-                    template_params: {
-                        name: recipient.name || 'Participant',
-                        email: recipient.email,
-                        subject: subject,
-                        message: htmlContent,
-                        content: htmlContent
-                    }
-                };
-
-                const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    results.push({ name: recipient.name, email: recipient.email, sent: true });
-                    successCount++;
-                } else {
-                    const txt = await res.text();
-                    console.error(`EmailJS Send Error for ${recipient.email}:`, txt);
-                    results.push({ name: recipient.name, email: recipient.email, sent: false, error: txt });
-                    failCount++;
-                }
-            } catch (err: any) {
-                console.error(`EmailJS Net Error for ${recipient.email}:`, err);
-                results.push({ name: recipient.name, email: recipient.email, sent: false, error: err.message });
-                failCount++;
-            }
-            // Update UI progress live
-            setSendResult({ sent: successCount, failed: failCount, total: selectedParticipants.size });
-        }
-
-        // 3. Log Results to Backend
-        await fetch('/api/emails/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'log_only',
-                results,
-                recipients: selectedRecipients,
-                subject,
-                templateId: selectedTemplate?.id,
-                googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
-                sentBy: 'admin@vgs.com'
-            })
-        });
-
-        fetchEmailLogs();
-        return;
+        // --- DELAY (Throttling) ---
+        // 2 seconds + random jitter (0-500ms) to mimic human behavior
+        const delay = 2000 + Math.random() * 500;
+        await new Promise(r => setTimeout(r, delay));
       }
 
       // ----------------------------------------------------------------
-      // BRANCH: GOOGLE SMTP (Server-Side Sending)
+      // Finalize: Save Log to Database
       // ----------------------------------------------------------------
-      const response = await fetch('/api/emails/send', {
+      await fetch('/api/emails/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          recipients: selectedRecipients,
-          subject, // Optional for EmailJS depending on template
-          htmlContent, // Optional for EmailJS depending on template
-          templateId: selectedTemplate?.id,
-          googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
-          sentBy: 'admin@vgs.com',
-          serviceProvider: emailProvider,
-          emailJsTemplateId: undefined
+            action: 'log_only',
+            results,
+            recipients: selectedRecipients,
+            subject,
+            templateId: selectedTemplate?.id,
+            googleSheetUrl: inputMode === 'sheet' ? googleSheetUrl : undefined,
+            sentBy: 'admin@vgs.com'
         })
       });
 
-      // Handle non-JSON responses (e.g., 500 HTML error pages)
-      const contentType = response.headers.get("content-type");
-      let data;
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        data = await response.json();
-      } else {
-        throw new Error('Server returned a non-JSON response. Check server logs.');
-      }
-
-      if (!response.ok) {
-        // If details exist (from our custom error handler), append them
-        const errorMsg = data.error || 'Failed to send emails';
-        const details = data.details ? ` ${data.details}` : '';
-        throw new Error(errorMsg + details);
-      }
-
-      setSendResult(data.summary);
       fetchEmailLogs();
 
     } catch (error: any) {
-      console.error('Send email error:', error);
-      setSendResult({ sent: 0, total: selectedParticipants.size, failed: selectedParticipants.size });
-      setMessage({ type: 'error', text: `${error.message}` });
+      console.error('Campaign Error:', error);
+      setMessage({ type: 'error', text: error.message });
     } finally {
-       if (!sendResult) {
-           setTimeout(() => setSending(false), 2000);
-       }
+       // Only clear "sending" state after a short delay so user sees 100% complete
+       setTimeout(() => setSending(false), 2000);
     }
   }
 

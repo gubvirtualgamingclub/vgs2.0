@@ -38,7 +38,8 @@ export default function EmailSendingOverlay({ isSending, progress, onComplete }:
         // DO NOT auto-close on error, wait for user to click
       }
     }
-  }, [isSending, progress]); // Removed 'show' and 'onComplete' from dep array to avoid loops, though 'show' logic is tricky here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSending, progress]); // Removed 'show' and 'onComplete' from dep array to avoid loops
 
   // Handler for manual close
   const handleClose = () => {
@@ -82,6 +83,17 @@ export default function EmailSendingOverlay({ isSending, progress, onComplete }:
                 Sending Emails...
               </h2>
               <p className="text-gray-400 mb-6">Delivering your campaign</p>
+
+              {/* Warning Message */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 mb-6 animate-pulse">
+                <p className="text-yellow-200 text-sm font-semibold flex items-center justify-center gap-2">
+                  <span className="text-xl">⚠️</span>
+                  Please keep this tab open!
+                </p>
+                <p className="text-yellow-200/70 text-xs mt-1">
+                  Closing it will stop the campaign.
+                </p>
+              </div>
 
               {/* Progress Bar */}
               <div className="w-full bg-gray-700/50 rounded-full h-4 mb-4 overflow-hidden relative">
